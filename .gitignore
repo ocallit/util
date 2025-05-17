@@ -1,0 +1,34 @@
+# Ignore IDE project files
+.idea/
+.vs/
+.vscode/
+
+# Ignore Composer vendor directory
+/vendor/
+composer.phar
+# Commit your application's lock file https://getcomposer.org/doc/01-basic-usage.md#commit-your-composer-lock-file-to-version-control
+# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
+# composer.lock
+
+# Ignore node_modules for JavaScript dependencies
+/node_modules/
+
+# Ignore build directories
+/build/
+/dist/
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore environment variable files
+.env
+.env.local
+.env.*.local
+
+/build/
+/build/*
+.phpunit/
+.phpunit/*
+.phpunit.result.cache
+

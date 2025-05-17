@@ -1,0 +1,25 @@
+{
+    "name": "ocallit/util",
+    "description": "PHP utility library providing memoization and other utilities",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ocallit",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ocallit\\Util\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ocallit\\Util\\tests\\": "tests/"
+        }
+    }
+}
