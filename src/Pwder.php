@@ -2,6 +2,8 @@
 /** @noinspection PhpMissingParamTypeInspection */
 /** @noinspection PhpRedundantOptionalArgumentInspection */
 
+namespace ocallit\Util;
+
 use Ocallit\Sqler\SqlExecutor;
 
 class Pwder {
@@ -28,17 +30,6 @@ class Pwder {
             return false;
         }
     }
-
-    public function reset() {}
-
-    public function cambia(string $user_id, #[\SensitiveParameter] string $password) {
-        $sqlComment = "/*" . __METHOD__ . "*/";
-        $newHash = $this->hash($password);
-        $this->sqlExec->query(
-          "UPDATE $sqlComment {$this->table} SET {$this->passwordColumn}  = ? WHERE {$this->primaryKey} = ?",
-          [$newHash, $user_id]);
-    }
-    public function expiro() {}
 
     public function verify(string $user_id, #[\SensitiveParameter] string $password): bool {
         $sqlComment = "/*" . __METHOD__ . "*/";

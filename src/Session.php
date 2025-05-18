@@ -11,6 +11,8 @@ if (!$session->isLoggedIn()) {
 
 */
 
+namespace ocallit\Util;
+
 class Session {
 
     public function __construct(string $cookiePath = '/', int $lifetimeSeconds = 30* 60 * 60) {
