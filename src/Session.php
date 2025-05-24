@@ -14,14 +14,15 @@ if (!$session->isLoggedIn()) {
 namespace ocallit\Util;
 
 class Session {
-
+    protected string $sessionName;
     public function __construct(string $sessionName = '', int $lifetimeSeconds = 30* 60 * 60) {
+        $this->sessionName = $sessionName;
         if(session_status() == PHP_SESSION_NONE) {
-            $this->start($sessionName,$lifetimeSeconds);
+            $this->start($lifetimeSeconds);
         }
     }
 
-    protected function start(string $sessionName, int $lifetimeSeconds): void {
+    protected function start(int $lifetimeSeconds): void {
         ini_set('session.gc_maxlifetime', $lifetimeSeconds);
         ini_set('session.cookie_lifetime', $lifetimeSeconds);
         ini_set('session.gc_probability', 1);
@@ -33,10 +34,10 @@ class Session {
           'cookie_samesite' => 'Strict', // Prevent CSRF attacks
           'cookie_lifetime' => $lifetimeSeconds,
         ];
-		if(!empty($sessionName))
-			session_name($sessionName);
+		if(!empty($this->sessionName))
+			session_name($this->sessionName);
         session_start($session_options);
-        $_SESSION['_session_name'] = $sessionName; // Store the path in session
+        $_SESSION['_session_name'] = $this->sessionName; // Store the path in session
     }
 
     protected function isHTTPS():bool {
@@ -45,10 +46,10 @@ class Session {
           ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? "") === 'https' ||
           ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? "") === 'on' || ($_SERVER['SERVER_PORT'] ?? "") === '443';
     }
-    public function isLoggedIn(): bool {return !empty( $_SESSION[($_SESSION['_session_name'] ?? "") . "\t" . 'loggedin']); }
+    public function isLoggedIn(): bool {return !empty( $_SESSION[$this->sessionName . "\t" . 'loggedin']); }
 
     public function login(array $sessionVars = []): void {
-        $_SESSION[$_SESSION['_session_name'] . "\t" . 'loggedin'] = TRUE;
+        $_SESSION[$this->sessionName . "\t" . 'loggedin'] = TRUE;
         foreach($sessionVars as $key => $value)
             $_SESSION[$key] = $value;
         session_regenerate_id(TRUE); // Regenerate session ID after login
