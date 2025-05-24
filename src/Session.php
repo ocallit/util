@@ -15,7 +15,7 @@ namespace ocallit\Util;
 
 class Session {
 
-    public function __construct(string $sessionName = '/', int $lifetimeSeconds = 30* 60 * 60) {
+    public function __construct(string $sessionName = '', int $lifetimeSeconds = 30* 60 * 60) {
         if(session_status() == PHP_SESSION_NONE) {
             $this->start($sessionName,$lifetimeSeconds);
         }
@@ -33,7 +33,8 @@ class Session {
           'cookie_samesite' => 'Strict', // Prevent CSRF attacks
           'cookie_lifetime' => $lifetimeSeconds,
         ];
-        session_name($sessionName);
+		if(!empty($sessionName))
+			session_name($sessionName);
         session_start($session_options);
         $_SESSION['_session_name'] = $sessionName; // Store the path in session
     }
