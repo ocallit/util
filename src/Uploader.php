@@ -1,5 +1,6 @@
 <?php
-namespace ocallit\Util;
+namespace Ocallit\Util;
+
 /**
  * Example usage:
  *

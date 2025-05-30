@@ -1,7 +1,7 @@
 <?php
 /** @noinspection PhpUnused */
 
-namespace ocallit\Util;
+namespace Ocallit\Util;
 
 use ReflectionException;
 use ReflectionFunction;

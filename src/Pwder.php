@@ -2,7 +2,7 @@
 /** @noinspection PhpMissingParamTypeInspection */
 /** @noinspection PhpRedundantOptionalArgumentInspection */
 
-namespace ocallit\Util;
+namespace Ocallit\Util;
 
 use Ocallit\Sqler\SqlExecutor;
 

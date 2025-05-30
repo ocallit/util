@@ -1,6 +1,7 @@
 <?php
 /** @noinspection PhpUnused */
 
+namespace Ocallit\Util;
 
 use Kreait\Firebase\Exception\DatabaseException;
 use Kreait\Firebase\Factory;

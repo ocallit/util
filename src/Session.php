@@ -11,7 +11,7 @@ if (!$session->isLoggedIn()) {
 
 */
 
-namespace ocallit\Util;
+namespace Ocallit\Util;
 
 class Session {
     protected string $sessionName;
