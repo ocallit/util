@@ -260,18 +260,19 @@ final class FileUploader {
             );
         }
 
-        // MIME type validation
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($file['tmp_name']);
-        $validExtensions = self::ALLOWED_MIME_TYPES[$mimeType] ?? [];
 
-        if(!empty($validExtensions) && !in_array('.' . $extension, $validExtensions, TRUE)) {
-            return new UploadResult(
-              FALSE,
-              '',
-              "File type does not match its extension"
-            );
-        }
+//        // MIME type validation
+//        $finfo = new finfo(FILEINFO_MIME_TYPE);
+//        $mimeType = $finfo->file($file['tmp_name']);
+//        $validExtensions = self::ALLOWED_MIME_TYPES[$mimeType] ?? [];
+//
+//        if(!empty($validExtensions) && !in_array('.' . $extension, $validExtensions, TRUE)) {
+//            return new UploadResult(
+//              FALSE,
+//              '',
+//              "File type does not match its extension"
+//            );
+//        }
 
         // Determine base filename
         $baseName = $forceFileName
