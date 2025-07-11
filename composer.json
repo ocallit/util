@@ -1,6 +1,6 @@
 {
     "name": "ocallit/util",
-    "description": "PHP utility library providing memoization and other utilities",
+    "description": "PHP utility library providing memoization, html helper writer, NaturalSort case & accent insensitive compare and multi sort, other utilities",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,8 +10,11 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "ocallit/sqler": "*"
+    },
+    "suggest": {
+        "ext-intl": "*"
     },
     "autoload": {
         "psr-4": {

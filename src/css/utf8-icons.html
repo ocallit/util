@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <title>UTF-8 Icons</title>
+    <style>
+        body {margin: 1em;}
+        h1, h2 {color: #1d2b3a;}
+        input, button {
+            font-size: 1rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+        .safe { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .unsafe { background: #f8d7da; color: #721c24; }
+        table {
+            border-collapse: collapse;
+            border: 1px solid #dee2e6;
+            margin-top: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background: #e9ecef;
+        }
+        code {
+            background: #f1f3f5;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .symbol {
+            font-size: 1.5rem;
+            text-align: center;
+            font-family: system-ui, "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<h1>UTF-8 Symbol Compatibility Checker</h1>
+
+<p>Enter a decimal HTML entity (e.g. <code>128691</code> for 🚳) to check if it's compatible across Safari iOS/macOS, Android, and Windows.</p>
+
+<input type="number" id="codepoint" placeholder="Enter decimal codepoint">
+<button onclick="checkSymbol()">Check Compatibility</button>
+
+<div id="output" class="result"></div>
+
+<pre>
+.symbol {
+    text-align: center; vertical-align:middle;
+    font-family: system-ui, "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+}
+</pre>
+<h2>Unicode Range Reference for Web Compatibility</h2>
+<p>This table shows general compatibility of different Unicode blocks with browsers and devices.</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Decimal Range</th>
+        <th>Description</th>
+        <th>Unicode</th>
+        <th>Web Compatibility</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>0–999</td>
+        <td>Basic Latin, ASCII</td>
+        <td>U+0000–U+03E7</td>
+        <td>Universally supported</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>1000–8999</td>
+        <td>Math, Arrows, Technical</td>
+        <td>U+03E8–U+2327</td>
+        <td>Safe in all browsers</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>9000–9999</td>
+        <td>Box Drawing, Dingbats</td>
+        <td>U+2328–U+270F</td>
+        <td>Mostly supported</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>9728–9983</td>
+        <td>Misc Symbols (☀ ☕ ☂)</td>
+        <td>U+2600–U+26FF</td>
+        <td>Widely supported</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>9984–10175</td>
+        <td>Dingbats, UI Icons</td>
+        <td>U+2700–U+27FF</td>
+        <td>Reliable in all platforms</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>10176–10223</td>
+        <td>Enclosed Alphanumerics</td>
+        <td>U+2800–U+283F</td>
+        <td>Used often in info icons</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>127744–128511</td>
+        <td>Symbols & Pictographs</td>
+        <td>U+1F300–U+1F5FF</td>
+        <td>Emoji, UI, signs (🚫 📷 📁)</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>128512–128591</td>
+        <td>Emoticons (😄 😅 😃)</td>
+        <td>U+1F600–U+1F64F</td>
+        <td>Supported iOS 10+ / Android 6+</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>128640–128767</td>
+        <td>Transport, Map Symbols</td>
+        <td>U+1F680–U+1F6FF</td>
+        <td>Traffic signs (🚲 🚧 🛒)</td>
+        <td class="safe">✅ Safe</td>
+    </tr>
+    <tr>
+        <td>128768–129500</td>
+        <td>Newer emoji (🧠 🥰 🦄)</td>
+        <td>U+1F700+</td>
+        <td>iOS 12+/Android 9+ only</td>
+        <td class="warning">⚠️ Test first</td>
+    </tr>
+    <tr>
+        <td>129500+</td>
+        <td>Emoji 13+ (🪟 🫠 🛻)</td>
+        <td>U+1FA00+</td>
+        <td>iOS 14+/Android 11+</td>
+        <td class="unsafe">❌ Not safe</td>
+    </tr>
+    </tbody>
+</table>
+
+<table>
+    <thead>
+    <tr>
+        <th>Preview</th>
+        <th>HTML Entity</th>
+        <th>Description / Usage</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Arrows -->
+    <tr><td class="symbol">&#8592;</td><td><code>&amp;#8592;</code></td><td>Left arrow</td></tr>
+    <tr><td class="symbol">&#8593;</td><td><code>&amp;#8593;</code></td><td>Up arrow</td></tr>
+    <tr><td class="symbol">&#8594;</td><td><code>&amp;#8594;</code></td><td>Right arrow</td></tr>
+    <tr><td class="symbol">&#8595;</td><td><code>&amp;#8595;</code></td><td>Down arrow</td></tr>
+    <tr><td class="symbol">&#8680;</td><td><code>&amp;#8680;</code></td><td>Rightwards arrow (next, forward)</td></tr>
+    <tr><td class="symbol">&#10148;</td><td><code>&amp;#10148;</code></td><td>Black arrow (CTA or continue)</td></tr>
+
+    <!-- Status -->
+    <tr><td class="symbol">&#10003;</td><td><code>&amp;#10003;</code></td><td>Check mark (light)</td></tr>
+    <tr><td class="symbol">&#10004;</td><td><code>&amp;#10004;</code></td><td>Check mark (heavy)</td></tr>
+    <tr><td class="symbol">&#10007;</td><td><code>&amp;#10007;</code></td><td>Cross (X, cancel)</td></tr>
+    <tr><td class="symbol">&#9888;</td><td><code>&amp;#9888;</code></td><td>Warning</td></tr>
+    <tr><td class="symbol">&#10071;</td><td><code>&amp;#10071;</code></td><td>Exclamation mark</td></tr>
+    <tr><td class="symbol">&#9432;</td><td><code>&amp;#9432;</code></td><td>Info (circled 'i')</td></tr>
+
+    <!-- Actions -->
+    <tr><td class="symbol">&#128190;</td><td><code>&amp;#128190;</code></td><td>💾 Save</td></tr>
+    <tr><td class="symbol">&#128228;</td><td><code>&amp;#128228;</code></td><td>📤 Upload</td></tr>
+    <tr><td class="symbol">&#128229;</td><td><code>&amp;#128229;</code></td><td>📥 Download / Inbox</td></tr>
+    <tr><td class="symbol">&#128247;</td><td><code>&amp;#128247;</code></td><td>📷 Take photo</td></tr>
+    <tr><td class="symbol">&#128722;</td><td><code>&amp;#128722;</code></td><td>🛒 Shopping cart</td></tr>
+    <tr><td class="symbol">&#128717;</td><td><code>&amp;#128717;</code></td><td>🛍️ Shopping bag</td></tr>
+    <tr><td class="symbol">&#128179;</td><td><code>&amp;#128179;</code></td><td>💳 Credit card / payment</td></tr>
+    <tr><td class="symbol">&#128465;</td><td><code>&amp;#128465;</code></td><td>🗑️ Delete / Trash</td></tr>
+
+    <!-- Communication -->
+    <tr><td class="symbol">&#9993;</td><td><code>&amp;#9993;</code></td><td>✉️ Email</td></tr>
+    <tr><td class="symbol">&#128222;</td><td><code>&amp;#128222;</code></td><td>📞 Phone</td></tr>
+    <tr><td class="symbol">&#128172;</td><td><code>&amp;#128172;</code></td><td>💬 Chat / Message</td></tr>
+    <tr><td class="symbol">&#128227;</td><td><code>&amp;#128227;</code></td><td>📢 Megaphone / Announce</td></tr>
+
+    <!-- Time -->
+    <tr><td class="symbol">&#9200;</td><td><code>&amp;#9200;</code></td><td>⏰ Alarm</td></tr>
+    <tr><td class="symbol">&#8987;</td><td><code>&amp;#8987;</code></td><td>⌛ Hourglass</td></tr>
+    <tr><td class="symbol">&#128338;</td><td><code>&amp;#128338;</code></td><td>🕒 Clock</td></tr>
+
+    <!-- Files -->
+    <tr><td class="symbol">&#128193;</td><td><code>&amp;#128193;</code></td><td>📁 Folder</td></tr>
+    <tr><td class="symbol">&#128221;</td><td><code>&amp;#128221;</code></td><td>📝 Memo / note</td></tr>
+    <tr><td class="symbol">&#128204;</td><td><code>&amp;#128204;</code></td><td>📌 Pin</td></tr>
+    <tr><td class="symbol">&#128206;</td><td><code>&amp;#128206;</code></td><td>📎 Attachment</td></tr>
+    <tr><td class="symbol">&#128196;</td><td><code>&amp;#128196;</code></td><td>📄 Document</td></tr>
+
+    <!-- UI / Misc -->
+    <tr><td class="symbol">&#9881;</td><td><code>&amp;#9881;</code></td><td>⚙️ Settings / Gear</td></tr>
+    <tr><td class="symbol">&#128269;</td><td><code>&amp;#128269;</code></td><td>🔍 Search</td></tr>
+    <tr><td class="symbol">&#128274;</td><td><code>&amp;#128274;</code></td><td>🔒 Lock</td></tr>
+    <tr><td class="symbol">&#128275;</td><td><code>&amp;#128275;</code></td><td>🔓 Unlock</td></tr>
+    <tr><td class="symbol">&#128276;</td><td><code>&amp;#128276;</code></td><td>🔔 Notification</td></tr>
+    <tr><td class="symbol">&#128277;</td><td><code>&amp;#128277;</code></td><td>🔕 Mute Notifications</td></tr>
+    <tr><td class="symbol">&#128260;</td><td><code>&amp;#128260;</code></td><td>🔄 Refresh / Sync</td></tr>
+
+    <!-- Shapes -->
+    <tr><td class="symbol">&#9679;</td><td><code>&amp;#9679;</code></td><td>● Filled circle</td></tr>
+    <tr><td class="symbol">&#9675;</td><td><code>&amp;#9675;</code></td><td>○ Hollow circle</td></tr>
+    <tr><td class="symbol">&#9632;</td><td><code>&amp;#9632;</code></td><td>■ Filled square</td></tr>
+    <tr><td class="symbol">&#9633;</td><td><code>&amp;#9633;</code></td><td>□ Hollow square</td></tr>
+    <tr><td class="symbol">&#9635;</td><td><code>&amp;#9635;</code></td><td>▣ Checked box outline</td></tr>
+    <tr><td class="symbol">&#9642;</td><td><code>&amp;#9642;</code></td><td>▪ Small filled square</td></tr>
+
+    </tbody>
+</table>
+
+<script>
+    function checkSymbol() {
+        const input = document.getElementById("codepoint").value.trim();
+        const output = document.getElementById("output");
+        const code = parseInt(input, 10);
+
+        if (isNaN(code)) {
+            output.textContent = "Please enter a valid number.";
+            output.className = "result warning";
+            return;
+        }
+
+        let verdict = "";
+        let status = "";
+        let char = `&#${code};`;
+
+        if (code >= 0 && code <= 128767) {
+            verdict = "✅ Safe to use across iOS/macOS/Android/Windows since ~2016.";
+            status = "safe";
+        } else if (code >= 128768 && code <= 129500) {
+            verdict = "⚠ Likely supported on iOS 13+, Android 10+, macOS Catalina+. Test for older devices.";
+            status = "warning";
+        } else if (code > 129500) {
+            verdict = "❌ Not safe. Emoji or symbol requires newer OS (iOS 14+, Android 11+). Avoid for compatibility.";
+            status = "unsafe";
+        } else {
+            verdict = "❌ Invalid or non-displayable character.";
+            status = "unsafe";
+        }
+
+        output.innerHTML = `
+        <strong>Character:</strong> ${char} <span style="font-size:2rem">${String.fromCodePoint(code)}</span><br>
+        <strong>Code:</strong> ${code}<br>
+        <strong>Status:</strong> ${verdict}
+      `;
+        output.className = "result " + status;
+    }
+</script>
+
+</body>
+</html>

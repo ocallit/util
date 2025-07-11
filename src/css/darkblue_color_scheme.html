@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Blue Color Scheme</title>
+    <style>
+        :root {
+            /* Primary - Main brand color */
+            --color-primary: #00008b;        /* darkblue */
+            --color-primary-bg: #ffffff;     /* white */
+            
+            /* Secondary - Complementary to primary */
+            --color-secondary: #4682b4;      /* steelblue - lighter blue for contrast */
+            --color-secondary-bg: #f8f9fa;   /* very light gray */
+            
+            /* Tertiary - Supporting color */
+            --color-tertiary: #708090;       /* slategray - neutral blue-gray */
+            --color-tertiary-bg: #f5f5f5;    /* light gray */
+            
+            /* Accent - Eye-catching highlights */
+            --color-accent: #ff6b35;         /* vibrant orange - complementary to blue */
+            --color-accent-bg: #fff8f5;      /* very light orange tint */
+            
+            /* Neutral - Text and backgrounds */
+            --color-neutral: #495057;        /* dark gray */
+            --color-neutral-bg: #f8f9fa;     /* light gray */
+            
+            /* Success - Positive actions */
+            --color-success: #28a745;        /* medium green */
+            --color-success-bg: #f8fff9;     /* very light green tint */
+            
+            /* Fail/Error - Critical issues */
+            --color-fail: #dc3545;           /* medium red */
+            --color-fail-bg: #fff8f8;        /* very light red tint */
+            
+            /* Info - Informational messages */
+            --color-info: #17a2b8;           /* teal - blue family but distinct */
+            --color-info-bg: #f0fdff;        /* very light cyan tint */
+            
+            /* Warning - Caution messages */
+            --color-warning: #ffc107;        /* amber yellow */
+            --color-warning-bg: #fffef5;     /* very light yellow tint */
+            
+            /* Error - Same as fail for consistency */
+            --color-error: #dc3545;          /* medium red */
+            --color-error-bg: #fff8f8;       /* very light red tint */
+
+            /* Additional utility colors */
+            --color-text: #212529;           /* dark gray for body text */
+            --color-text-light: #6c757d;     /* lighter gray for secondary text */
+            --color-text-muted: #adb5bd;     /* muted gray for disabled text */
+            --color-shadow: rgba(0, 0, 0, 0.15);  /* semi-transparent black for shadows */
+            --color-border: #dee2e6;         /* light gray for borders */
+            --color-border-dark: #adb5bd;    /* darker gray for emphasized borders */
+            --color-surface: #ffffff;        /* white surface for cards, modals, etc. */
+
+            /* Elevation levels */
+            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+            --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+            --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+            
+            /* Tinted elevation levels */
+            --elevation-1-primary: 0 1px 3px rgba(0, 0, 139, 0.2), 0 1px 2px rgba(0, 0, 139, 0.15);
+            --elevation-2-primary: 0 3px 6px rgba(0, 0, 139, 0.25), 0 2px 4px rgba(0, 0, 139, 0.2);
+            --elevation-3-primary: 0 10px 20px rgba(0, 0, 139, 0.25), 0 3px 6px rgba(0, 0, 139, 0.15);
+            
+            --elevation-1-accent: 0 1px 3px rgba(255, 107, 53, 0.2), 0 1px 2px rgba(255, 107, 53, 0.15);
+            --elevation-2-accent: 0 3px 6px rgba(255, 107, 53, 0.25), 0 2px 4px rgba(255, 107, 53, 0.2);
+            --elevation-3-accent: 0 10px 20px rgba(255, 107, 53, 0.25), 0 3px 6px rgba(255, 107, 53, 0.15);
+        }
+
+        /* Base styles - keep default HTML styling minimal */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--color-neutral-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        /* SCH Layout Component Classes */
+        .sch_header {
+            background: var(--color-primary);
+            color: var(--color-primary-bg);
+            padding: 20px;
+            box-shadow: var(--elevation-2);
+        }
+
+        .sch_nav {
+            background: var(--color-secondary);
+            color: var(--color-secondary-bg);
+            padding: 10px 20px;
+        }
+
+        .sch_nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .sch_nav a {
+            color: var(--color-secondary-bg);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sch_nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sch_section {
+            background: var(--color-surface);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--elevation-1);
+        }
+
+        .sch_section--elevated {
+            box-shadow: var(--elevation-3);
+        }
+
+        .sch_article {
+            background: var(--color-surface);
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid var(--color-primary);
+            border-radius: 0 4px 4px 0;
+            box-shadow: var(--elevation-1);
+        }
+
+        .sch_aside {
+            background: var(--color-tertiary-bg);
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            color: var(--color-text-light);
+            box-shadow: var(--elevation-1);
+        }
+
+        /* SCH Table Classes */
+        .sch_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--color-surface);
+            box-shadow: var(--elevation-2);
+        }
+
+        .sch_table_caption {
+            background: var(--color-primary);
+            color: var(--color-primary-bg);
+            padding: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .sch_table th {
+            background: var(--color-secondary);
+            color: var(--color-secondary-bg);
+            padding: 12px;
+            border: 1px solid var(--color-border-dark);
+            text-align: left;
+        }
+
+        .sch_table td {
+            padding: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .sch_table thead th {
+            background: var(--color-primary);
+            color: var(--color-primary-bg);
+        }
+
+        .sch_table tfoot td {
+            background: var(--color-tertiary-bg);
+            font-weight: bold;
+            border: 1px solid var(--color-border-dark);
+        }
+
+        .sch_table tbody tr:nth-child(even) {
+            background: var(--color-neutral-bg);
+        }
+
+        .sch_table tbody tr:hover {
+            background: var(--color-info-bg);
+        }
+
+        /* SCH List Classes */
+        .sch_list {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+
+        .sch_list li {
+            margin: 5px 0;
+            color: var(--color-text);
+        }
+
+        .sch_list--unordered li::marker {
+            color: var(--color-primary);
+        }
+
+        .sch_list--ordered li::marker {
+            color: var(--color-primary);
+            font-weight: bold;
+        }
+
+        /* SCH Definition List Classes */
+        .sch_definition_list {
+            margin: 15px 0;
+        }
+
+        .sch_definition_term {
+            font-weight: bold;
+            color: var(--color-primary);
+            margin: 10px 0 5px 0;
+        }
+
+        .sch_definition_description {
+            margin: 0 0 10px 20px;
+            color: var(--color-text);
+        }
+
+        /* SCH Button Classes */
+        .sch_button {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+            box-shadow: var(--elevation-1);
+        }
+
+        .sch_button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-2);
+        }
+
+        .sch_button--save {
+            background: var(--color-success);
+            color: var(--color-success-bg);
+        }
+
+        .sch_button--save:hover {
+            background: #218838;
+            box-shadow: var(--elevation-2);
+        }
+
+        .sch_button--cancel {
+            background: var(--color-tertiary);
+            color: var(--color-tertiary-bg);
+        }
+
+        .sch_button--cancel:hover {
+            background: #5a6268;
+        }
+
+        .sch_button--execute {
+            background: var(--color-accent);
+            color: var(--color-accent-bg);
+        }
+
+        .sch_button--execute:hover {
+            background: #e55a2b;
+        }
+
+        /* Elevation utility classes */
+        .sch_elevation--1 {
+            box-shadow: var(--elevation-1);
+        }
+
+        .sch_elevation--2 {
+            box-shadow: var(--elevation-2);
+        }
+
+        .sch_elevation--3 {
+            box-shadow: var(--elevation-3);
+        }
+
+        .sch_elevation--1-primary {
+            box-shadow: var(--elevation-1-primary);
+        }
+
+        .sch_elevation--2-primary {
+            box-shadow: var(--elevation-2-primary);
+        }
+
+        .sch_elevation--3-primary {
+            box-shadow: var(--elevation-3-primary);
+        }
+
+        .sch_elevation--1-accent {
+            box-shadow: var(--elevation-1-accent);
+        }
+
+        .sch_elevation--2-accent {
+            box-shadow: var(--elevation-2-accent);
+        }
+
+        .sch_elevation--3-accent {
+            box-shadow: var(--elevation-3-accent);
+        }
+
+        /* Surface utility class */
+        .sch_surface {
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* Headings - keep minimal default styling but add sch classes */
+        .sch_heading--primary {
+            color: var(--color-primary);
+            margin-top: 0;
+        }
+
+        .sch_heading--secondary {
+            color: var(--color-secondary);
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 5px;
+        }
+
+        .color-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .color-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .color-swatch {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .color-info {
+            padding: 10px;
+            font-size: 12px;
+            background: white;
+        }
+
+        .color-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .color-value {
+            font-family: monospace;
+            color: #666;
+        }
+
+        /* Color examples */
+        .primary { background: var(--color-primary); color: var(--color-primary-bg); }
+        .secondary { background: var(--color-secondary); color: var(--color-secondary-bg); }
+        .tertiary { background: var(--color-tertiary); color: var(--color-tertiary-bg); }
+        .accent { background: var(--color-accent); color: var(--color-accent-bg); }
+        .neutral { background: var(--color-neutral); color: var(--color-neutral-bg); }
+        .success { background: var(--color-success); color: var(--color-success-bg); }
+        .fail { background: var(--color-fail); color: var(--color-fail-bg); }
+        .info { background: var(--color-info); color: var(--color-info-bg); }
+        .warning { background: var(--color-warning); color: var(--color-neutral); }
+        .error { background: var(--color-error); color: var(--color-error-bg); }
+
+        h1 {
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .explanation {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <h1>Dark Blue Color Scheme</h1>
+    
+    <div class="explanation">
+        <h3>Enhanced Color Properties:</h3>
+        <p><strong>Surface Color:</strong> #ffffff (white) - clean background for cards, modals, and content areas</p>
+        <p><strong>Text Colors:</strong> Dark gray (#212529), medium gray (#6c757d), light gray (#adb5bd)</p>
+        <p><strong>Border Colors:</strong> Light gray (#dee2e6) and dark gray (#adb5bd)</p>
+        
+        <h4>Elevation System:</h4>
+        <p><strong>Level 1:</strong> Subtle shadow for slight elevation</p>
+        <p><strong>Level 2:</strong> Medium shadow for cards and panels</p>
+        <p><strong>Level 3:</strong> Strong shadow for modals and overlays</p>
+        <p><strong>Tinted Elevations:</strong> Primary and accent color variations for themed components</p>
+    </div>
+
+    <header class="sch_header">
+        <h1 class="sch_heading--primary">Company Website Header (sch_header)</h1>
+        <p>Using primary color background with white text and elevation-2 shadow</p>
+    </header>
+
+    <nav class="sch_nav">
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="sch_section">
+        <h2 class="sch_heading--secondary">SCH Class System Demonstration</h2>
+        <p>All styling is now done through classes with the <code>sch_</code> prefix. This keeps your default HTML styling clean and provides reusable components.</p>
+        
+        <article class="sch_article">
+            <h3>Article with sch_article class</h3>
+            <p>Articles use the surface color with primary border accent and elevation-1 shadow.</p>
+        </article>
+
+        <aside class="sch_aside">
+            <h4>Sidebar with sch_aside class</h4>
+            <p>Aside elements use tertiary background with subtle elevation.</p>
+        </aside>
+
+        <div class="sch_surface sch_elevation--3">
+            <h4>Surface with High Elevation</h4>
+            <p>This demonstrates the <code>sch_surface</code> class combined with <code>sch_elevation--3</code> for maximum depth.</p>
+        </div>
+
+        <h3>Sample Table with sch_table classes</h3>
+        <table class="sch_table">
+            <caption class="sch_table_caption">Sales Report Q1 2025</caption>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                    <th>Growth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Widget A</td>
+                    <td>1,250</td>
+                    <td>$25,000</td>
+                    <td>+15%</td>
+                </tr>
+                <tr>
+                    <td>Widget B</td>
+                    <td>890</td>
+                    <td>$17,800</td>
+                    <td>+8%</td>
+                </tr>
+                <tr>
+                    <td>Widget C</td>
+                    <td>2,100</td>
+                    <td>$42,000</td>
+                    <td>+22%</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>4,240</strong></td>
+                    <td><strong>$84,800</strong></td>
+                    <td><strong>+15%</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <h3>Lists with SCH Classes</h3>
+        
+        <h4>Unordered List (sch_list sch_list--unordered)</h4>
+        <ul class="sch_list sch_list--unordered">
+            <li>First item with primary color bullet</li>
+            <li>Second item showing consistency</li>
+            <li>Third item demonstrating readability</li>
+        </ul>
+
+        <h4>Ordered List (sch_list sch_list--ordered)</h4>
+        <ol class="sch_list sch_list--ordered">
+            <li>Step one in the process</li>
+            <li>Step two with numbered markers</li>
+            <li>Final step completing the sequence</li>
+        </ol>
+
+        <h4>Definition List (sch_definition_list)</h4>
+        <dl class="sch_definition_list">
+            <dt class="sch_definition_term">Primary Color</dt>
+            <dd class="sch_definition_description">The main brand color used for headers and important elements</dd>
+            
+            <dt class="sch_definition_term">Secondary Color</dt>
+            <dd class="sch_definition_description">A complementary color for navigation and sub-headings</dd>
+            
+            <dt class="sch_definition_term">Surface Color</dt>
+            <dd class="sch_definition_description">Clean white background for content areas and components</dd>
+        </dl>
+
+        <h3>Action Buttons with SCH Classes</h3>
+        <div style="margin: 20px 0;">
+            <button class="sch_button sch_button--save">Save</button>
+            <button class="sch_button sch_button--cancel">Cancel</button>
+            <button class="sch_button sch_button--execute">Execute</button>
+        </div>
+
+        <h3>Elevation Examples</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+            <div class="sch_surface sch_elevation--1" style="padding: 15px; text-align: center;">
+                <strong>Elevation 1</strong><br>Subtle depth
+            </div>
+            <div class="sch_surface sch_elevation--2" style="padding: 15px; text-align: center;">
+                <strong>Elevation 2</strong><br>Card depth
+            </div>
+            <div class="sch_surface sch_elevation--3" style="padding: 15px; text-align: center;">
+                <strong>Elevation 3</strong><br>Modal depth
+            </div>
+        </div>
+
+        <h4>Tinted Elevations</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+            <div class="sch_surface sch_elevation--2-primary" style="padding: 15px; text-align: center;">
+                <strong>Primary Tinted</strong><br>Blue shadow
+            </div>
+            <div class="sch_surface sch_elevation--2-accent" style="padding: 15px; text-align: center;">
+                <strong>Accent Tinted</strong><br>Orange shadow
+            </div>
+        </div>
+    </section>>
+        <table>
+            <caption>Sales Report Q1 2025</caption>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                    <th>Growth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Widget A</td>
+                    <td>1,250</td>
+                    <td>$25,000</td>
+                    <td>+15%</td>
+                </tr>
+                <tr>
+                    <td>Widget B</td>
+                    <td>890</td>
+                    <td>$17,800</td>
+                    <td>+8%</td>
+                </tr>
+                <tr>
+                    <td>Widget C</td>
+                    <td>2,100</td>
+                    <td>$42,000</td>
+                    <td>+22%</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>4,240</strong></td>
+                    <td><strong>$84,800</strong></td>
+                    <td><strong>+15%</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <h3>Lists and Definitions</h3>
+        
+        <h4>Unordered List</h4>
+        <ul>
+            <li>First item with primary color bullet</li>
+            <li>Second item showing consistency</li>
+            <li>Third item demonstrating readability</li>
+        </ul>
+
+        <h4>Ordered List</h4>
+        <ol>
+            <li>Step one in the process</li>
+            <li>Step two with numbered markers</li>
+            <li>Final step completing the sequence</li>
+        </ol>
+
+        <h4>Definition List</h4>
+        <dl>
+            <dt>Primary Color</dt>
+            <dd>The main brand color used for headers and important elements</dd>
+            
+            <dt>Secondary Color</dt>
+            <dd>A complementary color for navigation and sub-headings</dd>
+            
+            <dt>Accent Color</dt>
+            <dd>A contrasting color used sparingly for calls-to-action</dd>
+        </dl>
+
+        <h3>Action Buttons</h3>
+        <div style="margin: 20px 0;">
+            <button class="btn-save">Save</button>
+            <button class="btn-cancel">Cancel</button>
+            <button class="btn-execute">Execute</button>
+        </div>
+    </section>
+
+    <div class="color-demo">
+        <div class="color-card">
+            <div class="color-swatch primary">Primary</div>
+            <div class="color-info">
+                <div class="color-name">Primary</div>
+                <div class="color-value">#00008b (darkblue)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch secondary">Secondary</div>
+            <div class="color-info">
+                <div class="color-name">Secondary</div>
+                <div class="color-value">#4682b4 (steelblue)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch tertiary">Tertiary</div>
+            <div class="color-info">
+                <div class="color-name">Tertiary</div>
+                <div class="color-value">#708090 (slategray)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch accent">Accent</div>
+            <div class="color-info">
+                <div class="color-name">Accent</div>
+                <div class="color-value">#ff6b35 (orange)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch neutral">Neutral</div>
+            <div class="color-info">
+                <div class="color-name">Neutral</div>
+                <div class="color-value">#495057 (dark gray)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch success">Success</div>
+            <div class="color-info">
+                <div class="color-name">Success</div>
+                <div class="color-value">#28a745 (green)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch fail">Fail</div>
+            <div class="color-info">
+                <div class="color-name">Fail</div>
+                <div class="color-value">#dc3545 (red)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch info">Info</div>
+            <div class="color-info">
+                <div class="color-name">Info</div>
+                <div class="color-value">#17a2b8 (teal)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch warning">Warning</div>
+            <div class="color-info">
+                <div class="color-name">Warning</div>
+                <div class="color-value">#ffc107 (amber)</div>
+            </div>
+        </div>
+
+        <div class="color-card">
+            <div class="color-swatch error">Error</div>
+            <div class="color-info">
+                <div class="color-name">Error</div>
+                <div class="color-value">#dc3545 (red)</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

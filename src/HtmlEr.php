@@ -1,6 +1,5 @@
 <?php
 /** @noinspection PhpRedundantOptionalArgumentInspection */
-/** @noinspection PhpMissingParamTypeInspection */
 /** @noinspection PhpUnused */
 
 // table see iaTable,
@@ -11,11 +10,25 @@
 
 
 namespace Ocallit\Util;
+
 use Stringable;
+use function in_array;
+use function is_array;
 
 class HtmlEr {
 
-
+    /**
+     * Generates a string of HTML options for a select element, marking the specified values as selected
+     * The $options parameter can be
+     *     key-value associative array key is the value and value is the text
+     *     associative array  see meta
+     *    indexed array (value is both value and te)
+     *
+     * @param array $options An associative array or indexed array of options.
+     * @param array|string $selectedValues The value(s) to be selected.
+     * @param array $meta Optional metadata for value, text, and attributes. ['value' => 'id', 'text' => 'text', 'attr' => ['class', 'style', 'title', 'disabled', 'id']]
+     * @return string A string of HTML option elements.
+     */
     public function options(
       array        $options,
       array|string $selectedValues,
@@ -28,8 +41,8 @@ class HtmlEr {
         foreach($options as $key => $value) {
             if(is_array($value)) {
                 $attributes = [];
-                $val = $value[$meta['value'] ?? 'id'] ?? reset($value);
-                $text = $value[$meta['text'] ?? 'text'] ?? array_values($value)[1] ?? reset($value);
+                $val = $value[$meta['value'] ?? 'id'] ?? $this->array_first($value) ?? "";
+                $text = $value[$meta['text'] ?? 'text'] ?? array_values($value)[1] ?? $this->array_first($value) ?? "";
                 foreach($value as $attrName => $attrValue) {
                     if(str_starts_with($attrName, 'data')) {
                         $attributes[] = $this->attribute($attrName, $attrValue);
@@ -44,9 +57,9 @@ class HtmlEr {
                 continue;
             }
             if($isList)
-                $opt[] = "<option " . $this->selected($value, $selectedValues) . ">" . htmlentities($value) . "</option>";
+                $opt[] = "<option " . $this->selected((string)$value, $selectedValues) . ">" . htmlentities((string)$value) . "</option>";
             else
-                $opt[] = "<option " . $this->selected($key, $selectedValues) . ">" . htmlentities($value) . "</option>";
+                $opt[] = "<option " . $this->selected($key, $selectedValues) . ">" . htmlentities((string)$value) . "</option>";
         }
         return implode("", $opt);
     }
@@ -59,13 +72,10 @@ class HtmlEr {
      * @return string " value='$value' " or " value='$value' selected='selected' "
      */
     public function selected($value, $selectedValues): string {
-        $val = $value instanceof Stringable ? (string)$value : $value;
-        $valueTag = " value='" . $this->value((string)$val) . "' ";
+        $valueTag = $this->attribute("value", $value);
         if(is_array($selectedValues))
             return $valueTag . (in_array($value, $selectedValues, FALSE) ? " selected='selected' " : " ");
-        if($selectedValues instanceof Stringable)
-            return $valueTag . ((string)$selectedValues == $val ? " selected='selected' " : " ");
-        return $valueTag . ($selectedValues == $value ? " selected='selected' " : " ");
+        return $valueTag . ((string)$selectedValues == (string)$value ? " selected='selected' " : " ");
     }
 
     /**
@@ -76,13 +86,10 @@ class HtmlEr {
      * @return string " value='$value' " or " value='$value' selected='checked "
      */
     public function checked($value, $checkedValues): string {
-        $val = $value instanceof Stringable ? (string)$value : $value;
-        $valueTag = $this->attribute("value", $val);
+        $valueTag = $this->attribute("value", $value);
         if(is_array($checkedValues))
-            return $valueTag . (in_array($val, $checkedValues, FALSE) ? "checked='checked' " : " ");
-        if($checkedValues instanceof Stringable)
-            return $valueTag . ((string)$checkedValues === $val ? " checked='checked' " : " ");
-        return $valueTag . ($checkedValues == $value ? " checked='checked' " : " ");
+            return $valueTag . (in_array($value, $checkedValues, FALSE) ? "checked='checked' " : " ");
+        return $valueTag . ((string)$checkedValues == (string)$value ? " checked='checked' " : " ");
     }
 
     public function array2attributes(array $attributes): string {
@@ -107,9 +114,12 @@ class HtmlEr {
         return $name . '="' . str_replace(['"', "'"], ['&#34', '&#39;'], (string)$value) . '"';
     }
 
-
     public function attributeValue($value): string {
-        return '"' . str_replace(['"', "'"], ['&#34', '&#39;'], (string)$value) . '"';
+        return '"' . str_replace(['"', "'"], ['&#34;', '&#39;'], (string)$value) . '"';
+    }
+
+    protected function array_first(array $array): mixed {
+        return $array === [] ? null : $array[array_key_first($array)];
     }
 
 }

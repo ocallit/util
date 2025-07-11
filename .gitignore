@@ -1,5 +1,6 @@
 # Ignore IDE project files
 .idea/
+.junie/
 .vs/
 .vscode/
 

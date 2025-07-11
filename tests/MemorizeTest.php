@@ -5,6 +5,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ollicat\util\Memorize;
 
+require_once(__DIR__ . "/../src/Memorize.php");
 class DummyParamClass {
     public static function staticMethod(int $x, string $y = 'foo'): void {}
 }

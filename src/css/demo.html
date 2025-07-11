@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCH Color Scheme Demo</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+    <div class="explanation">
+        <h3>SCH Color Scheme System</h3>
+        <p><strong>Surface Color:</strong> #ffffff (white) - clean background for cards, modals, and content areas</p>
+        <p><strong>Text Colors:</strong> Dark gray (#212529), medium gray (#6c757d), light gray (#adb5bd)</p>
+        <p><strong>Border Colors:</strong> Light gray (#dee2e6) and dark gray (#adb5bd)</p>
+        
+        <h4>Elevation System:</h4>
+        <p><strong>Normal:</strong> --elevation-1, --elevation-2, --elevation-3</p>
+        <p><strong>Tinted:</strong> --elevation-*-primary, --elevation-*-accent</p>
+        <p><strong>Glass:</strong> --elevation-glass-* (bottom-right shadows only)</p>
+    </div>
+
+    <!-- Color Swatches -->
+    <div class="color-demo">
+        <div class="color-card">
+            <div class="color-swatch primary">Primary</div>
+            <div class="color-info">
+                <div class="color-name">Primary</div>
+                <div class="color-value">#00008b (darkblue)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch secondary">Secondary</div>
+            <div class="color-info">
+                <div class="color-name">Secondary</div>
+                <div class="color-value">#4682b4 (steelblue)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch accent">Accent</div>
+            <div class="color-info">
+                <div class="color-name">Accent</div>
+                <div class="color-value">#ff6b35 (orange)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch success">Success</div>
+            <div class="color-info">
+                <div class="color-name">Success</div>
+                <div class="color-value">#28a745 (green)</div>
+            </div>
+        </div>
+    </div>
+
+    <header class="sch_header">
+        <h1 class="sch_heading--primary">SCH Component Demo</h1>
+        <p>Complete class-based styling system</p>
+    </header>
+
+    <nav class="sch_nav">
+        <ul>
+            <li><a href="#colors">Colors</a></li>
+            <li><a href="#components">Components</a></li>
+            <li><a href="#elevation">Elevation</a></li>
+        </ul>
+    </nav>
+
+    <section class="sch_section">
+        <h2 class="sch_heading--secondary">Layout Components</h2>
+        
+        <article class="sch_article">
+            <h3>Article Component</h3>
+            <p>Uses sch_article class with primary border accent.</p>
+        </article>
+
+        <aside class="sch_aside">
+            <h4>Aside Component</h4>
+            <p>Tertiary background with subtle styling.</p>
+        </aside>
+
+        <!-- Table Demo -->
+        <table class="sch_table">
+            <caption class="sch_table_caption">Sample Data Table</caption>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Widget A</td>
+                    <td>$1,250</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td>Widget B</td>
+                    <td>$890</td>
+                    <td>Pending</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>$2,140</strong></td>
+                    <td><strong>--</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Lists Demo -->
+        <h3>List Components</h3>
+        <ul class="sch_list sch_list--unordered">
+            <li>Unordered list item</li>
+            <li>With primary color bullets</li>
+        </ul>
+
+        <ol class="sch_list sch_list--ordered">
+            <li>Ordered list item</li>
+            <li>With primary color numbers</li>
+        </ol>
+
+        <dl class="sch_definition_list">
+            <dt class="sch_definition_term">Definition Term</dt>
+            <dd class="sch_definition_description">Definition description with proper styling</dd>
+        </dl>
+
+        <!-- Buttons Demo -->
+        <h3>Button Components</h3>
+        <button class="sch_button sch_button--save">Save</button>
+        <button class="sch_button sch_button--cancel">Cancel</button>
+        <button class="sch_button sch_button--execute">Execute</button>
+    </section>
+
+    <section class="sch_section">
+        <h2 class="sch_heading--secondary">Elevation Examples</h2>
+        
+        <h3>Normal Elevations</h3>
+        <div class="elevation-demo">
+            <div class="sch_elevation--1">
+                <strong>Elevation 1</strong><br>Subtle depth
+            </div>
+            <div class="sch_elevation--2">
+                <strong>Elevation 2</strong><br>Card depth
+            </div>
+            <div class="sch_elevation--3">
+                <strong>Elevation 3</strong><br>Modal depth
+            </div>
+        </div>
+
+        <h3>Tinted Elevations</h3>
+        <div class="elevation-demo">
+            <div class="sch_elevation--2-primary">
+                <strong>Primary Tinted</strong><br>Blue shadow
+            </div>
+            <div class="sch_elevation--2-accent">
+                <strong>Accent Tinted</strong><br>Orange shadow
+            </div>
+        </div>
+
+        <h3>Glass/Embossed Elevations</h3>
+        <div class="glass-demo">
+            <div class="sch_elevation--glass-1">Glass Level 1</div>
+            <div class="sch_elevation--glass-2-primary">Glass Level 2 Primary</div>
+            <div class="sch_elevation--glass-3-accent">Glass Level 3 Accent</div>
+        </div>
+    </section>
+</body>
+</html>
