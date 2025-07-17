@@ -1,0 +1,493 @@
+/* ocCatego Widget CSS */
+/* File: catego.css */
+/* Path: /categi.css */
+/* Version: 1.0.0 */
+
+/* Arrow Buttons */
+.oc_catego_arrow-button {
+    background: none;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 3px;
+    padding: 1px 4px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--color-text-light);
+    transition: all 0.2s;
+    min-width: 24px;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.oc_catego_arrow-button--left {
+    background: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.oc_catego_arrow-button--left:hover {
+    background: var(--color-success);
+    color: var(--color-success-bg);
+}
+
+.oc_catego_arrow-button--right {
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+.oc_catego_arrow-button--right:hover {
+    background: var(--color-info);
+    color: var(--color-info-bg);
+}
+
+.oc_catego_arrow-button:active {
+    transform: scale(0.95);
+    box-shadow: var(--elevation-inset-1);
+}
+
+/* Touch-friendly size for mobile and tablets */
+.oc_catego_arrow-button:hover {
+    background: var(--color-secondary);
+    color: var(--color-secondary-bg);
+    border-color: var(--color-secondary);
+    transform: scale(1.1);
+}
+
+/* Main Widget Container */
+.oc_catego {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    box-shadow: var(--elevation-2);
+
+    width: fit-content;
+    min-width: 40ch;
+    max-width: 100%;
+
+    resize: both;
+    overflow: auto;
+}
+
+/* Make the entire widget a column layout */
+.oc_catego {
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    overflow: auto;
+}
+
+/* Category Columns */
+.oc_catego_column {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border-dark);
+    border-radius: 6px;
+    padding: 2px;
+    margin:0;
+    min-width: 18ch;
+    max-width: 35ch;
+    flex: 1;
+    box-shadow: var(--elevation-1);
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* Let each column grow vertically */
+.oc_catego_column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 18ch;
+    max-width: 35ch;
+    min-height: 0;
+}
+
+.oc_catego_column--available {
+    border-color: var(--color-info);
+    background: var(--color-info-bg);
+}
+
+.oc_catego_column--available .oc_catego_column-header {
+    color: var(--color-info);
+}
+
+.oc_catego_column--selected {
+    border-color: var(--color-success);
+    background: var(--color-success-bg);
+}
+
+.oc_catego_column--selected .oc_catego_list:empty::after {
+    content: 'Sin categorías';
+}
+
+.oc_catego_column--selected .oc_catego_column-header {
+    color: var(--color-success);
+}
+
+/* Main Content Area */
+.oc_catego_content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0 6px;
+    align-items: stretch;
+}
+
+/* Allow the inner content to grow to fill space */
+.oc_catego_content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    padding: 0  6px;
+    align-items: stretch;
+    overflow: auto;
+}
+
+/* Header Section */
+.oc_catego_header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 2px 8px;
+    background: var(--color-neutral-bg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Category Items */
+.oc_catego_item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 0 5px;
+    margin: 1px 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+/* Let flexbox handle responsiveness naturally */
+
+/* Drag and Drop States */
+.oc_catego_item.oc_catego_dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.oc_catego_item:active {
+    transform: scale(0.98);
+}
+
+.oc_catego_item:hover {
+    background: var(--color-neutral-bg);
+    border-color: var(--color-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-glass-1);
+}
+
+.oc_catego_item:hover .oc_catego_drag-handle {
+    color: var(--color-secondary);
+}
+
+/* Category List */
+.oc_catego_list {
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 8ch; /* optional fallback */
+    max-height: 100%; /* allow container to control */
+    margin-bottom: 6px;
+
+
+}
+
+/* Let the category list grow vertically */
+.oc_catego_list {
+    flex-grow: 1;
+    min-height: 8ch;
+    overflow-y: auto;
+    margin-bottom: 6px;
+}
+
+.oc_catego_list.oc_catego_drop-target {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+/* Empty State */
+.oc_catego_list:empty::after {
+    content: 'Arrastra aquí';
+    display: block;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: 12px;
+    padding: 12px;
+}
+
+/* Category Name */
+.oc_catego_name {
+    flex: 1;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Widget Title */
+.oc_catego_title {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: var(--color-primary-bg);
+    padding: 2px 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+    box-shadow: var(--elevation-1);
+}
+
+.oc_catego_column-count {
+    flex: 1;
+    text-align: right;
+}
+
+/* Column Footer */
+.oc_catego_column-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--color-text-light);
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border);
+    margin-top: 6px;
+    gap: 8px;
+}
+
+/* Column Headers */
+.oc_catego_column-header {
+    font-weight: 600;
+    font-size: 13px;
+    margin: 2px;
+    color: var(--color-text);
+    text-align: center;
+    padding: 0;
+}
+
+/* CRUD Button */
+.oc_catego_crud-button {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+    color: var(--color-secondary-bg);
+    border: none;
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.2s;
+    box-shadow: var(--elevation-glass-1);
+    white-space: nowrap;
+}
+
+.oc_catego_crud-button:active {
+    transform: translateY(1px);
+    box-shadow: var(--elevation-inset-1);
+}
+
+.oc_catego_crud-button:hover {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-glass-2);
+}
+
+/* Drag Handle */
+.oc_catego_drag-handle {
+    cursor: grabbing;
+    user-select: none;
+
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+/* Move All Button */
+.oc_catego_move-all-button {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+    color: var(--color-secondary-bg);
+    border: none;
+    padding: 2px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 11px;
+    transition: all 0.2s;
+    box-shadow: var(--elevation-glass-1);
+    white-space: nowrap;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.oc_catego_move-all-button--from-assigned {
+    background: linear-gradient(135deg, var(--color-info) 0%, var(--color-secondary) 100%);
+}
+
+.oc_catego_move-all-button--from-available {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%);
+}
+
+.oc_catego_move-all-button:active {
+    transform: translateY(1px);
+    box-shadow: var(--elevation-inset-1);
+}
+
+.oc_catego_move-all-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.oc_catego_move-all-button:hover {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-glass-2);
+}
+
+/* Search Input Container */
+.oc_catego_search-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width:34ch
+}
+
+.oc_catego_search-input {
+
+    padding: 2px 8px;
+    outline: none;
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    width: 30ch;
+    max-width: 30ch;
+}
+
+.oc_catego_search-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: none; /* Prevent any glow or expansion */
+}
+
+/* Clear Button */
+.oc_catego_clear-btn {
+    cursor: pointer;
+    margin-left: -1.3em;
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-size: 18px;
+    padding: 2px 4px;
+    border-radius: 50%;
+    transition: color 0.3s, background 0.3s;
+}
+
+.oc_catego_clear-btn:hover {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+}
+
+
+/* SortableJS Visual States */
+.oc_catego_sortable-ghost {
+    opacity: 0.4;
+    background: var(--color-accent-bg);
+    border: 2px dashed var(--color-accent);
+    transform: rotate(2deg);
+}
+
+.oc_catego_sortable-chosen {
+    cursor: grabbing !important;
+    transform: scale(1.05);
+    box-shadow: var(--elevation-3);
+    z-index: 1000;
+}
+
+.oc_catego_sortable-drag {
+    opacity: 0.8;
+    cursor: grabbing !important;
+}
+
+/* Enhanced drag handle for better UX */
+.oc_catego_drag-handle {
+    cursor: grab;
+    user-select: none;
+
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.2s;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.oc_catego_drag-handle:hover {
+    color: var(--color-secondary);
+    cursor: grab;
+}
+
+.oc_catego_drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Improved dragging state */
+.oc_catego_item.oc_catego_dragging {
+    opacity: 0.6;
+    transform: scale(0.95) rotate(3deg);
+    box-shadow: var(--elevation-2);
+}
+
+/* Drop target highlighting */
+.oc_catego_list.oc_catego_drop-target {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+/* Touch-friendly improvements for mobile */
+@media (pointer: coarse) {
+    .oc_catego_drag-handle {
+        min-width: 48px;
+        min-height: 48px;
+        font-size: 17px;
+        justify-content: center;
+    }
+
+    .oc_catego_item {
+        min-height: 48px;
+        padding: 8px 5px;
+    }
+
+    .oc_catego_crud-button, .oc_catego_move-all-button {
+        font-size: 16px;
+        min-height: 44px;
+        padding: 6px 16px;
+    }
+}

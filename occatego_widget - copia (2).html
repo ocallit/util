@@ -1,0 +1,857 @@
+<!-- ocCatego Widget - Enhanced Version -->
+<!-- File: ocCatego.html -->
+<!-- Path: /widgets/ocCatego.html -->
+<!-- Version: 1.0.0 -->
+
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>ocCatego Widget - Enhanced</title>
+    <style>
+        /* SCH Color Scheme Variables */
+        :root {
+            /* Primary - Main brand color */
+            --color-primary: #00008b;        /* darkblue */
+            --color-primary-bg: #ffffff;     /* white */
+            
+            /* Secondary - Complementary to primary */
+            --color-secondary: #4682b4;      /* steelblue */
+            --color-secondary-bg: #f8f9fa;   /* very light gray */
+            
+            /* Tertiary - Supporting color */
+            --color-tertiary: #708090;       /* slategray */
+            --color-tertiary-bg: #f5f5f5;    /* light gray */
+            
+            /* Accent - Eye-catching highlights */
+            --color-accent: #ff6b35;         /* vibrant orange */
+            --color-accent-bg: #fff8f5;      /* very light orange tint */
+            
+            /* Neutral - Text and backgrounds */
+            --color-neutral: #495057;        /* dark gray */
+            --color-neutral-bg: #f8f9fa;     /* light gray */
+            
+            /* Success - Positive actions */
+            --color-success: #28a745;        /* medium green */
+            --color-success-bg: #f8fff9;     /* very light green tint */
+            
+            /* Info - Informational messages */
+            --color-info: #17a2b8;           /* teal */
+            --color-info-bg: #f0fdff;        /* very light cyan tint */
+            
+            /* Warning - Caution messages */
+            --color-warning: #ffc107;        /* amber yellow */
+            --color-warning-bg: #fffef5;     /* very light yellow tint */
+
+            /* Additional utility colors */
+            --color-text: #212529;           /* dark gray for body text */
+            --color-text-light: #6c757d;     /* lighter gray for secondary text */
+            --color-text-muted: #adb5bd;     /* muted gray for disabled text */
+            --color-shadow: rgba(0, 0, 0, 0.15);  /* semi-transparent black for shadows */
+            --color-border: #dee2e6;         /* light gray for borders */
+            --color-border-dark: #adb5bd;    /* darker gray for emphasized borders */
+            --color-surface: #ffffff;        /* white surface for cards, modals, etc. */
+
+            /* Elevation levels */
+            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+            --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+            --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+            
+            /* Glass elevations */
+            --elevation-glass-1: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            --elevation-glass-2: 3px 3px 8px rgba(0, 0, 0, 0.25);
+            --elevation-glass-3: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            
+            /* Inset elevations for pressed states */
+            --elevation-inset-1: inset 2px 2px 4px rgba(0, 0, 0, 0.3);
+            --elevation-inset-2: inset 3px 3px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-neutral-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Demo page styling */
+        .ocWidget-demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--elevation-2);
+        }
+
+        .ocWidget-demo-title {
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        /* Clear Button */
+        .ocWidget-clear-btn {
+            cursor: pointer;
+            margin-left: -1.3em;
+            background: none;
+            border: none;
+            color: var(--color-accent);
+            font-size: 18px;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .ocWidget-clear-btn:hover {
+            background: var(--color-accent-bg);
+            color: var(--color-accent);
+            transform: scale(1.1);
+        }
+
+        /* Main Widget Container */
+        .ocWidget-catego {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            box-shadow: var(--elevation-2);
+            overflow: hidden;
+            width: fit-content;
+            min-width: 40ch;
+            max-width: 100%;
+        }
+
+        /* Widget Title */
+        .ocWidget-catego-title {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-primary-bg);
+            padding: 6px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+            box-shadow: var(--elevation-1);
+        }
+
+        /* Header Section */
+        .ocWidget-catego-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--color-neutral-bg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        /* Search Input Container */
+        .ocWidget-search-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 15ch;
+        }
+
+        .ocWidget-search-input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 13px;
+            background: var(--color-surface);
+            color: var(--color-text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .ocWidget-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(0, 0, 139, 0.1);
+        }
+
+        .ocWidget-search-input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        /* CRUD Button */
+        .ocWidget-crud-button {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+            color: var(--color-secondary-bg);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: var(--elevation-glass-1);
+            white-space: nowrap;
+        }
+
+        .ocWidget-crud-button:hover {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-glass-2);
+        }
+
+        .ocWidget-crud-button:active {
+            transform: translateY(1px);
+            box-shadow: var(--elevation-inset-1);
+        }
+
+        /* Main Content Area */
+        .ocWidget-catego-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px;
+            align-items: stretch;
+        }
+
+        /* Category Columns */
+        .ocWidget-catego-column {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border-dark);
+            border-radius: 6px;
+            padding: 8px;
+            min-width: 18ch;
+            max-width: 35ch;
+            flex: 1;
+            box-shadow: var(--elevation-1);
+        }
+
+        .ocWidget-catego-column--selected {
+            border-color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+
+        .ocWidget-catego-column--available {
+            border-color: var(--color-info);
+            background: var(--color-info-bg);
+        }
+
+        /* Column Headers */
+        .ocWidget-column-header {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--color-text);
+            text-align: center;
+            padding: 2px 0;
+        }
+
+        .ocWidget-catego-column--selected .ocWidget-column-header {
+            color: var(--color-success);
+        }
+
+        .ocWidget-catego-column--available .ocWidget-column-header {
+            color: var(--color-info);
+        }
+
+        /* Category List */
+        .ocWidget-catego-list {
+            height: 12ch;
+            overflow-y: auto;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            background: var(--color-surface);
+            padding: 3px;
+            margin-bottom: 6px;
+        }
+
+        /* Category Items */
+        .ocWidget-catego-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            margin: 1px 0;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 3px;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+            font-size: 13px;
+        }
+
+        .ocWidget-catego-item:hover {
+            background: var(--color-neutral-bg);
+            border-color: var(--color-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-glass-1);
+        }
+
+        .ocWidget-catego-item:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        /* Drag Handle */
+        .ocWidget-drag-handle {
+            cursor: move;
+            user-select: none;
+            color: var(--color-text-muted);
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .ocWidget-catego-item:hover .ocWidget-drag-handle {
+            color: var(--color-secondary);
+        }
+
+        /* Category Name */
+        .ocWidget-catego-name {
+            flex: 1;
+            color: var(--color-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Arrow Buttons */
+        .ocWidget-arrow-button {
+            background: none;
+            border: 1px solid var(--color-border-dark);
+            border-radius: 3px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--color-text-light);
+            transition: all 0.2s;
+            min-width: 48px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ocWidget-arrow-button:hover {
+            background: var(--color-secondary);
+            color: var(--color-secondary-bg);
+            border-color: var(--color-secondary);
+            transform: scale(1.1);
+        }
+
+        .ocWidget-arrow-button:active {
+            transform: scale(0.95);
+            box-shadow: var(--elevation-inset-1);
+        }
+
+        .ocWidget-arrow-button--left {
+            background: var(--color-success-bg);
+            border-color: var(--color-success);
+            color: var(--color-success);
+        }
+
+        .ocWidget-arrow-button--left:hover {
+            background: var(--color-success);
+            color: var(--color-success-bg);
+        }
+
+        .ocWidget-arrow-button--right {
+            background: var(--color-info-bg);
+            border-color: var(--color-info);
+            color: var(--color-info);
+        }
+
+        .ocWidget-arrow-button--right:hover {
+            background: var(--color-info);
+            color: var(--color-info-bg);
+        }
+
+        /* Column Footer */
+        .ocWidget-column-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--color-text-light);
+            padding-top: 6px;
+            border-top: 1px solid var(--color-border);
+            margin-top: 6px;
+            gap: 8px;
+        }
+
+        .ocWidget-column-count {
+            flex: 1;
+            text-align: right;
+        }
+
+        /* Move All Button */
+        .ocWidget-move-all-button {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+            color: var(--color-secondary-bg);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 11px;
+            transition: all 0.2s;
+            box-shadow: var(--elevation-glass-1);
+            white-space: nowrap;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ocWidget-move-all-button:hover {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-glass-2);
+        }
+
+        .ocWidget-move-all-button:active {
+            transform: translateY(1px);
+            box-shadow: var(--elevation-inset-1);
+        }
+
+        .ocWidget-move-all-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ocWidget-move-all-button--from-assigned {
+            background: linear-gradient(135deg, var(--color-info) 0%, var(--color-secondary) 100%);
+        }
+
+        .ocWidget-move-all-button--from-available {
+            background: linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%);
+        }
+
+        /* Let flexbox handle responsiveness naturally */
+
+        /* Drag and Drop States */
+        .ocWidget-catego-item.ocWidget-dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .ocWidget-catego-list.ocWidget-drop-target {
+            border-color: var(--color-accent);
+            background: var(--color-accent-bg);
+            box-shadow: inset 0 0 0 2px var(--color-accent);
+        }
+
+        /* Empty State */
+        .ocWidget-catego-list:empty::after {
+            content: 'Arrastra aquí';
+            display: block;
+            text-align: center;
+            color: var(--color-text-muted);
+            font-style: italic;
+            font-size: 12px;
+            padding: 12px;
+        }
+
+        .ocWidget-catego-column--selected .ocWidget-catego-list:empty::after {
+            content: 'Sin categorías';
+        }
+    </style>
+</head>
+<body>
+    <div class="ocWidget-demo-container">
+        <h1 class="ocWidget-demo-title">ocCatego Widget - Enhanced Version</h1>
+        
+        <h2>Descripción</h2>
+        <p>Widget mejorado para asignar y administrar categorías usando el sistema de colores SCH con elevaciones y efectos de vidrio. Incluye:</p>
+        <ul>
+            <li>Búsqueda en tiempo real de categorías</li>
+            <li>Drag & drop entre columnas (Si/Disponibles)</li>
+            <li>Botones de flecha para mover categorías individualmente</li>
+            <li>Botón de administración para CRUD de categorías</li>
+            <li>Diseño responsivo y compacto</li>
+            <li>Integración con sistema de colores SCH</li>
+        </ul>
+
+        <hr style="margin: 2em 0; border: none; border-top: 2px solid var(--color-border);">
+
+        <div class="ocWidget-catego" data-ocWidget-catego="clientes" data-ocWidget-catego-id="clientes_id">
+            <div class="ocWidget-catego-title">Categorías de Clientes</div>
+
+            <div class="ocWidget-catego-header">
+                <div class="ocWidget-search-container">
+                    <input 
+                        type="text" 
+                        class="ocWidget-search-input" 
+                        placeholder="Buscar categorías..." 
+                        value=""
+                    >
+                    <button 
+                        type="button" 
+                        tabindex="-1" 
+                        class="ocWidget-clear-btn" 
+                        onclick="ocWidgetManager.clearSearch(this)"
+                        title="Limpiar búsqueda"
+                    >&times;</button>
+                </div>
+                <button 
+                    type="button" 
+                    class="ocWidget-crud-button" 
+                    title="Administrar categorías de clientes"
+                    onclick="ocWidgetManager.openCRUD('clientes')"
+                >
+                    &#9881; Administrar
+                </button>
+            </div>
+
+            <div class="ocWidget-catego-content">
+                <div class="ocWidget-catego-column ocWidget-catego-column--selected">
+                    <div class="ocWidget-column-header">✓ Asignadas</div>
+                    <div class="ocWidget-catego-list ocWidget-catego-si" data-ocWidget-input="cliente_categorias">
+                        <div class="ocWidget-catego-item" data-category-id="1">
+                            <span class="ocWidget-drag-handle">⊛</span>
+                            <span class="ocWidget-catego-name">Cliente Premium</span>
+                            <button 
+                                class="ocWidget-arrow-button ocWidget-arrow-button--right" 
+                                type="button"
+                                onclick="ocWidgetManager.moveCategory(this, 'right')"
+                                title="Remover categoría"
+                            >→</button>
+                        </div>
+                        <div class="ocWidget-catego-item" data-category-id="5">
+                            <span class="ocWidget-drag-handle">⊛</span>
+                            <span class="ocWidget-catego-name">Cliente Corporativo</span>
+                            <button 
+                                class="ocWidget-arrow-button ocWidget-arrow-button--right" 
+                                type="button"
+                                onclick="ocWidgetManager.moveCategory(this, 'right')"
+                                title="Remover categoría"
+                            >→</button>
+                        </div>
+                    </div>
+                    <div class="ocWidget-column-footer">
+                        <button 
+                            class="ocWidget-move-all-button ocWidget-move-all-button--from-assigned" 
+                            type="button"
+                            onclick="ocWidgetManager.moveAllCategories(this, 'right')"
+                            title="Remover todas las categorías"
+                        >
+                            Quitar Todas ››
+                        </button>
+                        <div class="ocWidget-column-count">2 categorías</div>
+                    </div>
+                </div>
+
+                <div class="ocWidget-catego-column ocWidget-catego-column--available">
+                    <div class="ocWidget-column-header">○ Disponibles</div>
+                    <div class="ocWidget-catego-list ocWidget-catego-disponibles">
+                        <div class="ocWidget-catego-item" data-category-id="2">
+                            <span class="ocWidget-drag-handle">⊛</span>
+                            <span class="ocWidget-catego-name">Cliente Regular</span>
+                            <button 
+                                class="ocWidget-arrow-button ocWidget-arrow-button--left" 
+                                type="button"
+                                onclick="ocWidgetManager.moveCategory(this, 'left')"
+                                title="Asignar categoría"
+                            >←</button>
+                        </div>
+                        <div class="ocWidget-catego-item" data-category-id="3">
+                            <span class="ocWidget-drag-handle">⊛</span>
+                            <span class="ocWidget-catego-name">Cliente VIP</span>
+                            <button 
+                                class="ocWidget-arrow-button ocWidget-arrow-button--left" 
+                                type="button"
+                                onclick="ocWidgetManager.moveCategory(this, 'left')"
+                                title="Asignar categoría"
+                            >←</button>
+                        </div>
+                        <div class="ocWidget-catego-item" data-category-id="4">
+                            <span class="ocWidget-drag-handle">⊛</span>
+                            <span class="ocWidget-catego-name">Cliente Nuevo</span>
+                            <button 
+                                class="ocWidget-arrow-button ocWidget-arrow-button--left" 
+                                type="button"
+                                onclick="ocWidgetManager.moveCategory(this, 'left')"
+                                title="Asignar categoría"
+                            >←</button>
+                        </div>
+                    </div>
+                    <div class="ocWidget-column-footer">
+                        <button 
+                            class="ocWidget-move-all-button ocWidget-move-all-button--from-available" 
+                            type="button"
+                            onclick="ocWidgetManager.moveAllCategories(this, 'left')"
+                            title="Asignar todas las categorías"
+                        >
+                            ‹‹ Asignar Todas
+                        </button>
+                        <div class="ocWidget-column-count">3 categorías</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 2em; color: var(--color-primary);">Funcionalidades Implementadas</h3>
+        <ul>
+            <li><strong>Búsqueda:</strong> El campo de búsqueda es lo más ancho posible y tiene botón de limpiar</li>
+            <li><strong>Botones de flecha:</strong> Permiten mover categorías individualmente entre columnas</li>
+            <li><strong>Drag handles:</strong> Preparado para implementar drag & drop con SortableJS</li>
+            <li><strong>Colores SCH:</strong> Integración completa con el sistema de colores y elevaciones</li>
+            <li><strong>Responsivo:</strong> Se adapta a pantallas pequeñas sin usar breakpoints específicos</li>
+            <li><strong>Estados visuales:</strong> Hover, active y focus con transiciones suaves</li>
+            <li><strong>Contadores:</strong> Muestra el número de categorías en cada columna</li>
+        </ul>
+    </div>
+
+    <script>
+        // ocWidget Category Management Class
+        // File: ocCatego.js
+        // Path: /widgets/js/ocCatego.js
+        // Version: 1.0.0
+
+        class ocWidgetCategoManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.setupSearchInputs();
+                    this.initializeCounters();
+                });
+            }
+
+            clearSearch(button) {
+                try {
+                    const input = button.previousElementSibling;
+                    input.value = '';
+                    input.focus();
+                    this.filterCategories(input);
+                } catch (error) {
+                    console.warn('Error clearing search:', error);
+                }
+            }
+
+            moveCategory(button, direction) {
+                const categoryItem = button.closest('.ocWidget-catego-item');
+                const currentList = categoryItem.closest('.ocWidget-catego-list');
+                const widget = categoryItem.closest('.ocWidget-catego');
+                
+                let targetList;
+                if (direction === 'left') {
+                    // Move to assigned (Si)
+                    targetList = widget.querySelector('.ocWidget-catego-si');
+                    button.innerHTML = '→';
+                    button.className = 'ocWidget-arrow-button ocWidget-arrow-button--right';
+                    button.setAttribute('onclick', "ocWidgetManager.moveCategory(this, 'right')");
+                    button.setAttribute('title', 'Remover categoría');
+                } else {
+                    // Move to available (Disponibles)
+                    targetList = widget.querySelector('.ocWidget-catego-disponibles');
+                    button.innerHTML = '←';
+                    button.className = 'ocWidget-arrow-button ocWidget-arrow-button--left';
+                    button.setAttribute('onclick', "ocWidgetManager.moveCategory(this, 'left')");
+                    button.setAttribute('title', 'Asignar categoría');
+                }
+
+                // Move the item with animation
+                categoryItem.style.transform = 'scale(0.8)';
+                categoryItem.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    targetList.appendChild(categoryItem);
+                    categoryItem.style.transform = '';
+                    categoryItem.style.opacity = '';
+                    
+                    this.updateCounters(widget);
+                    this.updateMoveAllButtons(widget);
+                }, 150);
+            }
+
+            moveAllCategories(button, direction) {
+                const widget = button.closest('.ocWidget-catego');
+                const column = button.closest('.ocWidget-catego-column');
+                const currentList = column.querySelector('.ocWidget-catego-list');
+                const items = Array.from(currentList.querySelectorAll('.ocWidget-catego-item'));
+
+                if (items.length === 0) return;
+
+                let targetList;
+                if (direction === 'left') {
+                    targetList = widget.querySelector('.ocWidget-catego-si');
+                } else {
+                    targetList = widget.querySelector('.ocWidget-catego-disponibles');
+                }
+
+                // Animate all items
+                items.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.transform = 'scale(0.8)';
+                        item.style.opacity = '0.5';
+                        
+                        setTimeout(() => {
+                            // Update arrow button
+                            const arrowButton = item.querySelector('.ocWidget-arrow-button');
+                            if (direction === 'left') {
+                                arrowButton.innerHTML = '→';
+                                arrowButton.className = 'ocWidget-arrow-button ocWidget-arrow-button--right';
+                                arrowButton.setAttribute('onclick', "ocWidgetManager.moveCategory(this, 'right')");
+                                arrowButton.setAttribute('title', 'Remover categoría');
+                            } else {
+                                arrowButton.innerHTML = '←';
+                                arrowButton.className = 'ocWidget-arrow-button ocWidget-arrow-button--left';
+                                arrowButton.setAttribute('onclick', "ocWidgetManager.moveCategory(this, 'left')");
+                                arrowButton.setAttribute('title', 'Asignar categoría');
+                            }
+
+                            targetList.appendChild(item);
+                            item.style.transform = '';
+                            item.style.opacity = '';
+                            
+                            // Update counters after last item
+                            if (index === items.length - 1) {
+                                this.updateCounters(widget);
+                                this.updateMoveAllButtons(widget);
+                            }
+                        }, 100);
+                    }, index * 50); // Stagger the animations
+                });
+            }
+
+            updateCounters(widget) {
+                const siList = widget.querySelector('.ocWidget-catego-si');
+                const availableList = widget.querySelector('.ocWidget-catego-disponibles');
+                
+                const siCount = siList.children.length;
+                const availableCount = availableList.children.length;
+                
+                const siFooter = widget.querySelector('.ocWidget-catego-column--selected .ocWidget-column-count');
+                const availableFooter = widget.querySelector('.ocWidget-catego-column--available .ocWidget-column-count');
+                
+                if (siFooter) siFooter.textContent = `${siCount} categoría${siCount !== 1 ? 's' : ''}`;
+                if (availableFooter) availableFooter.textContent = `${availableCount} categoría${availableCount !== 1 ? 's' : ''}`;
+            }
+
+            updateMoveAllButtons(widget) {
+                const siList = widget.querySelector('.ocWidget-catego-si');
+                const availableList = widget.querySelector('.ocWidget-catego-disponibles');
+                
+                const siButton = widget.querySelector('.ocWidget-catego-column--selected .ocWidget-move-all-button');
+                const availableButton = widget.querySelector('.ocWidget-catego-column--available .ocWidget-move-all-button');
+                
+                if (siButton) {
+                    siButton.disabled = siList.children.length === 0;
+                }
+                
+                if (availableButton) {
+                    availableButton.disabled = availableList.children.length === 0;
+                }
+            }
+
+            filterCategories(input) {
+                const widget = input.closest('.ocWidget-catego');
+                const searchTerm = input.value.toLowerCase();
+                const categoryItems = widget.querySelectorAll('.ocWidget-catego-item');
+                
+                categoryItems.forEach(item => {
+                    const categoryName = item.querySelector('.ocWidget-catego-name').textContent.toLowerCase();
+                    const isVisible = categoryName.includes(searchTerm);
+                    
+                    item.style.display = isVisible ? 'flex' : 'none';
+                    
+                    if (isVisible && searchTerm) {
+                        // Highlight search term
+                        const nameElement = item.querySelector('.ocWidget-catego-name');
+                        const originalText = nameElement.textContent;
+                        const highlightedText = originalText.replace(
+                            new RegExp(`(${searchTerm})`, 'gi'),
+                            '<mark style="background: var(--color-warning-bg); color: var(--color-text);">$1</mark>'
+                        );
+                        nameElement.innerHTML = highlightedText;
+                    } else {
+                        // Remove highlighting
+                        const nameElement = item.querySelector('.ocWidget-catego-name');
+                        nameElement.innerHTML = nameElement.textContent;
+                    }
+                });
+                
+                this.updateVisibleCounters(widget);
+            }
+
+            updateVisibleCounters(widget) {
+                const siList = widget.querySelector('.ocWidget-catego-si');
+                const availableList = widget.querySelector('.ocWidget-catego-disponibles');
+                
+                const siVisible = Array.from(siList.children).filter(item => item.style.display !== 'none').length;
+                const availableVisible = Array.from(availableList.children).filter(item => item.style.display !== 'none').length;
+                
+                const siFooter = widget.querySelector('.ocWidget-catego-column--selected .ocWidget-column-count');
+                const availableFooter = widget.querySelector('.ocWidget-catego-column--available .ocWidget-column-count');
+                
+                if (siFooter) {
+                    siFooter.textContent = `${siVisible} categoría${siVisible !== 1 ? 's' : ''} visible${siVisible !== siList.children.length ? ` de ${siList.children.length}` : ''}`;
+                }
+                
+                if (availableFooter) {
+                    availableFooter.textContent = `${availableVisible} categoría${availableVisible !== 1 ? 's' : ''} visible${availableVisible !== availableList.children.length ? ` de ${availableList.children.length}` : ''}`;
+                }
+            }
+
+            openCRUD(entityType) {
+                alert(`Abrir diálogo CRUD para categorías de: ${entityType}\n\nEsto abriría el sistema de diálogos SCH para administrar las categorías.`);
+                // Here you would open the SCH Dialog System for category CRUD
+            }
+
+            setupSearchInputs() {
+                const searchInputs = document.querySelectorAll('.ocWidget-search-input');
+                
+                searchInputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        this.filterCategories(input);
+                    });
+                    
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            input.value = '';
+                            this.filterCategories(input);
+                        }
+                    });
+                });
+            }
+
+            initializeCounters() {
+                const widgets = document.querySelectorAll('.ocWidget-catego');
+                widgets.forEach(widget => {
+                    this.updateCounters(widget);
+                    this.updateMoveAllButtons(widget);
+                });
+            }
+
+            // Public API methods for external use
+            getValue(widgetElement) {
+                const siList = widgetElement.querySelector('.ocWidget-catego-si');
+                const items = Array.from(siList.querySelectorAll('.ocWidget-catego-item'));
+                return items.map(item => item.dataset.categoryId);
+            }
+
+            setValue(widgetElement, categoryIds) {
+                // Implementation to set categories programmatically
+                // This would move categories to match the provided IDs
+            }
+
+            refresh(widgetElement, newCategories) {
+                // Implementation to refresh widget with new category data
+                // This would update the available categories list
+            }
+        }
+
+        // Create global instance
+        const ocWidgetManager = new ocWidgetCategoManager();
+    </script>
+</body>
+</html>

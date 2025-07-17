@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+	<style>
+	  .clear-btn {cursor:pointer;margin-left:-1.3em;background: none; border: none; }
+	</style>
+</head>
+<body>
+	<div>
+	  <input placeholder="Test"><button type="button" tabindex="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
+	</div>
+	<div>
+	  <input placeholder="Test"><button type="button" tabstop="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
+	</div>
+	<script>
+		function clear_btn(btn) {
+			try {
+				var input = btn.previousElementSibling;
+				input.value = '';
+				input.focus();
+			} catch(er) {;}
+		}
+
+	</script>
+<script>
+	function addClearButtons() {
+		const inputs = document.querySelectorAll('input:not([data-oc_clean_done])');
+
+		inputs.forEach(input => {
+			// Mark as done to avoid reprocessing
+			input.setAttribute('data-oc_clean_done', '1');
+
+			// Create wrapper div with inline-flex style
+			const wrapper = document.createElement('div');
+			wrapper.style.display = 'inline-flex';
+			wrapper.style.alignItems = 'center';
+
+			// Insert wrapper before input
+			input.parentNode.insertBefore(wrapper, input);
+			wrapper.appendChild(input);
+
+			// Create clear button
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.tabIndex = -1;
+			btn.className = 'clear-btn';
+			btn.innerHTML = '&times;';
+			btn.onclick = () => {
+				input.value = '';
+				input.focus();
+			};
+
+			// Append button
+			wrapper.appendChild(btn);
+		});
+	}
+	// addClearButtons()
+</script>
+</body>
+</html>
