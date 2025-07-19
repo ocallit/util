@@ -996,4 +996,3 @@ if (document.readyState === 'loading') {
 } else {
     ocCategoCRUD.init();
 }
-console.log("___________catego_crud installed");

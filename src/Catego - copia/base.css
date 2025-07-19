@@ -1,0 +1,57 @@
+/* SCH Color Scheme Variables */
+:root {
+    /* Primary - Main brand color */
+    --color-primary: #00008b;        /* darkblue */
+    --color-primary-bg: #ffffff;     /* white */
+
+    /* Secondary - Complementary to primary */
+    --color-secondary: #4682b4;      /* steelblue */
+    --color-secondary-bg: #f8f9fa;   /* very light gray */
+
+    /* Tertiary - Supporting color */
+    --color-tertiary: #708090;       /* slategray */
+    --color-tertiary-bg: #f5f5f5;    /* light gray */
+
+    /* Accent - Eye-catching highlights */
+    --color-accent: #ff6b35;         /* vibrant orange */
+    --color-accent-bg: #fff8f5;      /* very light orange tint */
+
+    /* Neutral - Text and backgrounds */
+    --color-neutral: #495057;        /* dark gray */
+    --color-neutral-bg: #f8f9fa;     /* light gray */
+
+    /* Success - Positive actions */
+    --color-success: #28a745;        /* medium green */
+    --color-success-bg: #f8fff9;     /* very light green tint */
+
+    /* Info - Informational messages */
+    --color-info: #17a2b8;           /* teal */
+    --color-info-bg: #f0fdff;        /* very light cyan tint */
+
+    /* Warning - Caution messages */
+    --color-warning: #ffc107;        /* amber yellow */
+    --color-warning-bg: #fffef5;     /* very light yellow tint */
+
+    /* Additional utility colors */
+    --color-text: #212529;           /* dark gray for body text */
+    --color-text-light: #6c757d;     /* lighter gray for secondary text */
+    --color-text-muted: #adb5bd;     /* muted gray for disabled text */
+    --color-shadow: rgba(0, 0, 0, 0.15);  /* semi-transparent black for shadows */
+    --color-border: #dee2e6;         /* light gray for borders */
+    --color-border-dark: #adb5bd;    /* darker gray for emphasized borders */
+    --color-surface: #ffffff;        /* white surface for cards, modals, etc. */
+
+    /* Elevation levels */
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+    --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+    --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+
+    /* Glass elevations */
+    --elevation-glass-1: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    --elevation-glass-2: 3px 3px 8px rgba(0, 0, 0, 0.25);
+    --elevation-glass-3: 5px 5px 15px rgba(0, 0, 0, 0.3);
+
+    /* Inset elevations for pressed states */
+    --elevation-inset-1: inset 2px 2px 4px rgba(0, 0, 0, 0.3);
+    --elevation-inset-2: inset 3px 3px 8px rgba(0, 0, 0, 0.4);
+}

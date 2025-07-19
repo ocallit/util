@@ -1,4 +1,4 @@
-/* ocCatego  CSS */
+/* ocCatego Widget CSS */
 /* File: catego.css */
 /* Path: /categi.css */
 /* Version: 1.0.0 */
@@ -56,7 +56,7 @@
     transform: scale(1.1);
 }
 
-/* Main oc_catego Container */
+/* Main Widget Container */
 .oc_catego {
     background: var(--color-surface);
     border: 2px solid var(--color-border);
@@ -245,7 +245,7 @@
     text-overflow: ellipsis;
 }
 
-/* oc_catego Title */
+/* Widget Title */
 .oc_catego_title {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     color: var(--color-primary-bg);

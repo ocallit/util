@@ -1,8 +1,304 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <!-- Integrated ocCatego Demo with CRUD -->
+    <!-- File: catego_integrated.html -->
+    <!-- Path: /catego/catego_integrated.html -->
+    <!-- Version: 1.0.0 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>ocCatego Widget with CRUD Integration</title>
+    
+    <!-- Include widget CSS -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="catego.css">
+    <link rel="stylesheet" href="sch_dialog.css">
+    <link rel="stylesheet" href="catego_crud.css">
 
+    <style>
+        /* Demo page styling */
+        .oc_catego_demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--elevation-2);
+        }
 
-const ocCategoCRUD = {
+        .oc_catego_demo-title {
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .demo-buttons {
+            margin: 1em 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .demo-button--info {
+            background: var(--color-info);
+            color: white;
+        }
+
+        .demo-button--accent {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .demo-button--tertiary {
+            background: var(--color-tertiary);
+            color: white;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-glass-1);
+        }
+
+        .demo-output {
+            padding: 10px;
+            background: var(--color-neutral-bg);
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            min-height: 20px;
+            border-left: 4px solid var(--color-info);
+        }
+
+        /* Enhanced dialog styling for CRUD */
+        .oc_catego_crud_enhanced_dialog {
+            width: 600px;
+            max-width: 90vw;
+            max-height: 80vh;
+        }
+
+        .oc_catego_crud_enhanced_dialog .sch_dialog_content {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</head>
+<body>
+    <div class="oc_catego_demo-container">
+        <h1 class="oc_catego_demo-title">ocCatego Widget with Integrated CRUD</h1>
+        
+        <p>This demo shows the ocCatego widget with integrated CRUD functionality. Click "Definir" to manage categories.</p>
+
+        <!-- Demo buttons for testing -->
+        <div class="demo-buttons">
+            <button class="demo-button demo-button--info" onclick="showSelectedValues()">Show Selected Values</button>
+            <button class="demo-button demo-button--accent" onclick="setExternalValues()">Set External Values</button>
+            <button class="demo-button demo-button--tertiary" onclick="clearAllSelections()">Clear All Selections</button>
+        </div>
+
+        <!-- Output area for demo -->
+        <div id="demo-output" class="demo-output">Ready. Click "Definir" to manage categories.</div>
+
+        <!-- Hidden select for form integration -->
+        <select id="cliente_categorias_select" name="cliente_categorias[]" multiple>
+            <option value="1" selected>Sin Credito</option>
+            <option value="5" selected>Transportista</option>
+            <option value="2">Mayoreo</option>
+            <option value="3">Nuevo</option>
+            <option value="4">Foraneo</option>
+        </select>
+
+        <!-- Widget HTML with API URL configured -->
+        <div class="oc_catego" 
+             data-oc_catego="clientes" 
+             data-oc_catego_linked_select="cliente_categorias_select"
+             data-oc_catego_api="catego/ajax.php">
+            
+            <div class="oc_catego_title">Categorías de Clientes</div>
+
+            <div class="oc_catego_header">
+                <div class="oc_catego_search-container">
+                    <input 
+                        type="text" 
+                        class="oc_catego_search-input"
+                        placeholder="Buscar categorías..." 
+                        value=""
+                    >
+                    <button 
+                        type="button" 
+                        tabindex="-1" 
+                        class="oc_catego_clear-btn"
+                        onclick="ocWidgetCatego.clearSearch(this)"
+                        title="Limpiar búsqueda"
+                    >&times;</button>
+                </div>
+                <button 
+                    type="button" 
+                    class="oc_catego_crud-button"
+                    title="Administrar, altas, bajas y cambios de categorías"
+                    onclick="ocWidgetCatego.openCRUD('clientes', this)"
+                >&#9881; Definir</button>
+            </div>
+
+            <div class="oc_catego_content">
+                <div class="oc_catego_column oc_catego_column--selected">
+                    <div class="oc_catego_column-header">✓ Asignadas</div>
+                    <div class="oc_catego_list oc_catego_si"></div>
+                    <div class="oc_catego_column-footer">
+                        <button 
+                            class="oc_catego_move-all-button oc_catego_move-all-button--from-assigned"
+                            type="button"
+                            onclick="ocWidgetCatego.moveAllCategories(this, 'right')"
+                            title="Remover todas las categorías"
+                        >Quitar Todas ››</button>
+                        <div class="oc_catego_column-count">n categorías</div>
+                    </div>
+                </div>
+
+                <div class="oc_catego_column oc_catego_column--available">
+                    <div class="oc_catego_column-header">○ Disponibles</div>
+                    <div class="oc_catego_list oc_catego_disponibles"></div>
+                    <div class="oc_catego_column-footer">
+                        <button 
+                            class="oc_catego_move-all-button oc_catego_move-all-button--from-available"
+                            type="button"
+                            onclick="ocWidgetCatego.moveAllCategories(this, 'left')"
+                            title="Asignar todas las categorías"
+                        >‹‹ Asignar Todas</button>
+                        <div class="oc_catego_column-count">n categorías</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRUD Dialog HTML (embedded) -->
+    <!-- Main category administration dialog -->
+    <dialog id="oc_catego_crud_dialog" class="sch_dialog_grow_content sch_dialog">
+        <div class="sch_dialog_header" style="margin: 0 auto;padding: 0" >
+            <h2 id="oc_catego_crud_title" class="sch_dialog_title">Definir Categorías</h2>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeDialog()">&times;</button>
+        </div>
+
+        <div class="sch_dialog_content">
+            <div style="margin:0;padding: 0 1em;display: flex; flex-direction: row;flex-wrap: wrap;gap: 1em; justify-content: space-between; align-items: center;">
+                <div class="oc_catego_crud_search_container" style="flex-grow:1">
+                    <input type="text" style="width:100%"
+                           id="oc_catego_crud_search"
+                           class="oc_catego_crud_search_input"
+                           placeholder="Buscar categorías...">
+                    <button class="oc_catego_crud_search_clear" onclick="ocCategoCRUD.clearSearch()">&times;</button>
+                </div>
+                <div><button id="oc_catego_crud_add_btn" class="oc_catego_crud_btn oc_catego_crud_btn_add">+ Nueva Categoría</button></div>
+            </div>
+
+            <!-- Error message area -->
+            <div id="oc_catego_crud_error" class="oc_catego_crud_error" style="display: none;"></div>
+
+            <!-- Categories list -->
+            <div id="oc_catego_crud_list" style="margin: 0 auto;padding: 0" class="oc_catego_crud_categories_list">
+                <div class="oc_catego_crud_loading">Cargando categorías...</div>
+            </div>
+        </div>
+
+        <div class="sch_dialog_footer">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeDialog()">
+                Cerrar
+            </button>
+        </div>
+    </dialog>
+
+    <!-- Delete confirmation dialog -->
+    <dialog id="oc_catego_crud_confirm_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_confirm_dialog">
+        <div class="sch_dialog_header">
+            <h2 class="sch_dialog_title">Confirmar Eliminación</h2>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeConfirmDialog()">&times;</button>
+        </div>
+
+        <div class="sch_dialog_content">
+            <div class="oc_catego_crud_confirm_content">
+                <div class="oc_catego_crud_confirm_icon">⚠️</div>
+                <div class="oc_catego_crud_confirm_text">
+                    ¿Está seguro que desea eliminar la categoría?
+                </div>
+                <div id="oc_catego_crud_confirm_category" class="oc_catego_crud_confirm_category"></div>
+                <div style="font-size: 14px; color: var(--color-text-light);">
+                    Esta acción no se puede deshacer.
+                </div>
+            </div>
+        </div>
+
+        <div class="sch_dialog_footer">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeConfirmDialog()">
+                Cancelar
+            </button>
+            <button id="oc_catego_crud_confirm_delete_btn" class="sch_dialog_button"
+                    style="background: var(--color-fail); color: var(--color-fail-bg);">
+                Eliminar
+            </button>
+        </div>
+    </dialog>
+
+    <!-- Input dialog for adding new categories -->
+    <dialog id="oc_catego_crud_input_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_input_dialog">
+        <div class="sch_dialog_header">
+            <h2 id="oc_catego_crud_input_title" class="sch_dialog_title">Nueva Categoría</h2>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeInputDialog()">&times;</button>
+        </div>
+
+        <div class="sch_dialog_content">
+            <div class="oc_catego_crud_input_dialog_content">
+                <div class="oc_catego_crud_input_container">
+                    <input type="text"
+                           id="oc_catego_crud_input_dialog_input"
+                           class="oc_catego_crud_input_dialog_input"
+                           placeholder="Nombre de la categoría...">
+                    <button class="oc_catego_crud_input_clear" onclick="ocCategoCRUD.clearInputDialog()">&times;</button>
+                </div>
+
+                <div id="oc_catego_crud_input_error" class="oc_catego_crud_error" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="sch_dialog_footer">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeInputDialog()">
+                Cancelar
+            </button>
+            <button id="oc_catego_crud_input_save_btn" class="sch_dialog_button sch_dialog_button--success">
+                Guardar
+            </button>
+        </div>
+    </dialog>
+
+    <!-- Include JavaScript -->
+    <script src="sch_dialog.js"></script>
+    <script src="catego.js"></script>
+
+    <!-- Enhanced CRUD JS with Widget Integration -->
+    <script id="oc_catego_crud_integration">
+        /* Enhanced ocCategoCRUD with Widget Integration */
+        /* File: catego_crud_integration.js */
+        /* Path: /catego/catego_crud_integration.js */
+        /* Version: 1.0.0 */
+
+        const ocCategoCRUD = {
             // API endpoint
             apiUrl: 'catego/ajax.php',
+            
+            // Current widget reference for updates
+            currentWidget: null,
             
             // Current state (no persistent properties to allow multiple instances)
             getCurrentState() {
@@ -29,9 +325,14 @@ const ocCategoCRUD = {
             },
 
             // Open the main administration dialog
-            openDialog(categoryType, title, formFunction = '') {
+            openDialog(categoryType, title, formFunction = '', widget = null) {
+                console.log('🚀 Opening CRUD dialog for:', categoryType, title);
+                
                 const dialog = document.getElementById('oc_catego_crud_dialog');
                 const titleElement = document.getElementById('oc_catego_crud_title');
+                
+                // Store widget reference for updates
+                this.currentWidget = widget;
                 
                 // Set dialog properties
                 dialog.dataset.categoryType = categoryType;
@@ -40,7 +341,7 @@ const ocCategoCRUD = {
                 dialog.dataset.categories = '[]';
                 dialog.dataset.loading = 'false';
                 
-                titleElement.textContent = `Categorias para: ${title}`;
+                titleElement.textContent = `Categorías para: ${title}`;
                 
                 // Clear search and error
                 this.clearSearch();
@@ -52,10 +353,92 @@ const ocCategoCRUD = {
                 dialog.showModal();
             },
 
-            // Close the main dialog
-            closeDialog() {
+            // Close the main dialog with optional widget update
+            closeDialog(updateWidget = true) {
                 const dialog = document.getElementById('oc_catego_crud_dialog');
+                
+                if (updateWidget && this.currentWidget) {
+                    console.log('🔄 Updating widget after CRUD dialog close');
+                    this.updateWidgetFromCRUD();
+                }
+                
                 dialog.close();
+                this.currentWidget = null; // Clear reference
+            },
+
+            // Update widget with latest categories from CRUD
+            updateWidgetFromCRUD() {
+                if (!this.currentWidget) {
+                    console.warn('No widget reference available for update');
+                    return;
+                }
+
+                const state = this.getCurrentState();
+                const categories = state.categories;
+                
+                if (!Array.isArray(categories) || categories.length === 0) {
+                    console.warn('No categories available to update widget');
+                    return;
+                }
+
+                console.log('📋 Updating widget with categories:', categories);
+
+                // Get current selected values before update
+                const currentSelected = ocWidgetCatego.getValue(this.currentWidget);
+                console.log('💾 Current selected values:', currentSelected);
+
+                // Convert categories to widget format
+                const widgetCategories = categories.map(cat => ({
+                    id: cat.oc_category_id.toString(),
+                    label: cat.category
+                }));
+
+                // Update the widget
+                ocWidgetCatego.updateWidgetCategories(this.currentWidget, widgetCategories);
+
+                // Filter out deleted categories from selection
+                const validCategoryIds = widgetCategories.map(cat => cat.id);
+                const validSelectedValues = currentSelected.filter(id => validCategoryIds.includes(id));
+                
+                if (validSelectedValues.length !== currentSelected.length) {
+                    console.log('⚠️ Some selected categories were deleted, updating selection');
+                }
+
+                // Restore valid selections
+                ocWidgetCatego.setValue(this.currentWidget, validSelectedValues);
+
+                // Update linked select element
+                const selectId = this.currentWidget.dataset.oc_catego_linked_select;
+                if (selectId) {
+                    this.updateLinkedSelect(selectId, widgetCategories, validSelectedValues);
+                }
+
+                console.log('✅ Widget update completed');
+            },
+
+            // Update linked select element with new categories
+            updateLinkedSelect(selectId, categories, selectedValues) {
+                const selectElement = document.getElementById(selectId);
+                if (!selectElement) {
+                    console.warn('Linked select element not found:', selectId);
+                    return;
+                }
+
+                console.log('🔄 Updating linked select:', selectId);
+
+                // Clear existing options
+                selectElement.innerHTML = '';
+
+                // Add new options
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.label;
+                    option.selected = selectedValues.includes(category.id);
+                    selectElement.appendChild(option);
+                });
+
+                console.log('✅ Linked select updated');
             },
 
             // Load categories from server (only called once)
@@ -87,11 +470,13 @@ const ocCategoCRUD = {
                     if (result.success) {
                         this.setCategories(result.data);
                         this.renderFilteredCategories();
+                        console.log('📋 Categories loaded:', result.data.length);
                     } else {
                         this.showError(result.error || 'Error al cargar las categorías');
                     }
                 } catch (error) {
                     this.showError('Error de conexión al cargar las categorías');
+                    console.error('Error loading categories:', error);
                 } finally {
                     this.setLoading(false);
                 }
@@ -159,7 +544,7 @@ const ocCategoCRUD = {
                 return info.length > 100 ? info.substring(0, 100) + '...' : info;
             },
 
-            // Search functionality (local only)
+            // Setup search functionality
             setupSearch() {
                 const searchInput = document.getElementById('oc_catego_crud_search');
                 let searchTimeout;
@@ -273,6 +658,8 @@ const ocCategoCRUD = {
                         // Update only this row (no full reload)
                         this.updateCategoryRow(categoryId, newName);
                         
+                        console.log('✅ Category updated:', newName);
+                        
                     } else {
                         this.showError(result.error || 'Error al guardar la categoría');
                         input.focus();
@@ -280,6 +667,7 @@ const ocCategoCRUD = {
                 } catch (error) {
                     this.showError('Error de conexión al guardar la categoría');
                     input.focus();
+                    console.error('Error saving category:', error);
                 }
             },
 
@@ -380,15 +768,18 @@ const ocCategoCRUD = {
                             `;
                         }
                         
+                        console.log('🗑️ Category deleted:', categoryId);
+                        
                     } else {
                         this.showError(result.error || 'Error al eliminar la categoría');
                     }
                 } catch (error) {
                     this.showError('Error de conexión al eliminar la categoría');
+                    console.error('Error deleting category:', error);
                 }
             },
 
-            // Add new category (method 2: external dialog)
+            // Add new category
             addCategory() {
                 const state = this.getCurrentState();
                 
@@ -398,410 +789,6 @@ const ocCategoCRUD = {
                 } else {
                     // Show simple input dialog
                     this.showInputDialog();
-                }
-            },
-
-            // Open external form dialog
-            async openExternalForm(categoryData) {
-                const state = this.getCurrentState();
-                
-                try {
-                    // Prepare data for external form
-                    const formData = {
-                        category_type: state.categoryType,
-                        oc_category_id: categoryData ? categoryData.oc_category_id : null,
-                        category: categoryData ? categoryData.category : '',
-                        ...(categoryData ? categoryData.category_data || {} : {})
-                    };
-                    
-                    // Call external form function
-                    const result = await window[state.formFunction](formData);
-                    
-                    if (result && result !== 'cancel') {
-                        // Validate required fields
-                        if (!result.category_type || !result.category || result.category.trim() === '') {
-                            this.showValidationDialog('El formulario debe retornar category_type, category y oc_category_id');
-                            return;
-                        }
-                        
-                        // Save the data
-                        await this.saveExternalFormData(result);
-                    }
-                    // If result is 'cancel' or null, do nothing
-                    
-                } catch (error) {
-                    console.error('Error with external form:', error);
-                    this.showError('Error al procesar el formulario personalizado');
-                }
-            },
-
-            // Save data from external form
-            async saveExternalFormData(formResult) {
-                const state = this.getCurrentState();
-                
-                try {
-                    // Prepare form data for server
-                    const serverFormData = new FormData();
-                    serverFormData.append('action', 'upsert');
-                    serverFormData.append('category_type', formResult.category_type);
-                    serverFormData.append('category', formResult.category.trim());
-                    
-                    if (formResult.oc_category_id) {
-                        serverFormData.append('oc_category_id', formResult.oc_category_id);
-                    }
-                    
-                    // Add all other fields as category_data
-                    const reservedFields = ['category_type', 'oc_category_id', 'category'];
-                    for (const [key, value] of Object.entries(formResult)) {
-                        if (!reservedFields.includes(key) && value !== null && value !== undefined && value !== '') {
-                            serverFormData.append(key, value);
-                        }
-                    }
-                    
-                    const response = await fetch(this.apiUrl, {
-                        method: 'POST',
-                        body: serverFormData
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        if (formResult.oc_category_id) {
-                            // Update existing category
-                            this.updateCategoryInLocalData(formResult);
-                            this.updateCategoryRow(formResult.oc_category_id, formResult.category);
-                        } else {
-                            // Add new category
-                            const newCategory = {
-                                oc_category_id: result.data.oc_category_id,
-                                category: formResult.category,
-                                category_data: this.extractCategoryData(formResult),
-                                alta_db: new Date().toISOString().slice(0, 19).replace('T', ' ')
-                            };
-                            
-                            const categories = [...state.categories, newCategory];
-                            this.setCategories(categories);
-                            this.renderFilteredCategories();
-                        }
-                    } else {
-                        this.showError(result.error || 'Error al guardar la categoría');
-                    }
-                } catch (error) {
-                    this.showError('Error de conexión al guardar la categoría');
-                }
-            },
-
-            // Extract category_data from form result
-            extractCategoryData(formResult) {
-                const reservedFields = ['category_type', 'oc_category_id', 'category'];
-                const categoryData = {};
-                
-                for (const [key, value] of Object.entries(formResult)) {
-                    if (!reservedFields.includes(key) && value !== null && value !== undefined && value !== '') {
-                        categoryData[key] = value;
-                    }
-                }
-                
-                return categoryData;
-            },
-
-            // Update category in local data
-            updateCategoryInLocalData(formResult) {
-                const state = this.getCurrentState();
-                const categories = state.categories;
-                const categoryIndex = categories.findIndex(cat => cat.oc_category_id == formResult.oc_category_id);
-                
-                if (categoryIndex !== -1) {
-                    categories[categoryIndex].category = formResult.category;
-                    categories[categoryIndex].category_data = this.extractCategoryData(formResult);
-                    this.setCategories(categories);
-                }
-            },
-
-            // Show enhanced input dialog with custom fields
-            showEnhancedInputDialog(formConfig) {
-                const state = this.getCurrentState();
-                
-                // Create enhanced dialog
-                const enhancedDialog = document.createElement('dialog');
-                enhancedDialog.id = 'oc_catego_crud_enhanced_dialog';
-                enhancedDialog.className = 'sch_dialog sch_dialog--medium oc_catego_crud_enhanced_dialog';
-                
-                // Build form fields HTML
-                let fieldsHTML = `
-                    <!-- Standard category name field -->
-                    <div class="sch_form_group">
-                        <label class="sch_form_label" for="oc_catego_enhanced_category">Nombre de la Categoría *</label>
-                        <div class="oc_catego_crud_input_container">
-                            <input type="text" 
-                                   id="oc_catego_enhanced_category"
-                                   name="category"
-                                   class="sch_form_input" 
-                                   placeholder="Nombre de la categoría..."
-                                   required>
-                            <button type="button" class="oc_catego_crud_input_clear" onclick="this.previousElementSibling.value=''">&times;</button>
-                        </div>
-                    </div>
-                `;
-                
-                // Add custom fields
-                formConfig.fields.forEach((field, index) => {
-                    fieldsHTML += this.generateFieldHTML(field, index);
-                });
-                
-                enhancedDialog.innerHTML = `
-                    <div class="sch_dialog_header">
-                        <h2 class="sch_dialog_title">Nueva ${state.title.slice(0, -1)}</h2>
-                        <button class="sch_dialog_close" onclick="ocCategoCRUD.closeEnhancedDialog()">&times;</button>
-                    </div>
-                    <div class="sch_dialog_content">
-                        <form id="oc_catego_enhanced_form">
-                            ${fieldsHTML}
-                            
-                            <div id="oc_catego_enhanced_error" class="oc_catego_crud_error" style="display: none;"></div>
-                        </form>
-                    </div>
-                    <div class="sch_dialog_footer">
-                        <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeEnhancedDialog()">
-                            Cancelar
-                        </button>
-                        <button id="oc_catego_enhanced_save_btn" class="sch_dialog_button sch_dialog_button--success">
-                            Guardar
-                        </button>
-                    </div>
-                `;
-                
-                document.body.appendChild(enhancedDialog);
-                
-                // Setup event handlers
-                const saveBtn = enhancedDialog.querySelector('#oc_catego_enhanced_save_btn');
-                saveBtn.onclick = () => this.saveEnhancedCategory(formConfig);
-                
-                // Setup Enter key submission
-                const form = enhancedDialog.querySelector('#oc_catego_enhanced_form');
-                form.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        this.saveEnhancedCategory(formConfig);
-                    }
-                });
-                
-                // Setup Escape key
-                enhancedDialog.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        this.closeEnhancedDialog();
-                    }
-                });
-                
-                enhancedDialog.showModal();
-                
-                // Focus first input
-                const firstInput = enhancedDialog.querySelector('input, select, textarea');
-                if (firstInput) firstInput.focus();
-            },
-
-            // Generate HTML for a custom field
-            generateFieldHTML(field, index) {
-                const fieldId = `oc_catego_enhanced_field_${index}`;
-                const required = field.required ? 'required' : '';
-                const requiredMark = field.required ? ' *' : '';
-                
-                let inputHTML = '';
-                
-                switch (field.type) {
-                    case 'number':
-                        inputHTML = `
-                            <input type="number" 
-                                   id="${fieldId}"
-                                   name="${field.name}"
-                                   class="sch_form_input" 
-                                   placeholder="${field.placeholder || ''}"
-                                   value="${field.value || ''}"
-                                   min="${field.min || ''}"
-                                   max="${field.max || ''}"
-                                   step="${field.step || ''}"
-                                   ${required}>
-                        `;
-                        break;
-                        
-                    case 'textarea':
-                        inputHTML = `
-                            <textarea id="${fieldId}"
-                                     name="${field.name}"
-                                     class="sch_form_input sch_form_textarea" 
-                                     placeholder="${field.placeholder || ''}"
-                                     ${required}>${field.value || ''}</textarea>
-                        `;
-                        break;
-                        
-                    case 'select':
-                        let optionsHTML = '';
-                        if (Array.isArray(field.options)) {
-                            // Simple array of strings
-                            optionsHTML = field.options.map(opt => 
-                                `<option value="${this.escapeHtml(opt)}">${this.escapeHtml(opt)}</option>`
-                            ).join('');
-                        } else if (field.options && typeof field.options === 'object') {
-                            // Array of objects with value/text
-                            optionsHTML = field.options.map(opt => 
-                                `<option value="${this.escapeHtml(opt.value || opt)}" ${opt.value === field.value ? 'selected' : ''}>
-                                    ${this.escapeHtml(opt.text || opt.value || opt)}
-                                </option>`
-                            ).join('');
-                        }
-                        
-                        inputHTML = `
-                            <select id="${fieldId}"
-                                   name="${field.name}"
-                                   class="sch_form_input" 
-                                   ${required}>
-                                <option value="">Seleccionar...</option>
-                                ${optionsHTML}
-                            </select>
-                        `;
-                        break;
-                        
-                    case 'text':
-                    default:
-                        inputHTML = `
-                            <div class="oc_catego_crud_input_container">
-                                <input type="text" 
-                                       id="${fieldId}"
-                                       name="${field.name}"
-                                       class="sch_form_input" 
-                                       placeholder="${field.placeholder || ''}"
-                                       value="${field.value || ''}"
-                                       ${required}>
-                                <button type="button" class="oc_catego_crud_input_clear" onclick="this.previousElementSibling.value=''">&times;</button>
-                            </div>
-                        `;
-                        break;
-                }
-                
-                return `
-                    <div class="sch_form_group">
-                        <label class="sch_form_label" for="${fieldId}">${this.escapeHtml(field.label)}${requiredMark}</label>
-                        ${inputHTML}
-                    </div>
-                `;
-            },
-
-            // Save enhanced category with custom fields
-            async saveEnhancedCategory(formConfig) {
-                const form = document.getElementById('oc_catego_enhanced_form');
-                const formData = new FormData(form);
-                const categoryName = formData.get('category');
-                
-                if (!categoryName || !categoryName.trim()) {
-                    this.showEnhancedError('El nombre de la categoría es requerido');
-                    return;
-                }
-                
-                // Collect all form data
-                const allData = {};
-                for (let [key, value] of formData.entries()) {
-                    allData[key] = value;
-                }
-                
-                // Custom validation if provided
-                if (formConfig.validate && typeof formConfig.validate === 'function') {
-                    const validationError = formConfig.validate(allData);
-                    if (validationError) {
-                        this.showEnhancedError(validationError);
-                        return;
-                    }
-                }
-                
-                const state = this.getCurrentState();
-                
-                try {
-                    // Prepare form data for server
-                    const serverFormData = new FormData();
-                    serverFormData.append('action', 'upsert');
-                    serverFormData.append('category_type', state.categoryType);
-                    serverFormData.append('category', categoryName.trim());
-                    
-                    // Add custom fields to category_data
-                    const customData = {};
-                    for (let [key, value] of formData.entries()) {
-                        if (key !== 'category' && value) {
-                            customData[key] = value;
-                        }
-                    }
-                    
-                    // Add custom data as individual fields (will be collected by backend)
-                    for (let [key, value] of Object.entries(customData)) {
-                        serverFormData.append(key, value);
-                    }
-                    
-                    const response = await fetch(this.apiUrl, {
-                        method: 'POST',
-                        body: serverFormData
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        // Get display info from form config
-                        let displayName = categoryName;
-                        let displayInfo = '';
-                        
-                        if (formConfig.getDisplayName && typeof formConfig.getDisplayName === 'function') {
-                            displayName = formConfig.getDisplayName(allData);
-                        } else if (formConfig.displayName) {
-                            displayName = this.interpolateTemplate(formConfig.displayName, allData);
-                        }
-                        
-                        if (formConfig.getDisplayInfo && typeof formConfig.getDisplayInfo === 'function') {
-                            displayInfo = formConfig.getDisplayInfo(allData);
-                        } else if (formConfig.displayInfo) {
-                            displayInfo = this.interpolateTemplate(formConfig.displayInfo, allData);
-                        }
-                        
-                        // Add to local data
-                        const newCategory = {
-                            oc_category_id: result.data.oc_category_id,
-                            category: displayName,
-                            category_data: customData,
-                            alta_db: new Date().toISOString().slice(0, 19).replace('T', ' ')
-                        };
-                        
-                        const categories = [...state.categories, newCategory];
-                        this.setCategories(categories);
-                        
-                        this.closeEnhancedDialog();
-                        this.renderFilteredCategories();
-                        
-                    } else {
-                        this.showEnhancedError(result.error || 'Error al crear la categoría');
-                    }
-                } catch (error) {
-                    this.showEnhancedError('Error de conexión al crear la categoría');
-                }
-            },
-
-            // Interpolate template strings like "{{categoryName}} (Max: {{maximo}})"
-            interpolateTemplate(template, data) {
-                return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-                    return data[key] || match;
-                });
-            },
-
-            // Close enhanced dialog
-            closeEnhancedDialog() {
-                const enhancedDialog = document.getElementById('oc_catego_crud_enhanced_dialog');
-                if (enhancedDialog) {
-                    enhancedDialog.close();
-                    enhancedDialog.remove();
-                }
-            },
-
-            // Show error in enhanced dialog
-            showEnhancedError(message) {
-                const errorElement = document.getElementById('oc_catego_enhanced_error');
-                if (errorElement) {
-                    errorElement.textContent = message;
-                    errorElement.style.display = 'block';
                 }
             },
 
@@ -862,15 +849,6 @@ const ocCategoCRUD = {
                     const result = await response.json();
                     
                     if (result.success) {
-                        // Call custom form function if exists
-                        if (state.formFunction && typeof window[state.formFunction] === 'function') {
-                            try {
-                                await window[state.formFunction](state.categoryType, result.data.oc_category_id, categoryName);
-                            } catch (error) {
-                                console.warn('Error calling custom form function:', error);
-                            }
-                        }
-                        
                         // Add to local data
                         const newCategory = {
                             oc_category_id: result.data.oc_category_id,
@@ -887,6 +865,8 @@ const ocCategoCRUD = {
                         // Re-render with new category (maintains search filter)
                         this.renderFilteredCategories();
                         
+                        console.log('✅ New category created:', categoryName);
+                        
                     } else {
                         this.showInputError(result.error || 'Error al crear la categoría');
                         input.focus();
@@ -894,6 +874,7 @@ const ocCategoCRUD = {
                 } catch (error) {
                     this.showInputError('Error de conexión al crear la categoría');
                     input.focus();
+                    console.error('Error creating category:', error);
                 }
             },
 
@@ -986,14 +967,187 @@ const ocCategoCRUD = {
                         this.closeInputDialog();
                     }
                 });
-                
 
+                console.log('✅ CRUD dialog system initialized');
             }
         };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded',() => ocCategoCRUD.init());
-} else {
-    ocCategoCRUD.init();
-}
-console.log("___________catego_crud installed");
+        // Enhanced ocWidgetCatego with CRUD integration
+        const originalOpenCRUD = ocWidgetCatego.openCRUD;
+        ocWidgetCatego.openCRUD = function(entityType, button) {
+            const widget = button.closest('.oc_catego');
+            if (!widget) {
+                console.warn('Widget not found for CRUD operation');
+                return;
+            }
+
+            // Get API URL from widget data attribute
+            const apiUrl = widget.dataset.oc_catego_api;
+            if (!apiUrl) {
+                console.warn('API URL not found in widget data attributes');
+                alert('Error: API URL no configurada en el widget');
+                return;
+            }
+
+            console.log('🚀 Opening CRUD for entity type:', entityType);
+
+            // Set the API URL for CRUD operations
+            ocCategoCRUD.apiUrl = apiUrl;
+
+            // Open CRUD dialog with widget context
+            const title = entityType.charAt(0).toUpperCase() + entityType.slice(1) + 's';
+            ocCategoCRUD.openDialog(entityType, title, '', widget);
+        };
+
+        // Initialize CRUD system when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => ocCategoCRUD.init());
+        } else {
+            ocCategoCRUD.init();
+        }
+    </script>
+
+    <!-- Mock API for testing -->
+    <script id="oc_catego_mock_fetch">
+        // Override fetch for testing without server (with debug logging)
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (url.includes('catego/ajax.php') || url.includes('ajax.php')) {
+                console.log('🌐 MOCK API CALL:', url, options);
+                return mockCategoriesAPI(url, options);
+            }
+            return originalFetch.call(this, url, options);
+        };
+
+        // Mock API for testing
+        function mockCategoriesAPI(url, options) {
+            const body = options.body;
+            const formData = new URLSearchParams(body);
+            const action = formData.get('action');
+            const categoryType = formData.get('category_type');
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let response;
+                    
+                    switch (action) {
+                        case 'list':
+                            response = {
+                                success: true,
+                                error: null,
+                                data: getMockCategories(categoryType)
+                            };
+                            break;
+                            
+                        case 'upsert':
+                            const category = formData.get('category');
+                            const id = formData.get('oc_category_id');
+                            response = {
+                                success: true,
+                                error: null,
+                                data: {
+                                    oc_category_id: id || Math.floor(Math.random() * 1000) + 100,
+                                    category_type: categoryType,
+                                    category: category,
+                                    category_data: {}
+                                }
+                            };
+                            console.log('💾 MOCK UPSERT:', response.data);
+                            break;
+                            
+                        case 'delete':
+                            response = {
+                                success: true,
+                                error: null,
+                                data: { deleted: true }
+                            };
+                            console.log('🗑️ MOCK DELETE');
+                            break;
+                            
+                        default:
+                            response = { success: false, error: 'Unknown action' };
+                    }
+                    
+                    resolve({
+                        ok: response.success,
+                        json: () => Promise.resolve(response)
+                    });
+                }, 300); // Simulated network delay
+            });
+        }
+
+        function getMockCategories(categoryType) {
+            const categories = {
+                'clientes': [
+                    { oc_category_id: 1, category: 'Sin Credito', category_data: {}, alta_db: '2024-01-15 10:30:00' },
+                    { oc_category_id: 2, category: 'Mayoreo', category_data: {}, alta_db: '2024-01-15 10:31:00' },
+                    { oc_category_id: 3, category: 'Nuevo', category_data: {}, alta_db: '2024-01-15 10:32:00' },
+                    { oc_category_id: 4, category: 'Foraneo', category_data: {}, alta_db: '2024-01-15 10:33:00' },
+                    { oc_category_id: 5, category: 'Transportista', category_data: {}, alta_db: '2024-01-15 10:34:00' }
+                ],
+                'productos': [
+                    { oc_category_id: 10, category: 'Electrónicos', category_data: {}, alta_db: '2024-01-15 11:00:00' },
+                    { oc_category_id: 11, category: 'Ropa', category_data: {}, alta_db: '2024-01-15 11:01:00' },
+                    { oc_category_id: 12, category: 'Libros', category_data: {}, alta_db: '2024-01-15 11:02:00' }
+                ]
+            };
+            return categories[categoryType] || [];
+        }
+    </script>
+
+    <!-- Demo functions -->
+    <script id="demo-functions">
+        // Demo functions for testing
+        function showSelectedValues() {
+            const widget = document.querySelector('.oc_catego');
+            const selectedIds = ocWidgetCatego.getValue(widget);
+            const output = document.getElementById('demo-output');
+            
+            const selectElement = document.getElementById('cliente_categorias_select');
+            const selectValues = Array.from(selectElement.selectedOptions).map(o => `${o.value}:${o.text}`);
+            
+            output.innerHTML = `
+                <strong>Selected Values:</strong><br>
+                Widget IDs: [${selectedIds.join(', ')}]<br>
+                Select Values: [${selectValues.join(', ')}]<br>
+                <em>Updated: ${new Date().toLocaleTimeString()}</em>
+            `;
+        }
+
+        function setExternalValues() {
+            const widget = document.querySelector('.oc_catego');
+            ocWidgetCatego.setValue(widget, ['2', '3']); // Mayoreo and Nuevo
+            showSelectedValues();
+        }
+
+        function clearAllSelections() {
+            const widget = document.querySelector('.oc_catego');
+            ocWidgetCatego.clear(widget);
+            showSelectedValues();
+        }
+
+        // Auto-update demo display when widget changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const widget = document.querySelector('.oc_catego');
+            if (widget) {
+                // Override the onWidgetStateChanged to show updates
+                const originalStateChanged = ocWidgetCatego.onWidgetStateChanged;
+                ocWidgetCatego.onWidgetStateChanged = function(widget) {
+                    originalStateChanged.call(this, widget);
+                    
+                    // Update demo output
+                    setTimeout(() => {
+                        const output = document.getElementById('demo-output');
+                        const selectedIds = ocWidgetCatego.getValue(widget);
+                        output.innerHTML = `
+                            <strong>Widget State Changed:</strong><br>
+                            Selected: [${selectedIds.join(', ')}]<br>
+                            <em>Updated: ${new Date().toLocaleTimeString()}</em>
+                        `;
+                    }, 100);
+                };
+            }
+        });
+    </script>
+</body>
+</html>

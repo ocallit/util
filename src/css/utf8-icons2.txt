@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extensive UTF-8 Symbols Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #374151; /* Dark gray text */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius on cells */
+            border-spacing: 0;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* Light gray border */
+        }
+        th {
+            background-color: #eff6ff; /* Light blue header background */
+            font-weight: 600;
+            color: #1f2937; /* Slightly darker text for headers */
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .symbol-cell {
+            font-size: 1.8rem; /* Larger font for symbols */
+            text-align: center;
+        }
+        .description-cell {
+            font-size: 0.9rem;
+            color: #6b7280; /* Medium gray for descriptions */
+        }
+        .code-cell {
+            font-family: monospace;
+            background-color: #f9fafb; /* Very light gray for code */
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-center mb-8 text-indigo-700">Extensive UTF-8 Symbols Table</h1>
+        <p class="text-center text-lg mb-10 text-gray-600">
+            This table displays a wide range of common UTF-8 symbols, designed to render consistently across various operating systems and modern browsers (Chrome, Firefox, Safari on macOS/iOS, Windows).
+        </p>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 rounded-lg shadow-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">Category</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name / Description</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">HTML Entity / Unicode</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Arrows -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Arrows</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">→</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Rightwards Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;rarr; / U+2192</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">←</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Leftwards Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;larr; / U+2190</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↑</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Upwards Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;uarr; / U+2191</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↓</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Downwards Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;darr; / U+2193</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↔</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Left Right Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;harr; / U+2194</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↕</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Up Down Arrow</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;varr; / U+2195</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↵</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Downwards Arrow with Corner Leftwards (Return)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;crarr; / U+21B5</td>
+                    </tr>
+
+                    <!-- Mathematical Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Math</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">∑</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">N-ary Summation (Sigma)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;sum; / U+2211</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">∫</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Integral</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;int; / U+222B</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">√</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Square Root</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;radic; / U+221A</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">∞</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Infinity</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;infin; / U+221E</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">≈</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Almost Equal To</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;asymp; / U+2248</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">≠</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Not Equal To</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;ne; / U+2260</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">≤</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Less-than or Equal To</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;le; / U+2264</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">≥</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Greater-than or Equal To</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;ge; / U+2265</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">π</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Greek Small Letter Pi</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;pi; / U+03C0</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">∂</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Partial Differential</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;part; / U+2202</td>
+                    </tr>
+
+                    <!-- Currency Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Currency</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">€</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Euro Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;euro; / U+20AC</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">£</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Pound Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;pound; / U+00A3</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">¥</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Yen Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;yen; / U+00A5</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">₽</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Rubel Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8381; / U+20BD</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">₹</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Indian Rupee Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8377; / U+20B9</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">₩</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Won Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8361; / U+20A9</td>
+                    </tr>
+
+                    <!-- Punctuation & General Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">General</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">©</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Copyright Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;copy; / U+00A9</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">®</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Registered Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;reg; / U+00AE</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">™</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Trade Mark Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;trade; / U+2122</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">§</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Section Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;sect; / U+00A7</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">†</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Dagger</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;dagger; / U+2020</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">‡</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Double Dagger</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;Dagger; / U+2021</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">•</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Bullet</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;bull; / U+2022</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">…</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Horizontal Ellipsis</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;hellip; / U+2026</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">—</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Em Dash</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;mdash; / U+2014</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">–</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">En Dash</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&amp;ndash; / U+2013</td>
+                    </tr>
+
+                    <!-- Dingbats / Miscellaneous Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Dingbats</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">★</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Star</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9733; / U+2605</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☀</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Sun With Rays</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9728; / U+2600</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☁</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Cloud</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9729; / U+2601</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☂</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Umbrella</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9730; / U+2602</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☎</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Telephone</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9742; / U+260E</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✉</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Envelope</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9993; / U+2709</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✌</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Victory Hand</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9996; / U+270C</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✍</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Writing Hand</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9997; / U+270D</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✈</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Airplane</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9992; / U+2708</td>
+                    </tr>
+
+                    <!-- Geometric Shapes -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Shapes</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">●</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Circle</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9679; / U+25CF</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">○</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Circle</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9675; / U+25CB</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">■</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Square</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9632; / U+25A0</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">□</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Square</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9633; / U+25A1</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">▲</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Up-Pointing Triangle</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9650; / U+25B2</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">▼</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Down-Pointing Triangle</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9660; / U+25BC</td>
+                    </tr>
+
+                    <!-- Technical Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Technical</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⌘</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Place of Interest Sign (Command Key)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8984; / U+2318</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⌥</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Option Key</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8997; / U+2387</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⇧</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Up Arrowhead (Shift Key)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#8679; / U+21E7</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⌫</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Erase to the Left (Backspace)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9003; / U+232B</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">▶</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Right-Pointing Triangle (Play)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9654; / U+25B6</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⏸</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Pause Button</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9208; / U+23F8</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⏹</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Stop Button</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9209; / U+23F9</td>
+                    </tr>
+
+                    <!-- Emoji (a few common ones) -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Emoji</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">😊</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Smiling Face with Smiling Eyes</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128522; / U+1F60A</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">👍</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Thumbs Up Sign</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128077; / U+1F44D</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">❤️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Red Heart</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2764;&#xFE0F; / U+2764 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🚀</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Rocket</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128640; / U+1F680</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">💡</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Light Bulb</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128161; / U+1F4A1</td>
+                    </tr>
+
+                    <!-- Chess Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Chess</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">♔</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Chess King</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9812; / U+2654</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">♕</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Chess Queen</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9813; / U+2655</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">♖</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Chess Rook</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9814; / U+2656</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">♘</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Chess Knight</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9816; / U+2658</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">♟</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Black Chess Pawn</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9823; / U+265F</td>
+                    </tr>
+
+                    <!-- Miscellaneous Symbols -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Miscellaneous</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☠</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Skull and Crossbones (for skull)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9760; / U+2620</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">☮</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Peace Symbol</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9774; / U+262E</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⚛</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Atom Symbol</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9792; / U+269B</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⚙</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Gear (Heavy Black Gear)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9881; / U+2699</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⚑</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Flag</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9937; / U+2691</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⚡</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">High Voltage Sign (Lightning Bolt)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9889; / U+26A1</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✅</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Heavy Check Mark</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9989; / U+2705</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">❌</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Cross Mark</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#10060; / U+274C</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">❓</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Question Mark</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#10067; / U+2753</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">❗</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Heavy Exclamation Mark Symbol</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#10071; / U+2757</td>
+                    </tr>
+
+                    <!-- Web UI Actions (New Category) -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Web UI Actions</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">📁</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">File Folder (Open)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128193; / U+1F4C1</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">📋</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Clipboard (Copy/Paste)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128203; / U+1F4CB</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✏️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Pencil (Edit)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9999;&#xFE0F; / U+270F U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🖊️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Pen (Edit/Sign)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128395;&#xFE0F; / U+1F58A U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">💾</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Floppy Disk (Save)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128190; / U+1F4BE</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⬆️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Up-Right Arrow (Upload)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2B06;&#xFE0F; / U+2B06 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⬇️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Down-Left Arrow (Download)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2B07;&#xFE0F; / U+2B07 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↔️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Left-Right Arrow (Move/Resize)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2194;&#xFE0F; / U+2194 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">↕️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Up-Down Arrow (Move/Resize)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2195;&#xFE0F; / U+2195 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🖐️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Raised Hand (Grab/Drag)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128400;&#xFE0F; / U+1F590 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🔗</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Link Symbol</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128279; / U+1F517</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🗑️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Wastebasket (Delete)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128465;&#xFE0F; / U+1F5D1 U+FE0F</td>
+                    </tr>
+
+                    <!-- Cursor/Interaction Icons (New Category) -->
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Cursor/Interaction</td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🖱️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Computer Mouse</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128433;&#xFE0F; / U+1F5B1 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">👆</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">White Up Pointing Index</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128070; / U+1F446</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">⬇️</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Down Arrow (similar to resize cursor)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#x2B07;&#xFE0F; / U+2B07 U+FE0F</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">➕</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Plus Sign (Add/Zoom In)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#10133; / U+2795</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">➖</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Minus Sign (Subtract/Zoom Out)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#10134; / U+2796</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🔗</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Link Symbol (Link cursor)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128279; / U+1F517</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">🚫</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">No Entry Sign (Not Allowed/No Drop)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#128683; / U+1F6AB</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap symbol-cell">✋</td>
+                        <td class="px-6 py-4 whitespace-nowrap description-cell">Raised Hand (Grab/Stop)</td>
+                        <td class="px-6 py-4 whitespace-nowrap code-cell">&#9995; / U+270B</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

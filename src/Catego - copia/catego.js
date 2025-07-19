@@ -1,4 +1,4 @@
-/* ocCatego js with SortableJS Integration */
+/* ocCatego Widget js with SortableJS Integration */
 /* File: catego.js */
 /* Path: /catego/catego.js */
 /* Version: 1.1.0 */
@@ -6,7 +6,7 @@
 const ocWidgetCatego = {
     init(widget) {
         if (!widget) return false;
-        if (widget.dataset.oc_catego_Init === "1") return false;
+        if (widget.dataset.ocWidgetInit === "1") return false;
 
         this.removeListeners(widget);
         this.addListeners(widget);
@@ -20,7 +20,7 @@ const ocWidgetCatego = {
         this.updateCounters(widget);
         this.updateMoveAllButtons(widget);
 
-        widget.dataset.oc_catego_Init = "1";
+        widget.dataset.ocWidgetInit = "1";
         return true;
     },
 
@@ -34,11 +34,11 @@ const ocWidgetCatego = {
     },
 
     destroy(widget) {
-        if (!widget || widget.dataset.oc_catego_Init !== "1") return false;
+        if (!widget || widget.dataset.ocWidgetInit !== "1") return false;
 
         this.removeListeners(widget);
         this.destroySortable(widget);
-        delete widget.dataset.oc_catego_Init;
+        delete widget.dataset.ocWidgetInit;
         return true;
     },
 
@@ -99,8 +99,8 @@ const ocWidgetCatego = {
         const availableSortable = new Sortable(availableList, sortableConfig);
 
         // Store references for cleanup
-        widget.dataset.oc_catego_SiSortable = 'initialized';
-        widget.dataset.oc_catego_AvailableSortable = 'initialized';
+        widget.dataset.ocWidgetSiSortable = 'initialized';
+        widget.dataset.ocWidgetAvailableSortable = 'initialized';
         widget._siSortable = siSortable;
         widget._availableSortable = availableSortable;
     },
@@ -117,8 +117,8 @@ const ocWidgetCatego = {
             widget._availableSortable.destroy();
             delete widget._availableSortable;
         }
-        delete widget.dataset.oc_catego_SiSortable;
-        delete widget.dataset.oc_catego_AvailableSortable;
+        delete widget.dataset.ocWidgetSiSortable;
+        delete widget.dataset.ocWidgetAvailableSortable;
     },
 
     /**
@@ -342,7 +342,7 @@ const ocWidgetCatego = {
         this.updateCounters(widget);
         this.updateMoveAllButtons(widget);
 
-        console.log('✅ oc_catego updated successfully');
+        console.log('✅ Widget updated successfully');
     },
 
     clearSearch(button) {
@@ -521,12 +521,12 @@ const ocWidgetCatego = {
     openCRUD(entityType, button) {
         const widget = button.closest('.oc_catego');
         if (!widget) {
-            console.warn('.oc_catego not found for CRUD operation');
+            console.warn('Widget not found for CRUD operation');
             return;
         }
 
         // Get API URL from widget data attribute
-        const apiUrl = widget.dataset.oc_catego_api;
+        const apiUrl = widget.dataset.ocWidgetCategoApi;
         if (!apiUrl) {
             console.warn('API URL not found in widget data attributes');
             alert('Error: API URL no configurada en el widget');
@@ -534,14 +534,14 @@ const ocWidgetCatego = {
         }
 
         // Check if CRUD dialog system is available
-        if (typeof ocCategoCRUD === 'undefined') {
+        if (typeof ocWidgetCategoryCRUD === 'undefined') {
             console.warn('CRUD dialog system not loaded');
-            alert('Sistema de administración de categorías no disponible.\nIncluya el archivo catego_crud.js');
+            alert('Sistema de administración de categorías no disponible.\nIncluya el archivo occatego_crud_dialog.js');
             return;
         }
 
         // Open CRUD dialog with widget context
-        ocCategoCRUD.openDialog(entityType, apiUrl, widget);
+        ocWidgetCategoryCRUD.openDialog(entityType, apiUrl, widget);
     },
 
     clearSearchAfterMovement(widget) {
@@ -650,4 +650,4 @@ if (document.readyState === 'loading') {
 } else {
     ocWidgetCatego.initAll();
 }
-console.log("___________oc_catego installed");
+console.log('ocCatego Widget initialized');

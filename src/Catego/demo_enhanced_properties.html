@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <!-- Enhanced Category Properties Demo -->
+    <!-- File: catego_enhanced_demo.html -->
+    <!-- Path: /catego/catego_enhanced_demo.html -->
+    <!-- Version: 1.0.0 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Enhanced Category Properties Demo</title>
+    
+    <!-- Include base styles -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="catego.css">
+    <link rel="stylesheet" href="sch_dialog.css">
+    <link rel="stylesheet" href="catego_enhanced_properties.css">
+
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--color-surface);
+            border-radius: 12px;
+            box-shadow: var(--elevation-2);
+        }
+
+        .demo-title {
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed var(--color-border);
+            border-radius: 8px;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .demo-button--primary { background: var(--color-primary); color: white; }
+        .demo-button--info { background: var(--color-info); color: white; }
+        .demo-button--success { background: var(--color-success); color: white; }
+        .demo-button--warning { background: var(--color-warning); color: var(--color-text); }
+
+        .demo-output {
+            background: var(--color-neutral-bg);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border-left: 4px solid var(--color-info);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .property-example {
+            background: var(--color-accent-bg);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid var(--color-accent);
+        }
+
+        .property-type-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-internal { background: var(--color-tertiary); color: white; }
+        .badge-display { background: var(--color-info); color: white; }
+        .badge-input { background: var(--color-warning); color: var(--color-text); }
+        .badge-both { background: var(--color-success); color: white; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">Enhanced Category Properties Demo</h1>
+        
+        <p><strong>This demo shows the enhanced property system with 4 property types:</strong></p>
+        <ul>
+            <li><span class="property-type-badge badge-internal">internal</span> Only visible in CRUD dialog</li>
+            <li><span class="property-type-badge badge-display">display</span> Read-only when setting categories</li>
+            <li><span class="property-type-badge badge-input">input</span> Editable when setting categories</li>
+            <li><span class="property-type-badge badge-both">both</span> Display + input when setting categories</li>
+        </ul>
+
+        <div class="demo-section">
+            <h3>🏪 Product Categories with Enhanced Properties</h3>
+            <p>This widget demonstrates products with different property types. Click "Definir" to see the enhanced CRUD form.</p>
+
+            <!-- Demo buttons -->
+            <div class="demo-buttons">
+                <button class="demo-button demo-button--primary" onclick="testEnhancedDialog()">Test Enhanced Dialog</button>
+                <button class="demo-button demo-button--info" onclick="showPropertyValues()">Show Property Values</button>
+                <button class="demo-button demo-button--success" onclick="simulateFormSubmit()">Simulate Form Submit</button>
+                <button class="demo-button demo-button--warning" onclick="togglePropertyView()">Toggle Property View</button>
+            </div>
+
+            <div id="demo-output" class="demo-output">Ready to test enhanced properties...</div>
+
+            <!-- Hidden select for form integration -->
+            <select id="enhanced_products_select" name="enhanced_products[]" multiple style="display: none;">
+                <option value="101" selected>Laptops</option>
+                <option value="102">Smartphones</option>
+                <option value="103">Books</option>
+            </select>
+
+            <!-- Enhanced oc_catego -->
+            <div class="oc_catego" 
+                 data-oc_catego="enhanced_products" 
+                 data-oc_catego_linked_select="enhanced_products_select"
+                 data-oc_catego_api="catego/ajax.php"
+                 data-oc_catego_form_function="externalProductFormEnhanced">
+                
+                <div class="oc_catego_title">Enhanced Product Categories</div>
+
+                <div class="oc_catego_header">
+                    <div class="oc_catego_search-container">
+                        <input type="text" class="oc_catego_search-input" placeholder="Buscar categorías...">
+                        <button type="button" class="oc_catego_clear-btn" onclick="ocWidgetCatego.clearSearch(this)">&times;</button>
+                    </div>
+                    <button type="button" class="oc_catego_crud-button" onclick="ocWidgetCatego.openCRUD('enhanced_products', this)">
+                        &#9881; Definir (Enhanced)
+                    </button>
+                </div>
+
+                <div class="oc_catego_content">
+                    <div class="oc_catego_column oc_catego_column--selected">
+                        <div class="oc_catego_column-header">✓ Assigned Categories</div>
+                        <div class="oc_catego_list oc_catego_si"></div>
+                        <div class="oc_catego_column-footer">
+                            <button class="oc_catego_move-all-button" onclick="ocWidgetCatego.moveAllCategories(this, 'right')">
+                                Remove All ››
+                            </button>
+                            <div class="oc_catego_column-count">1 category</div>
+                        </div>
+                    </div>
+
+                    <div class="oc_catego_column oc_catego_column--available">
+                        <div class="oc_catego_column-header">○ Available Categories</div>
+                        <div class="oc_catego_list oc_catego_disponibles"></div>
+                        <div class="oc_catego_column-footer">
+                            <button class="oc_catego_move-all-button" onclick="ocWidgetCatego.moveAllCategories(this, 'left')">
+                                ‹‹ Assign All
+                            </button>
+                            <div class="oc_catego_column-count">2 categories</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>📋 Property Examples</h3>
+            <div class="property-example">
+                <h4>Display Property <span class="property-type-badge badge-display">display</span></h4>
+                <div class="oc_catego_property oc_catego_property--display">
+                    <span class="oc_catego_property_label">Warranty Period:</span>
+                    <span class="oc_catego_property_value">2 years</span>
+                </div>
+                <p><em>Shows information but user cannot edit it when setting categories.</em></p>
+            </div>
+
+            <div class="property-example">
+                <h4>Input Property <span class="property-type-badge badge-input">input</span></h4>
+                <div class="oc_catego_property oc_catego_property--input">
+                    <label class="oc_catego_property_label" for="demo_price">Custom Price:</label>
+                    <input type="text" id="demo_price" name="custom_price" 
+                           class="oc_catego_property_input" value="299.99" placeholder="Enter custom price">
+                </div>
+                <p><em>User can edit this value when setting categories. Stored in separate form field.</em></p>
+            </div>
+
+            <div class="property-example">
+                <h4>Both Property <span class="property-type-badge badge-both">both</span></h4>
+                <div class="oc_catego_property oc_catego_property--both">
+                    <div class="oc_catego_property_display">
+                        <span class="oc_catego_property_label">Supplier:</span>
+                        <span class="oc_catego_property_value">TechCorp Inc.</span>
+                    </div>
+                    <div class="oc_catego_property_input_container">
+                        <label class="oc_catego_property_label" for="demo_supplier">New Supplier:</label>
+                        <input type="text" id="demo_supplier" name="supplier" 
+                               class="oc_catego_property_input" value="TechCorp Inc." placeholder="Change supplier">
+                    </div>
+                </div>
+                <p><em>Shows current value AND allows editing. Best for fields that need context.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="sch_dialog.js"></script>
+    <script src="catego.js"></script>
+    <script src="catego_crud.js"></script>
+    <script src="catego_enhanced_properties.js"></script>
+
+    <script>
+        // Demo functions
+        function testEnhancedDialog() {
+            console.log('🧪 Testing enhanced dialog...');
+            
+            const testData = {
+                category_type: 'enhanced_products',
+                oc_category_id: 101,
+                category: 'Laptops',
+                stock_minimo: 10,
+                stock_maximo: 500,
+                ubicacion: 'A-15',
+                proveedor_interno: 'TechCorp (Internal only)'
+            };
+
+            if (typeof externalProductFormEnhanced === 'function') {
+                externalProductFormEnhanced(testData).then(result => {
+                    const output = document.getElementById('demo-output');
+                    if (result !== 'cancel') {
+                        output.innerHTML = `
+                            <strong>Enhanced Dialog Result:</strong><br>
+                            ${JSON.stringify(result, null, 2)}
+                        `;
+                    } else {
+                        output.innerHTML = '<strong>Dialog cancelled by user</strong>';
+                    }
+                }).catch(error => {
+                    console.error('Dialog error:', error);
+                });
+            } else {
+                alert('Enhanced dialog function not loaded. Check catego_enhanced_properties.js');
+            }
+        }
+
+        function showPropertyValues() {
+            const widget = document.querySelector('.oc_catego');
+            const output = document.getElementById('demo-output');
+            
+            // Get selected categories
+            const selectedIds = ocWidgetCatego.getValue(widget);
+            
+            // Get property values if available
+            let propertyValues = {};
+            if (typeof ocCategoryPropertySystem !== 'undefined') {
+                propertyValues = ocCategoryPropertySystem.getPropertyValues(widget);
+            }
+            
+            output.innerHTML = `
+                <strong>Current State:</strong><br>
+                Selected Categories: [${selectedIds.join(', ')}]<br>
+                Property Values: ${JSON.stringify(propertyValues, null, 2)}<br>
+                <em>Updated: ${new Date().toLocaleTimeString()}</em>
+            `;
+        }
+
+        function simulateFormSubmit() {
+            const widget = document.querySelector('.oc_catego');
+            const output = document.getElementById('demo-output');
+            
+            // Collect all form data that would be submitted
+            const formData = new FormData();
+            
+            // Add selected categories
+            const selectedIds = ocWidgetCatego.getValue(widget);
+            selectedIds.forEach(id => {
+                formData.append('enhanced_products[]', id);
+            });
+            
+            // Add property values
+            const propertyInputs = widget.querySelectorAll('.oc_catego_property_input');
+            propertyInputs.forEach(input => {
+                if (input.value.trim()) {
+                    formData.append(input.id, input.value);
+                }
+            });
+            
+            // Display what would be submitted
+            const submitData = {};
+            for (let [key, value] of formData.entries()) {
+                if (submitData[key]) {
+                    if (Array.isArray(submitData[key])) {
+                        submitData[key].push(value);
+                    } else {
+                        submitData[key] = [submitData[key], value];
+                    }
+                } else {
+                    submitData[key] = value;
+                }
+            }
+            
+            output.innerHTML = `
+                <strong>Form Submission Data:</strong><br>
+                ${JSON.stringify(submitData, null, 2)}<br>
+                <em>This would be sent to your backend for processing</em>
+            `;
+        }
+
+        let propertyViewVisible = true;
+        function togglePropertyView() {
+            const propertyContainers = document.querySelectorAll('.oc_catego_property_container');
+            propertyViewVisible = !propertyViewVisible;
+            
+            propertyContainers.forEach(container => {
+                container.style.display = propertyViewVisible ? 'block' : 'none';
+            });
+            
+            const output = document.getElementById('demo-output');
+            output.innerHTML = `
+                <strong>Property View:</strong> ${propertyViewVisible ? 'Visible' : 'Hidden'}<br>
+                <em>This demonstrates how properties can be toggled on/off</em>
+            `;
+        }
+
+        // Auto-update display when widget changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const widget = document.querySelector('.oc_catego');
+            if (widget && typeof ocWidgetCatego !== 'undefined') {
+                const originalStateChanged = ocWidgetCatego.onWidgetStateChanged;
+                ocWidgetCatego.onWidgetStateChanged = function(widget) {
+                    originalStateChanged.call(this, widget);
+                    
+                    // Auto-update output after changes
+                    setTimeout(() => {
+                        showPropertyValues();
+                    }, 100);
+                };
+            }
+        });
+
+        // Mock enhanced fetch for demo
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (url.includes('catego/ajax.php') && url.includes('enhanced_products')) {
+                console.log('🌐 MOCK ENHANCED API CALL:', url, options);
+                return mockEnhancedAPI(url, options);
+            }
+            return originalFetch.call(this, url, options);
+        };
+
+        function mockEnhancedAPI(url, options) {
+            const body = options.body;
+            const formData = new URLSearchParams(body);
+            const action = formData.get('action');
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let response;
+                    
+                    if (action === 'list') {
+                        response = {
+                            success: true,
+                            data: [
+                                {
+                                    oc_category_id: 101,
+                                    category: 'Laptops',
+                                    category_data: '{}',
+                                    _property_definitions: {
+                                        stock_minimo: { type: 'input', label: 'Stock Mínimo', value: '10' },
+                                        stock_maximo: { type: 'display', label: 'Stock Máximo', value: '500' },
+                                        ubicacion: { type: 'both', label: 'Ubicación', value: 'A-15' },
+                                        proveedor_interno: { type: 'internal', label: 'Proveedor', value: 'TechCorp' }
+                                    }
+                                },
+                                {
+                                    oc_category_id: 102,
+                                    category: 'Smartphones',
+                                    category_data: '{}',
+                                    _property_definitions: {
+                                        warranty: { type: 'display', label: 'Warranty', value: '1 year' },
+                                        custom_price: { type: 'input', label: 'Custom Price', value: '599.99' }
+                                    }
+                                },
+                                {
+                                    oc_category_id: 103,
+                                    category: 'Books',
+                                    category_data: '{}',
+                                    _property_definitions: {
+                                        publisher: { type: 'both', label: 'Publisher', value: 'TechBooks' }
+                                    }
+                                }
+                            ]
+                        };
+                    } else {
+                        response = { success: true, data: { oc_category_id: Math.floor(Math.random() * 1000) } };
+                    }
+                    
+                    resolve({
+                        ok: response.success,
+                        json: () => Promise.resolve(response)
+                    });
+                }, 300);
+            });
+        }
+    </script>
+</body>
+</html>
