@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-    <!-- Enhanced Category Properties Demo -->
     <!-- File: catego_enhanced_demo.html -->
     <!-- Path: /catego/catego_enhanced_demo.html -->
     <!-- Version: 1.0.0 -->
@@ -128,7 +127,7 @@
                 <option value="103">Books</option>
             </select>
 
-            <!-- Enhanced oc_catego -->
+
             <div class="oc_catego" 
                  data-oc_catego="enhanced_products" 
                  data-oc_catego_linked_select="enhanced_products_select"
@@ -139,18 +138,18 @@
 
                 <div class="oc_catego_header">
                     <div class="oc_catego_search-container">
-                        <input type="text" class="oc_catego_search-input" placeholder="Buscar categorías...">
+                        <input type="search" aria-label="Buscar categorías" role="searchbox" class="oc_catego_search-input" placeholder="Buscar categorías...">
                         <button type="button" class="oc_catego_clear-btn" onclick="ocWidgetCatego.clearSearch(this)">&times;</button>
                     </div>
                     <button type="button" class="oc_catego_crud-button" onclick="ocWidgetCatego.openCRUD('enhanced_products', this)">
-                        &#9881; Definir (Enhanced)
+                        &#9881; Definir
                     </button>
                 </div>
 
                 <div class="oc_catego_content">
                     <div class="oc_catego_column oc_catego_column--selected">
                         <div class="oc_catego_column-header">✓ Assigned Categories</div>
-                        <div class="oc_catego_list oc_catego_si"></div>
+                        <div class="oc_catego_list oc_catego_si" role="listbox" aria-label="Categorías asignadas"></div>
                         <div class="oc_catego_column-footer">
                             <button class="oc_catego_move-all-button" onclick="ocWidgetCatego.moveAllCategories(this, 'right')">
                                 Remove All ››
@@ -161,7 +160,7 @@
 
                     <div class="oc_catego_column oc_catego_column--available">
                         <div class="oc_catego_column-header">○ Available Categories</div>
-                        <div class="oc_catego_list oc_catego_disponibles"></div>
+                        <div class="oc_catego_list oc_catego_disponibles" role="listbox" aria-label="Categorías disponibles"></div>
                         <div class="oc_catego_column-footer">
                             <button class="oc_catego_move-all-button" onclick="ocWidgetCatego.moveAllCategories(this, 'left')">
                                 ‹‹ Assign All

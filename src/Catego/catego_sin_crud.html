@@ -95,24 +95,26 @@
 <body>
 
         <!-- Hidden select for form integration -->
-        <select id="cliente_categorias_select" name="cliente_categorias[]" multiple>
+        <select id="cliente_categorias_select" name="cliente_categorias[]" multiple style="display:none">
             <option value="1" selected>Sin Credito</option>
             <option value="5" selected>Transportista</option>
             <option value="2">Mayoreo</option>
-            <option value="3">Nuevo</option>
+            <option value="3">Con Credito</option>
             <option value="4">Foraneo</option>
         </select>
 
         <!-- Widget HTML -->
-        <div class="oc_catego" data-oc_catego="clientes" data-oc_catego_linked_select="cliente_categorias_select">
+        <div class="oc_catego" data-oc_catego="clientes" data-oc_catego_linked_select="cliente_categorias_select"
+             aria-label="Categorías de Clientes" role="group">
             <div class="oc_catego_title">Categorías de Clientes</div>
 
             <div class="oc_catego_header">
                 <div class="oc_catego_search-container">
                     <input 
-                        type="text" 
+                        type="search"
                         class="oc_catego_search-input"
-                        placeholder="Buscar categorías..." 
+                        placeholder="Buscar categorías..."
+                        aria-label="Buscar categorías"
                         value=""
                     >
                     <button 
@@ -123,18 +125,20 @@
                         title="Limpiar búsqueda"
                     >&times;</button>
                 </div>
+                <!-- enhancement for phase 2
                 <button 
                     type="button" 
                     class="oc_catego_crud-button"
                     title="Administrar, altas, bajas y cambios de categorías"
                     onclick="ocWidgetCatego.openCRUD('clientes')"
                 >&#9881; Definir</button>
+                -->
             </div>
 
             <div class="oc_catego_content">
                 <div class="oc_catego_column oc_catego_column--selected">
                     <div class="oc_catego_column-header">✓ Asignadas</div>
-                    <div class="oc_catego_list oc_catego_si"></div>
+                    <div class="oc_catego_list oc_catego_si" role="listbox" aria-label="Categorías asignadas"></div>
                     <div class="oc_catego_column-footer">
                         <button 
                             class="oc_catego_move-all-button oc_catego_move-all-button--from-assigned"
@@ -148,7 +152,7 @@
 
                 <div class="oc_catego_column oc_catego_column--available">
                     <div class="oc_catego_column-header">○ Disponibles</div>
-                    <div class="oc_catego_list oc_catego_disponibles"></div>
+                    <div class="oc_catego_list oc_catego_disponibles" role="listbox" aria-label="Categorías disponibles"></div>
                     <div class="oc_catego_column-footer">
                         <button 
                             class="oc_catego_move-all-button oc_catego_move-all-button--from-available"

@@ -491,3 +491,36 @@
         padding: 6px 16px;
     }
 }
+
+
+/* Read-only state styles */
+.oc_catego--readonly {
+    opacity: 0.8;
+}
+
+.oc_catego--readonly .oc_catego_title::after {
+    content: ' (Solo Lectura)';
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+.oc_catego--readonly .oc_catego_item {
+    cursor: default;
+}
+
+.oc_catego--readonly .oc_catego_drag-handle {
+    cursor: not-allowed !important;
+    opacity: 0.3;
+}
+
+.oc_catego--readonly .oc_catego_arrow-button:disabled {
+    background: var(--color-border) !important;
+    color: var(--color-text-muted) !important;
+    border-color: var(--color-border) !important;
+}
+
+.oc_catego--readonly .oc_catego_move-all-button:disabled {
+    background: var(--color-border) !important;
+    color: var(--color-text-muted) !important;
+}

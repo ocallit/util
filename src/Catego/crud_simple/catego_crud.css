@@ -1,6 +1,3 @@
-Redundant sch_dialog_grow_content usage: The oc_catego_crud_dialog has class="sch_dialog_grow_content sch_dialog". The sch_dialog_grow_content is defined to set up a grid-template-rows: auto 1fr auto; which implies it's intended for the direct child of the dialog that holds header, content, and footer. However, the dialog itself is given this class. While it might work due to flex behavior or specific CSS, it's a bit unconventional. Usually, you'd have a wrapper div inside the dialog with this class.
-
-sch_dialog_content max-height: In sch_dialog.css, .sch_dialog_content has max-height: calc(90vh - 200px);. In oc_catego_crud_html.html, the .oc_catego_crud_enhanced_dialog (which is never directly used as a class on a dialog, but as an example) sets max-height: 60vh; overflow-y: auto;. This implies that dialogs can have different max-heights depending on context, which is good, but the global sch_dialog_content might need adjustment or override. The overflow: hidden on sch_dialog_grow_content might conflict with inner overflow-y: auto in certain complex resizing scenarios.
 
         #oc_catego_crud_list {
             height: 100%;

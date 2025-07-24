@@ -1,9 +1,9 @@
-/* Enhanced Category Property System */
+
 /* File: catego_enhanced_properties.js */
 /* Path: /catego/catego_enhanced_properties.js */
 /* Version: 1.0.0 */
 
-// Enhanced property definition for external forms
+
 const ocCategoryPropertySystem = {
     
     // Property type definitions
@@ -15,7 +15,7 @@ const ocCategoryPropertySystem = {
     },
 
     /**
-     * Enhanced external form function with property definitions
+     * External form function with property definitions
      * @param {Object} data - Category data from CRUD
      * @returns {Promise} - Resolves with form result or 'cancel'
      */
@@ -27,7 +27,7 @@ const ocCategoryPropertySystem = {
             dialog.innerHTML = `
                 <div class="sch_dialog_header">
                     <h2 class="sch_dialog_title">${data.oc_category_id ? 'Editar' : 'Nueva'} Categoría de Producto</h2>
-                    <button class="sch_dialog_close" onclick="this.closest('dialog').close()">&times;</button>
+                    <button class="sch_dialog_close" onclick="this.closest('dialog').close()" >&times;</button>
                 </div>
                 <div class="sch_dialog_content">
                     <form>

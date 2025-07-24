@@ -897,7 +897,6 @@ const ocCategoCRUD = {
                 }
             },
 
-            // Show validation dialog instead of alert
             showValidationDialog(message) {
                 // Create a temporary validation dialog
                 const validationDialog = document.createElement('dialog');
