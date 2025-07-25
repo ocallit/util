@@ -707,7 +707,8 @@ const OcCategoWidget = {
         }
 
         // Open CRUD dialog with widget context
-        ocCategoCRUD.openDialog(entityType, apiUrl, widget);
+        const title = widget.dataset.oc_catego_title_crud || "Editar Categorías"
+        ocCategoCRUD.openDialog(entityType, title, widget);
     },
 
     clearSearchAfterMovement(widget) {

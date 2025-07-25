@@ -51,7 +51,7 @@ const ocCategoCRUD = {
         dialog.dataset.loading = 'false';
         dialog.dataset.widgetId = widget?.id || `temp_${Date.now()}`; // Store widget identifier
 
-        titleElement.textContent = `Categorías para: ${title}`;
+        titleElement.textContent = title;
 
         // Clear search and error
         this.clearSearch(widget);
