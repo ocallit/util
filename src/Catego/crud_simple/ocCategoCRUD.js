@@ -1,89 +1,98 @@
-/** ocCategoCRUD
+/** ocCategoCRUD - Refactored for Multiple Widget Support
  *  file: ocCategoCRUD.js
- *  version: 1.0.0
- * @type {{apiUrl: string, currentWidget: null, getCurrentState(): {categoryType, title, formFunction, categories: any, isLoading: boolean}, setCategories(*): void, setLoading(*): void, openDialog(*, *, string=, null=): void, closeDialog(boolean=): void, updateWidgetFromCRUD(): void, updateLinkedSelect(*, *, *): void, loadCategories(): Promise<void>, renderFilteredCategories(): void, renderCategoryItem(*): string, getCategoryInfo(*): (string|string|string), setupSearch(): void, clearSearch(): void, editCategory(*, *): void, openExternalForm(*): Promise<void>, saveExternalFormData(*): Promise<void>, extractCategoryData(*): {}, updateCategoryInLocalData(*): void, editCategoryInline(*, *): void, saveInlineCategory(*): Promise<void>, updateCategoryRow(*, *): void, cancelEdit(*, *): void, confirmDelete(*, *): void, closeConfirmDialog(): void, deleteCategory(*): Promise<void>, addCategory(): void, showInputDialog(): void, closeInputDialog(): void, clearInputDialog(): void, saveNewCategory(): Promise<void>, showValidationDialog(*): void, showError(*): void, hideError(): void, showInputError(*): void, hideInputError(): void, escapeHtml(*): string, init(): void}}
+ *  version: 2.0.0
  */
 const ocCategoCRUD = {
+    version: '2.0.1',
     // API endpoint
     apiUrl: 'catego/ajax.php',
 
-    // Current widget reference for updates
-    currentWidget: null,
+    // Utility: Get widget from any event target
+    getWidgetFromEvent(element) {
+        return element.closest('.oc_catego') ||
+            document.querySelector(`[data-oc_catego="${element.closest('[data-id]')?.dataset.categoryType}"]`);
+    },
 
-    // Current state (no persistent properties to allow multiple instances)
-    getCurrentState() {
+    // Get state from dialog (widget-agnostic)
+    getState(widget) {
         const dialog = document.getElementById('oc_catego_crud_dialog');
         return {
+            widget: widget, // Include widget reference in state
             categoryType: dialog.dataset.categoryType || '',
             title: dialog.dataset.title || '',
-            formFunction: dialog.dataset.form || '',
             categories: JSON.parse(dialog.dataset.categories || '[]'),
             isLoading: dialog.dataset.loading === 'true'
         };
     },
 
     // Set categories data
-    setCategories(categories) {
+    setCategories(widget, categories) {
         const dialog = document.getElementById('oc_catego_crud_dialog');
         dialog.dataset.categories = JSON.stringify(categories);
     },
 
     // Set loading state
-    setLoading(loading) {
+    setLoading(widget, loading) {
         const dialog = document.getElementById('oc_catego_crud_dialog');
         dialog.dataset.loading = loading.toString();
     },
 
     // Open the main administration dialog
-    openDialog(categoryType, title, formFunction = '', widget = null) {
+    openDialog(categoryType, title,  widget = null) {
         console.log('🚀 Opening CRUD dialog for:', categoryType, title);
 
         const dialog = document.getElementById('oc_catego_crud_dialog');
         const titleElement = document.getElementById('oc_catego_crud_title');
 
-        // Store widget reference for updates
-        this.currentWidget = widget;
-
-        // Set dialog properties
+        // Set dialog properties (including widget reference)
         dialog.dataset.categoryType = categoryType;
         dialog.dataset.title = title;
-        dialog.dataset.form = formFunction;
         dialog.dataset.categories = '[]';
         dialog.dataset.loading = 'false';
+        dialog.dataset.widgetId = widget?.id || `temp_${Date.now()}`; // Store widget identifier
 
         titleElement.textContent = `Categorías para: ${title}`;
 
         // Clear search and error
-        this.clearSearch();
-        this.hideError();
+        this.clearSearch(widget);
+        this.hideError(widget);
 
         // Load categories only once
-        this.loadCategories();
+        this.loadCategories(widget);
 
         dialog.showModal();
     },
 
     // Close the main dialog with optional widget update
-    closeDialog(updateWidget = true) {
+    closeDialog(buttonOrWidget, updateWidget = true) {
         const dialog = document.getElementById('oc_catego_crud_dialog');
-
-        if (updateWidget && this.currentWidget) {
+        const widget = document.getElementById(dialog.dataset.widgetId);
+        console.log('🔄 DECIDO SI UPDATEAR', widget);
+        updateWidget =true;
+        if (updateWidget && widget) {
             console.log('🔄 Updating widget after CRUD dialog close');
-            this.updateWidgetFromCRUD();
+            this.updateWidgetFromCRUD(buttonOrWidget);
         }
 
         dialog.close();
-        this.currentWidget = null; // Clear reference
+        delete dialog.dataset.widgetId; // Clear reference
     },
 
-    // Update widget with latest categories from CRUD
-    updateWidgetFromCRUD() {
-        if (!this.currentWidget) {
+    // Update widget with latest categories from CRUD - FIXED VERSION
+    updateWidgetFromCRUD(widget) {
+        console.log("**** updateWidgetFromCRUD called!!!")
+        if (!widget) {
+            const dialog = document.getElementById('oc_catego_crud_dialog');
+            const widgetId = dialog.dataset.widgetId;
+            widget = document.getElementById(widgetId) || document.querySelector(`[data-oc_catego]`);
+        }
+
+        if (!widget) {
             console.warn('No widget reference available for update');
             return;
         }
 
-        const state = this.getCurrentState();
+        const state = this.getState(widget);
         const categories = state.categories;
 
         if (!Array.isArray(categories) || categories.length === 0) {
@@ -93,9 +102,22 @@ const ocCategoCRUD = {
 
         console.log('📋 Updating widget with categories:', categories);
 
-        // Get current selected values before update
-        const currentSelected = ocWidgetCatego.getValue(this.currentWidget);
-        console.log('💾 Current selected values:', currentSelected);
+        // Get current selected values before update (from both widget and select)
+        const currentSelectedFromWidget = OcCategoWidget.getValue(widget);
+
+        // Also check the linked select to ensure consistency
+        const selectId = widget.dataset.oc_catego_linked_select;
+        let currentSelectedFromSelect = [];
+        if (selectId) {
+            const selectElement = document.getElementById(selectId);
+            if (selectElement) {
+                currentSelectedFromSelect = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+            }
+        }
+
+        // Use the union of both selections to ensure nothing is lost
+        const allCurrentSelected = [...new Set([...currentSelectedFromWidget, ...currentSelectedFromSelect])];
+        console.log('💾 Current selected values (combined):', allCurrentSelected);
 
         // Convert categories to widget format
         const widgetCategories = categories.map(cat => ({
@@ -103,27 +125,43 @@ const ocCategoCRUD = {
             label: cat.category
         }));
 
-        // Update the widget
-        ocWidgetCatego.updateWidgetCategories(this.currentWidget, widgetCategories);
+        // Create a map for quick lookup of new category labels
+        const categoryLabelMap = new Map();
+        widgetCategories.forEach(cat => {
+            categoryLabelMap.set(cat.id, cat.label);
+        });
 
         // Filter out deleted categories from selection
         const validCategoryIds = widgetCategories.map(cat => cat.id);
-        const validSelectedValues = currentSelected.filter(id => validCategoryIds.includes(id));
+        const validSelectedValues = allCurrentSelected.filter(id => validCategoryIds.includes(id));
 
-        if (validSelectedValues.length !== currentSelected.length) {
-            console.log('⚠️ Some selected categories were deleted, updating selection');
+        if (validSelectedValues.length !== allCurrentSelected.length) {
+            const deletedCount = allCurrentSelected.length - validSelectedValues.length;
+            console.log(`⚠️ ${deletedCount} selected categories were deleted, updating selection`);
         }
 
-        // Restore valid selections
-        ocWidgetCatego.setValue(this.currentWidget, validSelectedValues);
+        // Update the widget with new categories
+        OcCategoWidget.updateWidgetCategories(widget, widgetCategories);
+
+        // Restore valid selections to widget
+        OcCategoWidget.setValue(widget, validSelectedValues);
 
         // Update linked select element
-        const selectId = this.currentWidget.dataset.oc_catego_linked_select;
         if (selectId) {
             this.updateLinkedSelect(selectId, widgetCategories, validSelectedValues);
         }
 
-        console.log('✅ oc_catego update completed');
+        // Ensure widget state is consistent
+        OcCategoWidget.updateCounters(widget);
+        OcCategoWidget.updateMoveAllButtons(widget);
+
+        console.log('✅ Widget and select update completed');
+
+        return {
+            totalCategories: categories.length,
+            selectedCategories: validSelectedValues.length,
+            deletedFromSelection: allCurrentSelected.length - validSelectedValues.length
+        };
     },
 
     // Update linked select element with new categories
@@ -152,15 +190,15 @@ const ocCategoCRUD = {
     },
 
     // Load categories from server (only called once)
-    async loadCategories() {
-        const state = this.getCurrentState();
+    async loadCategories(widget) {
+        const state = this.getState(widget);
 
         // Prevent double loading
         if (state.isLoading) {
             return;
         }
 
-        this.setLoading(true);
+        this.setLoading(widget, true);
         const listElement = document.getElementById('oc_catego_crud_list');
 
         listElement.innerHTML = '<div class="oc_catego_crud_loading">Cargando categorías...</div>';
@@ -178,23 +216,24 @@ const ocCategoCRUD = {
             const result = await response.json();
 
             if (result.success) {
-                this.setCategories(result.data);
-                this.renderFilteredCategories();
+                this.setCategories(widget, result.data);
+                this.renderFilteredCategories(widget);
+                this.updateWidgetFromCRUD(widget);
                 console.log('📋 Categories loaded:', result.data.length);
             } else {
-                this.showError(result.error || 'Error al cargar las categorías');
+                this.showError(widget, result.error || 'Error al cargar las categorías');
             }
         } catch (error) {
-            this.showError('Error de conexión al cargar las categorías');
+            this.showError(widget, 'Error de conexión al cargar las categorías');
             console.error('Error loading categories:', error);
         } finally {
-            this.setLoading(false);
+            this.setLoading(widget, false);
         }
     },
 
     // Local search and render (no server call)
-    renderFilteredCategories() {
-        const state = this.getCurrentState();
+    renderFilteredCategories(widget) {
+        const state = this.getState(widget);
         const listElement = document.getElementById('oc_catego_crud_list');
         const searchTerm = document.getElementById('oc_catego_crud_search').value.toLowerCase();
 
@@ -205,40 +244,41 @@ const ocCategoCRUD = {
 
         if (filteredCategories.length === 0) {
             listElement.innerHTML = `
-                        <div class="oc_catego_crud_empty_message">
-                            ${searchTerm ? 'No se encontraron categorías que coincidan con la búsqueda' : 'No hay categorías registradas'}
-                        </div>
-                    `;
+                <div class="oc_catego_crud_empty_message">
+                    ${searchTerm ? 'No se encontraron categorías que coincidan con la búsqueda' : 'No hay categorías registradas'}
+                </div>
+            `;
             return;
         }
 
         listElement.innerHTML = filteredCategories.map(category =>
-            this.renderCategoryItem(category)
+            this.renderCategoryItem(widget, category)
         ).join('');
     },
 
     // Render individual category item
-    renderCategoryItem(category) {
+    renderCategoryItem(widget, category) {
         const infoText = this.getCategoryInfo(category);
 
         return `
-                    <div class="oc_catego_crud_category_item" data-id="${category.oc_category_id}">
-                        <div class="oc_catego_crud_category_content">
-                            <div class="oc_catego_crud_category_name">${this.escapeHtml(category.category)}</div>
-                            ${infoText ? `<div class="oc_catego_crud_category_info">${infoText}</div>` : ''}
-                        </div>
-                        <div class="oc_catego_crud_category_actions">
-                            <button class="oc_catego_crud_btn oc_catego_crud_btn_edit" 
-                                    onclick="ocCategoCRUD.editCategory(${category.oc_category_id}, '${this.escapeHtml(category.category)}')">
-                                Editar
-                            </button>
-                            <button class="oc_catego_crud_btn oc_catego_crud_btn_delete" 
-                                    onclick="ocCategoCRUD.confirmDelete(${category.oc_category_id}, '${this.escapeHtml(category.category)}')">
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                `;
+            <div class="oc_catego_crud_category_item" data-id="${category.oc_category_id}">
+            <div class="oc_catego_crud_category_actions">
+                    <button class="oc_catego_crud_btn oc_catego_crud_btn_edit" 
+                            onclick="ocCategoCRUD.editCategory(this, ${category.oc_category_id}, '${this.escapeHtml(category.category)}')">
+                        Editar
+                    </button>
+                    <button class="oc_catego_crud_btn oc_catego_crud_btn_delete" 
+                            onclick="ocCategoCRUD.confirmDelete(this, ${category.oc_category_id}, '${this.escapeHtml(category.category)}')">
+                        Eliminar
+                    </button>
+                </div>
+                <div class="oc_catego_crud_category_content">
+                    <div class="oc_catego_crud_category_name">${this.escapeHtml(category.category)}</div>
+                    ${infoText ? `<div class="oc_catego_crud_category_info">${infoText}</div>` : ''}
+                </div>
+                
+            </div>
+        `;
     },
 
     // Get category info summary
@@ -259,133 +299,30 @@ const ocCategoCRUD = {
         const searchInput = document.getElementById('oc_catego_crud_search');
         let searchTimeout;
 
-        searchInput.addEventListener('input', () => {
+        searchInput.addEventListener('input', (event) => {
+            // Get widget from dialog dataset or from current context
+            const dialog = document.getElementById('oc_catego_crud_dialog');
+            const widgetId = dialog.dataset.widgetId;
+            const widget = document.getElementById(widgetId) ||
+                document.querySelector(`[data-oc_catego]`); // Fallback
+
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                this.renderFilteredCategories(); // Local search only
+                this.renderFilteredCategories(widget); // Local search only
             }, 100); // Faster response for local search
         });
     },
 
     // Clear search
-    clearSearch() {
+    clearSearch(widget) {
         document.getElementById('oc_catego_crud_search').value = '';
-        this.renderFilteredCategories();
+        this.renderFilteredCategories(widget);
     },
 
-    // Edit category inline or with external form
-    editCategory(categoryId, currentName) {
-        const state = this.getCurrentState();
-
-        if (state.formFunction && typeof window[state.formFunction] === 'function') {
-            // Get category data and open external form
-            const category = state.categories.find(cat => cat.oc_category_id == categoryId);
-            if (category) {
-                this.openExternalForm(category);
-            }
-        } else {
-            // Use inline editing
-            this.editCategoryInline(categoryId, currentName);
-        }
-    },
-
-    // Open external form dialog
-    async openExternalForm(categoryData) {
-        const state = this.getCurrentState();
-
-        try {
-            // Prepare data for external form
-            const formData = {
-                category_type: state.categoryType,
-                oc_category_id: categoryData ? categoryData.oc_category_id : null,
-                category: categoryData ? categoryData.category : '',
-                ...(categoryData && categoryData.category_data ? categoryData.category_data : {})
-            };
-
-            console.log('🔧 Opening external form with data:', formData);
-
-            // Call external form function
-            const result = await window[state.formFunction](formData);
-
-            if (result && result !== 'cancel') {
-                // Validate required fields
-                if (!result.category_type || !result.category || result.category.trim() === '') {
-                    this.showValidationDialog('El formulario debe retornar category_type, category y oc_category_id válidos');
-                    return;
-                }
-
-                console.log('💾 External form returned:', result);
-
-                // Save the data
-                await this.saveExternalFormData(result);
-            }
-            // If result is 'cancel' or null, do nothing
-
-        } catch (error) {
-            console.error('Error with external form:', error);
-            this.showError('Error al procesar el formulario personalizado');
-        }
-    },
-
-    // Save data from external form
-    async saveExternalFormData(formResult) {
-        const state = this.getCurrentState();
-
-        try {
-            // Prepare form data for server
-            const serverFormData = new FormData();
-            serverFormData.append('action', 'upsert');
-            serverFormData.append('category_type', formResult.category_type);
-            serverFormData.append('category', formResult.category.trim());
-
-            if (formResult.oc_category_id) {
-                serverFormData.append('oc_category_id', formResult.oc_category_id);
-            }
-
-            // Add all other fields as category_data
-            const reservedFields = ['category_type', 'oc_category_id', 'category'];
-            for (const [key, value] of Object.entries(formResult)) {
-                if (!reservedFields.includes(key) && value !== null && value !== undefined && value !== '') {
-                    serverFormData.append(key, value);
-                }
-            }
-
-            console.log('🌐 Sending external form data to server...');
-
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                body: serverFormData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                if (formResult.oc_category_id) {
-                    // Update existing category
-                    this.updateCategoryInLocalData(formResult);
-                    this.updateCategoryRow(formResult.oc_category_id, formResult.category);
-                    console.log('✅ External category updated:', formResult.category);
-                } else {
-                    // Add new category
-                    const newCategory = {
-                        oc_category_id: result.data.oc_category_id,
-                        category: formResult.category,
-                        category_data: this.extractCategoryData(formResult),
-                        alta_db: new Date().toISOString().slice(0, 19).replace('T', ' ')
-                    };
-
-                    const categories = [...state.categories, newCategory];
-                    this.setCategories(categories);
-                    this.renderFilteredCategories();
-                    console.log('✅ External category created:', formResult.category);
-                }
-            } else {
-                this.showError(result.error || 'Error al guardar la categoría');
-            }
-        } catch (error) {
-            this.showError('Error de conexión al guardar la categoría');
-            console.error('Error saving external form data:', error);
-        }
+    editCategory(buttonElement, categoryId, currentName) {
+        const widget = this.getWidgetFromEvent(buttonElement);
+        const state = this.getState(widget);
+        this.editCategoryInline(widget, categoryId, currentName);
     },
 
     // Extract category_data from form result
@@ -403,20 +340,20 @@ const ocCategoCRUD = {
     },
 
     // Update category in local data
-    updateCategoryInLocalData(formResult) {
-        const state = this.getCurrentState();
+    updateCategoryInLocalData(widget, formResult) {
+        const state = this.getState(widget);
         const categories = state.categories;
         const categoryIndex = categories.findIndex(cat => cat.oc_category_id == formResult.oc_category_id);
 
         if (categoryIndex !== -1) {
             categories[categoryIndex].category = formResult.category;
             categories[categoryIndex].category_data = this.extractCategoryData(formResult);
-            this.setCategories(categories);
+            this.setCategories(widget, categories);
         }
     },
 
     // Inline editing (original method)
-    editCategoryInline(categoryId, currentName) {
+    editCategoryInline(widget, categoryId, currentName) {
         const categoryItem = document.querySelector(`[data-id="${categoryId}"]`);
         const contentDiv = categoryItem.querySelector('.oc_catego_crud_category_content');
         const actionsDiv = categoryItem.querySelector('.oc_catego_crud_category_actions');
@@ -426,27 +363,27 @@ const ocCategoCRUD = {
 
         // Replace content with edit form
         contentDiv.innerHTML = `
-                    <div class="oc_catego_crud_edit_container">
-                        <div class="oc_catego_crud_input_container">
-                            <input type="text" 
-                                   class="oc_catego_crud_edit_input" 
-                                   value="${this.escapeHtml(currentName)}"
-                                   onkeypress="if(event.key==='Enter') ocCategoCRUD.saveInlineCategory(${categoryId})"
-                                   onkeydown="if(event.key==='Escape') ocCategoCRUD.cancelEdit(${categoryId}, '${this.escapeHtml(currentName)}')">
-                            <button class="oc_catego_crud_input_clear" onclick="this.previousElementSibling.value=''" aria-label="Limpiar búsqueda">&times;</button>
-                        </div>
-                        <div class="oc_catego_crud_edit_actions">
-                            <button class="oc_catego_crud_btn oc_catego_crud_btn_save" 
-                                    onclick="ocCategoCRUD.saveInlineCategory(${categoryId})">
-                                Guardar
-                            </button>
-                            <button class="oc_catego_crud_btn oc_catego_crud_btn_cancel" 
-                                    onclick="ocCategoCRUD.cancelEdit(${categoryId}, '${this.escapeHtml(currentName)}')">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                `;
+            <div class="oc_catego_crud_edit_container">
+                <div class="oc_catego_crud_input_container">
+                    <input type="text" 
+                           class="oc_catego_crud_edit_input" 
+                           value="${this.escapeHtml(currentName)}"
+                           onkeypress="if(event.key==='Enter') ocCategoCRUD.saveInlineCategory(this, ${categoryId})"
+                           onkeydown="if(event.key==='Escape') ocCategoCRUD.cancelEdit(this, ${categoryId}, '${this.escapeHtml(currentName)}')">
+                    <button class="oc_catego_crud_input_clear" onclick="this.previousElementSibling.value=''" aria-label="Limpiar búsqueda">&times;</button>
+                </div>
+                <div class="oc_catego_crud_edit_actions">
+                    <button class="oc_catego_crud_btn oc_catego_crud_btn_save" 
+                            onclick="ocCategoCRUD.saveInlineCategory(this, ${categoryId})">
+                        Guardar
+                    </button>
+                    <button class="oc_catego_crud_btn oc_catego_crud_btn_cancel" 
+                            onclick="ocCategoCRUD.cancelEdit(this, ${categoryId}, '${this.escapeHtml(currentName)}')">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        `;
 
         // Focus and select the input
         const input = contentDiv.querySelector('.oc_catego_crud_edit_input');
@@ -454,8 +391,9 @@ const ocCategoCRUD = {
         input.select();
     },
 
-    // Save inline category changes (renamed from saveCategory)
-    async saveInlineCategory(categoryId) {
+    // Save inline category changes
+    async saveInlineCategory(buttonElement, categoryId) {
+        const widget = this.getWidgetFromEvent(buttonElement);
         const categoryItem = document.querySelector(`[data-id="${categoryId}"]`);
         const input = categoryItem.querySelector('.oc_catego_crud_edit_input');
         const newName = input.value.trim();
@@ -466,7 +404,7 @@ const ocCategoCRUD = {
             return;
         }
 
-        const state = this.getCurrentState();
+        const state = this.getState(widget);
 
         try {
             const formData = new FormData();
@@ -488,28 +426,28 @@ const ocCategoCRUD = {
                 const categoryIndex = categories.findIndex(cat => cat.oc_category_id == categoryId);
                 if (categoryIndex !== -1) {
                     categories[categoryIndex].category = newName;
-                    this.setCategories(categories);
+                    this.setCategories(widget, categories);
                 }
 
                 // Update only this row (no full reload)
-                this.updateCategoryRow(categoryId, newName);
-
+                this.updateCategoryRow(widget, categoryId, newName);
+                this.updateWidgetFromCRUD(widget);
                 console.log('✅ Category updated:', newName);
 
             } else {
-                this.showError(result.error || 'Error al guardar la categoría');
+                this.showError(widget, result.error || 'Error al guardar la categoría');
                 input.focus();
             }
         } catch (error) {
-            this.showError('Error de conexión al guardar la categoría');
+            this.showError(widget, 'Error de conexión al guardar la categoría');
             input.focus();
             console.error('Error saving category:', error);
         }
     },
 
     // Update single category row after save
-    updateCategoryRow(categoryId, categoryName) {
-        const state = this.getCurrentState();
+    updateCategoryRow(widget, categoryId, categoryName) {
+        const state = this.getState(widget);
         const category = state.categories.find(cat => cat.oc_category_id == categoryId);
         if (!category) return;
 
@@ -521,51 +459,51 @@ const ocCategoCRUD = {
 
         // Restore original content with updated name
         contentDiv.innerHTML = `
-                    <div class="oc_catego_crud_category_name">${this.escapeHtml(categoryName)}</div>
-                    ${infoText ? `<div class="oc_catego_crud_category_info">${infoText}</div>` : ''}
-                `;
+            <div class="oc_catego_crud_category_name">${this.escapeHtml(categoryName)}</div>
+            ${infoText ? `<div class="oc_catego_crud_category_info">${infoText}</div>` : ''}
+        `;
 
         // Show actions
         actionsDiv.style.display = 'flex';
     },
 
     // Cancel edit
-    cancelEdit(categoryId, originalName) {
+    cancelEdit(buttonElement, categoryId, originalName) {
         const categoryItem = document.querySelector(`[data-id="${categoryId}"]`);
         const contentDiv = categoryItem.querySelector('.oc_catego_crud_category_content');
         const actionsDiv = categoryItem.querySelector('.oc_catego_crud_category_actions');
 
         // Restore original content
         contentDiv.innerHTML = `
-                    <div class="oc_catego_crud_category_name">${this.escapeHtml(originalName)}</div>
-                `;
+            <div class="oc_catego_crud_category_name">${this.escapeHtml(originalName)}</div>
+        `;
 
         // Show actions
         actionsDiv.style.display = 'flex';
     },
 
-    // Confirm delete
-    confirmDelete(categoryId, categoryName) {
-        const confirmDialog = document.getElementById('oc_catego_crud_confirm_dialog');
-        const categoryElement = document.getElementById('oc_catego_crud_confirm_category');
-        const deleteBtn = document.getElementById('oc_catego_crud_confirm_delete_btn');
+    /* region: Delete Category */
 
-        categoryElement.textContent = categoryName;
-
-        deleteBtn.onclick = () => this.deleteCategory(categoryId);
-
-        confirmDialog.showModal();
-    },
-
-    // Close confirmation dialog
-    closeConfirmDialog() {
-        const confirmDialog = document.getElementById('oc_catego_crud_confirm_dialog');
-        confirmDialog.close();
+    confirmDelete(buttonElement, categoryId, categoryName) {
+        schConfirmBorrar(
+            '¿Está seguro de <b>borrar</b> la categoría: <b>' + categoryName + '</b>?',
+             'Confirme Eliminar la Categoría'
+        ).then(confirmed => {
+            if (confirmed) {
+                this.deleteCategory(buttonElement, categoryId, categoryName)
+                    .catch(error => {
+                        // Show feedback if deletion fails
+                        //this.showError('No se pudo eliminar la categoría. Está en uso o ocurrió un error.');
+                        console.error('Error deleting category:', error);
+                    });
+            }
+        });
     },
 
     // Delete category (remove single row)
-    async deleteCategory(categoryId) {
-        const state = this.getCurrentState();
+    async deleteCategory(buttonElement, categoryId, categoryName) {
+        const widget = this.getWidgetFromEvent(buttonElement);
+        const state = this.getState(widget);
 
         try {
             const formData = new FormData();
@@ -579,13 +517,12 @@ const ocCategoCRUD = {
             });
 
             const result = await response.json();
-
             if (result.success) {
-                this.closeConfirmDialog();
+
 
                 // Remove from local data
                 const categories = state.categories.filter(cat => cat.oc_category_id != categoryId);
-                this.setCategories(categories);
+                this.setCategories(widget, categories);
 
                 // Remove the row from DOM (no full reload)
                 const categoryItem = document.querySelector(`[data-id="${categoryId}"]`);
@@ -598,39 +535,36 @@ const ocCategoCRUD = {
                 if (listElement.children.length === 0) {
                     const searchTerm = document.getElementById('oc_catego_crud_search').value.toLowerCase();
                     listElement.innerHTML = `
-                                <div class="oc_catego_crud_empty_message">
-                                    ${searchTerm ? 'No se encontraron categorías que coincidan con la búsqueda' : 'No hay categorías registradas'}
-                                </div>
-                            `;
+                        <div class="oc_catego_crud_empty_message">
+                            ${searchTerm ? 'No se encontraron categorías que coincidan con la búsqueda' : 'No hay categorías registradas'}
+                        </div>
+                    `;
                 }
-
+                this.showError("");
+                this.updateWidgetFromCRUD(widget);
                 console.log('🗑️ Category deleted:', categoryId);
 
             } else {
-                this.showError(result.error || 'Error al eliminar la categoría');
+                this.showError(widget, result.error || 'Error al eliminar la categoría: ' + categoryName);
             }
         } catch (error) {
-            this.showError('Error de conexión al eliminar la categoría');
+            this.showError(widget, 'Error de conexión al eliminar la categoría: ' + categoryName);
             console.error('Error deleting category:', error);
         }
     },
 
-    // Add new category
-    addCategory() {
-        const state = this.getCurrentState();
+    /* endregion: Delete Category */
 
-        if (state.formFunction && typeof window[state.formFunction] === 'function') {
-            // Call external dialog function
-            this.openExternalForm(null);
-        } else {
-            // Show simple input dialog
-            this.showInputDialog();
-        }
+    // Add new category
+    addCategory(buttonElement) {
+        const widget = this.getWidgetFromEvent(buttonElement);
+        const state = this.getState(widget);
+        this.showInputDialog(widget);
     },
 
     // Show input dialog for new category
-    showInputDialog() {
-        const state = this.getCurrentState();
+    showInputDialog(widget) {
+        const state = this.getState(widget);
         const inputDialog = document.getElementById('oc_catego_crud_input_dialog');
         const titleElement = document.getElementById('oc_catego_crud_input_title');
         const input = document.getElementById('oc_catego_crud_input_dialog_input');
@@ -640,7 +574,7 @@ const ocCategoCRUD = {
         input.value = '';
         this.hideInputError();
 
-        saveBtn.onclick = () => this.saveNewCategory();
+        saveBtn.onclick = () => this.saveNewCategory(widget);
 
         inputDialog.showModal();
         input.focus();
@@ -660,8 +594,8 @@ const ocCategoCRUD = {
     },
 
     // Save new category (add to list without reload)
-    async saveNewCategory() {
-        const state = this.getCurrentState();
+    async saveNewCategory(widget) {
+        const state = this.getState(widget);
         const input = document.getElementById('oc_catego_crud_input_dialog_input');
         const categoryName = input.value.trim();
 
@@ -694,13 +628,13 @@ const ocCategoCRUD = {
                 };
 
                 const categories = [...state.categories, newCategory];
-                this.setCategories(categories);
+                this.setCategories(widget, categories);
 
                 this.closeInputDialog();
 
                 // Re-render with new category (maintains search filter)
-                this.renderFilteredCategories();
-
+                this.renderFilteredCategories(widget);
+                this.updateWidgetFromCRUD(widget);
                 console.log('✅ New category created:', categoryName);
 
             } else {
@@ -714,28 +648,27 @@ const ocCategoCRUD = {
         }
     },
 
-
     showValidationDialog(message) {
         // Create a temporary validation dialog
         const validationDialog = document.createElement('dialog');
         validationDialog.className = 'sch_dialog sch_dialog--small';
         validationDialog.innerHTML = `
-                    <div class="sch_dialog_header">
-                        <h2 class="sch_dialog_title">Error de validación</h2>
-                        <button class="sch_dialog_close" onclick="this.closest('dialog').close(); this.closest('dialog').remove();">&times;</button>
-                    </div>
-                    <div class="sch_dialog_content">
-                        <div style="text-align: center; padding: 20px;">
-                            <div style="font-size: 48px; color: var(--color-warning); margin-bottom: 16px;">⚠️</div>
-                            <div style="font-size: 16px; color: var(--color-text);">${this.escapeHtml(message)}</div>
-                        </div>
-                    </div>
-                    <div class="sch_dialog_footer">
-                        <button class="sch_dialog_button sch_dialog_button--primary" onclick="this.closest('dialog').close(); this.closest('dialog').remove();">
-                            Entendido
-                        </button>
-                    </div>
-                `;
+            <div class="sch_dialog_header">
+                <h2 class="sch_dialog_title">Error de validación</h2>
+                <button class="sch_dialog_close" onclick="this.closest('dialog').close(); this.closest('dialog').remove();">&times;</button>
+            </div>
+            <div class="sch_dialog_content">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; color: var(--color-warning); margin-bottom: 16px;">⚠️</div>
+                    <div style="font-size: 16px; color: var(--color-text);">${this.escapeHtml(message)}</div>
+                </div>
+            </div>
+            <div class="sch_dialog_footer">
+                <button class="sch_dialog_button sch_dialog_button--primary" onclick="this.closest('dialog').close(); this.closest('dialog').remove();">
+                    Entendido
+                </button>
+            </div>
+        `;
 
         document.body.appendChild(validationDialog);
         validationDialog.showModal();
@@ -751,13 +684,13 @@ const ocCategoCRUD = {
     },
 
     // Error handling
-    showError(message) {
+    showError(widget, message) {
         const errorElement = document.getElementById('oc_catego_crud_error');
         errorElement.textContent = message;
         errorElement.style.display = 'block';
     },
 
-    hideError() {
+    hideError(widget) {
         const errorElement = document.getElementById('oc_catego_crud_error');
         errorElement.style.display = 'none';
     },
@@ -785,25 +718,36 @@ const ocCategoCRUD = {
         // Setup search functionality
         this.setupSearch();
 
-        // Setup add button
-        const addBtn = document.getElementById('oc_catego_crud_add_btn');
-        addBtn.addEventListener('click', () => this.addCategory());
+        // Setup add button - Use event delegation to avoid widget parameter issue
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'oc_catego_crud_add_btn') {
+                this.addCategory(e.target);
+            }
+        });
 
         // Setup Enter key for input dialog
         const inputDialogInput = document.getElementById('oc_catego_crud_input_dialog_input');
-        inputDialogInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.saveNewCategory();
-            }
-        });
+        if (inputDialogInput) {
+            inputDialogInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    // Get widget from dialog context
+                    const dialog = document.getElementById('oc_catego_crud_dialog');
+                    const widgetId = dialog.dataset.widgetId;
+                    const widget = document.getElementById(widgetId) ||
+                        document.querySelector(`[data-oc_catego]`);
+                    this.saveNewCategory(widget);
+                }
+            });
 
-        // Setup Escape key for input dialog
-        inputDialogInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeInputDialog();
-            }
-        });
+            // Setup Escape key for input dialog
+            inputDialogInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.closeInputDialog();
+                }
+            });
+        }
 
-        console.log('✅ CRUD dialog system initialized');
+        console.log('✅ ocCategoCRUD.js: ocCategoCRUD.init(): initialized', this.version);
     }
+
 };

@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-    <!-- Integrated ocCatego Demo with CRUD -->
-    <!-- File: catego_integrated.html -->
-    <!-- Path: /catego/catego_integrated.html -->
-    <!-- Version: 1.0.0 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -508,84 +504,7 @@
             </div>
         </div>
 
-<div style="display:none">
-        <!-- Demo oc_catego with External Dialog -->
-        <div style="margin-top: 30px; padding: 20px; border: 2px dashed var(--color-info); border-radius: 8px;">
-            <h3 style="color: var(--color-info); margin-top: 0;">oc_catego with External Product Dialog</h3>
-            
-            <!-- Hidden select for external dialog demo -->
-            <select id="productos_select" name="productos[]" multiple>
-                <option value="10" selected>Electrónicos</option>
-                <option value="11">Ropa</option>
-                <option value="12">Libros</option>
-            </select>
 
-            <!-- oc_catego with external form function -->
-            <div class="oc_catego"
-                 aria-label="Categorías de Clientes" role="group"
-                 data-oc_catego="productos" 
-                 data-oc_catego_linked_select="productos_select"
-                 data-oc_catego_api="catego/ajax.php"
-                 data-oc_catego_form_function="externalProductForm">
-                
-                <div class="oc_catego_title">Categorías de Productos (External Dialog)</div>
-
-                <div class="oc_catego_header">
-                    <div class="oc_catego_search-container">
-                        <input 
-                            type="search" aria-label="Buscar categorías" role="searchbox"
-                            class="oc_catego_search-input"
-                            placeholder="Buscar categorías..." 
-                            value=""
-                        >
-                        <button 
-                            type="button" 
-                            tabindex="-1" 
-                            class="oc_catego_clear-btn"
-                            onclick="ocWidgetCatego.clearSearch(this)"
-                            title="Limpiar búsqueda"
-                        >&times;</button>
-                    </div>
-                    <button 
-                        type="button" 
-                        class="oc_catego_crud-button"
-                        title="Administrar categorías con diálogo externo"
-                        onclick="ocWidgetCatego.openCRUD('productos', this)"
-                    >&#9881; Definir (External)</button>
-                </div>
-
-                <div class="oc_catego_content">
-                    <div class="oc_catego_column oc_catego_column--selected">
-                        <div class="oc_catego_column-header">✓ Asignadas</div>
-                        <div class="oc_catego_list oc_catego_si" role="listbox" aria-label="Categorías asignadas"></div>
-                        <div class="oc_catego_column-footer">
-                            <button 
-                                class="oc_catego_move-all-button oc_catego_move-all-button--from-assigned"
-                                type="button"
-                                onclick="ocWidgetCatego.moveAllCategories(this, 'right')"
-                                title="Remover todas las categorías"
-                            >Quitar Todas ››</button>
-                            <div class="oc_catego_column-count">n categorías</div>
-                        </div>
-                    </div>
-
-                    <div class="oc_catego_column oc_catego_column--available">
-                        <div class="oc_catego_column-header">○ Disponibles</div>
-                        <div class="oc_catego_list oc_catego_disponibles" role="listbox" aria-label="Categorías disponibles"></div>
-                        <div class="oc_catego_column-footer">
-                            <button 
-                                class="oc_catego_move-all-button oc_catego_move-all-button--from-available"
-                                type="button"
-                                onclick="ocWidgetCatego.moveAllCategories(this, 'left')"
-                                title="Asignar todas las categorías"
-                            >‹‹ Asignar Todas</button>
-                            <div class="oc_catego_column-count">n categorías</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-</div>
 
     </div>
 
@@ -624,7 +543,6 @@
             </button>
         </div>
     </dialog>
-
     <!-- Delete confirmation dialog -->
     <dialog id="oc_catego_crud_confirm_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_confirm_dialog">
         <div class="sch_dialog_header">
@@ -655,7 +573,6 @@
             </button>
         </div>
     </dialog>
-
     <!-- Input dialog for adding new categories -->
     <dialog id="oc_catego_crud_input_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_input_dialog">
         <div class="sch_dialog_header">

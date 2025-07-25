@@ -3,9 +3,11 @@
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
         }
-    dialog.sch_dialog:not([open]) {
-        display: none!important;
-    }
+
+        dialog.sch_dialog:not([open]) {
+            display: none!important;
+        }
+
         /* Base dialog styling */
         .sch_dialog {
             border: none;
@@ -15,19 +17,20 @@
             box-shadow: var(--elevation-4);
             max-width: 90vw;
             max-height: 90vh;
-            width: 600px;
+
             position: relative;
             animation: dialogSlideIn 0.3s ease-out;
             resize: both;
             overflow: hidden;
         }
         .sch_dialog_grow_content {
+            padding:0  1.2em 0 0;
             display: grid;
             grid-template-rows: auto 1fr auto; /* header, content (flexible), footer */
             grid-template-columns: 100%;
-            width: 600px;
-            max-width: 90vw;
-            max-height: 90vh;
+
+            max-width: 96vw;
+            max-height: 96vh;
             resize: both;
             overflow: hidden;
 
@@ -293,3 +296,15 @@
             min-height: 100px;
             resize: vertical;
         }
+
+    .sch_input_clear {
+        position: absolute;
+        cursor: pointer;
+        right: 6px;
+        color: var(--color-text-muted);
+    }
+
+    .sch_input_clear:hover {
+        color: var(--color-fail);
+        background: rgba(220, 53, 69, 0.1);
+    }

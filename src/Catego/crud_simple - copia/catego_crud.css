@@ -83,7 +83,7 @@
         .oc_catego_crud_category_actions {
             display: flex;
             gap: 8px;
-            margin-right: 1em;
+            margin-left: 12px;
         }
 
         .oc_catego_crud_btn {
@@ -215,6 +215,40 @@
             padding: 10px;
             margin: 10px 0;
             font-size: 14px;
+        }
+
+        /* Confirmation dialog styling */
+        .oc_catego_crud_confirm_dialog {
+            width: 400px;
+            max-width: 90vw;
+        }
+
+        .oc_catego_crud_confirm_content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .oc_catego_crud_confirm_icon {
+            font-size: 48px;
+            color: var(--color-warning);
+            margin-bottom: 16px;
+        }
+
+        .oc_catego_crud_confirm_text {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: var(--color-text);
+        }
+
+        .oc_catego_crud_confirm_category {
+            font-weight: bold;
+            color: var(--color-primary);
+            background: var(--color-primary-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 16px 0;
+            font-family: monospace;
         }
 
         .oc_catego_crud_input_dialog_content {

@@ -2,12 +2,13 @@
 <html lang="es-MX">
 <head>
     <!-- Integrated ocCatego Demo with CRUD -->
-    <!-- File: catego_crud_simple -->
+    <!-- File: catego_integrated.html -->
+    <!-- Path: /catego/catego_integrated.html -->
     <!-- Version: 1.0.0 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>Category selector</title>
+    <title>ocCateg + CRUD</title>
     
     <!-- Include widget CSS -->
     <link rel="stylesheet" href="base.css">
@@ -19,7 +20,7 @@
 </head>
 <body>
     <div>
-        <h1>Categorias!</h1>
+        <h1>Categorias</h1>
 
 
         <!-- Hidden select for form integration -->
@@ -31,14 +32,14 @@
             <option value="4">Foraneo</option>
         </select>
 
-        <div class="oc_catego" id="gato"
+        <div class="oc_catego"
              aria-label="Categorías de Clientes" role="group"
              data-oc_catego="clientes" 
              data-oc_catego_linked_select="cliente_categorias_select"
              data-oc_catego_api="catego/ajax.php"
 
              data-oc_catego_permissions_crud="true"
-             data-oc_catego_permissions_assign="r/w"
+             data-oc_catego_permissions_assign="add"
             >
             <div class="oc_catego_title">Categorías de Clientes</div>
             <div class="oc_catego_header">
@@ -94,6 +95,8 @@
             </div>
         </div>
 
+
+
     </div>
 
     <!-- Widget's CRUD Dialog HTML (embedded) -->
@@ -101,7 +104,7 @@
     <dialog id="oc_catego_crud_dialog" class="sch_dialog_grow_content sch_dialog">
         <div class="sch_dialog_header" style="margin: 0 auto;padding: 0" >
             <h2 id="oc_catego_crud_title" class="sch_dialog_title">Definir Categorías</h2>
-            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeDialog(this)">&times;</button>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeDialog()">&times;</button>
         </div>
 
         <div class="sch_dialog_content">
@@ -115,8 +118,10 @@
                 </div>
                 <div><button id="oc_catego_crud_add_btn" class="oc_catego_crud_btn oc_catego_crud_btn_add">+ Nueva Categoría</button></div>
             </div>
+
             <!-- Error message area -->
             <div id="oc_catego_crud_error" class="oc_catego_crud_error" style="display: none;"></div>
+
             <!-- Categories list -->
             <div id="oc_catego_crud_list" style="margin: 0 auto;padding: 0" class="oc_catego_crud_categories_list">
                 <div class="oc_catego_crud_loading">Cargando categorías...</div>
@@ -124,11 +129,43 @@
         </div>
 
         <div class="sch_dialog_footer">
-            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeDialog(this)">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeDialog()">
                 Cerrar
             </button>
         </div>
     </dialog>
+
+    <!-- Delete confirmation dialog -->
+    <dialog id="oc_catego_crud_confirm_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_confirm_dialog">
+        <div class="sch_dialog_header">
+            <h2 class="sch_dialog_title">Confirmar Eliminación</h2>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeConfirmDialog()">&times;</button>
+        </div>
+
+        <div class="sch_dialog_content">
+            <div class="oc_catego_crud_confirm_content">
+                <div class="oc_catego_crud_confirm_icon">⚠️</div>
+                <div class="oc_catego_crud_confirm_text">
+                    ¿Está seguro que desea eliminar la categoría?
+                </div>
+                <div id="oc_catego_crud_confirm_category" class="oc_catego_crud_confirm_category"></div>
+                <div style="font-size: 14px; color: var(--color-text-light);">
+                    Esta acción no se puede deshacer.
+                </div>
+            </div>
+        </div>
+
+        <div class="sch_dialog_footer">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeConfirmDialog()">
+                Cancelar
+            </button>
+            <button id="oc_catego_crud_confirm_delete_btn" class="sch_dialog_button"
+                    style="background: var(--color-fail); color: var(--color-fail-bg);">
+                Eliminar
+            </button>
+        </div>
+    </dialog>
+
     <!-- Input dialog for adding new categories -->
     <dialog id="oc_catego_crud_input_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_input_dialog">
         <div class="sch_dialog_header">

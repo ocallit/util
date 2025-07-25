@@ -3,11 +3,9 @@
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
         }
-
-        dialog.sch_dialog:not([open]) {
-            display: none!important;
-        }
-
+    dialog.sch_dialog:not([open]) {
+        display: none!important;
+    }
         /* Base dialog styling */
         .sch_dialog {
             border: none;
@@ -296,15 +294,3 @@
             min-height: 100px;
             resize: vertical;
         }
-
-    .sch_input_clear {
-        position: absolute;
-        cursor: pointer;
-        right: 6px;
-        color: var(--color-text-muted);
-    }
-
-    .sch_input_clear:hover {
-        color: var(--color-fail);
-        background: rgba(220, 53, 69, 0.1);
-    }
