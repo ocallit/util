@@ -2,6 +2,9 @@
 Utilities
 ## WIP
 
+## css dialogs Documentation
+See [SCH Dialog System Documentation](SCH-DIALOG-DOCS.md) for complete usage guide.
+
 ### Memorize
 Store result of slow computation, considering parameter values, for a pure function
 
