@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>Street Light Semaphore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* General body styling */
+    body {
+      display: flex;
+      flex-direction: column; /* Arrange semaphores and controls vertically */
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: white; /* Dark background for contrast */
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden; /* Prevent horizontal scrollbars */
+      padding: 20px; /* Add some padding around the content */
+      box-sizing: border-box; /* Include padding in element's total width and height */
+    }
+
+    /* Container for multiple semaphores to control their layout */
+    .semaphores-row-container {
+      display: flex;
+      flex-wrap: wrap; /* Allow semaphores to wrap to the next line on smaller screens */
+      justify-content: center; /* Center semaphores horizontally */
+      align-items: flex-start; /* Align items to the top */
+      gap: 10px; /* Reduced space between individual semaphores */
+      width: 100%; /* Take full width of body */
+      max-width: 1200px; /* Max width for the container on very large screens */
+      margin-bottom: 30px; /* Space between semaphores and controls */
+    }
+
+    /* This is the primary container for sizing each individual semaphore */
+    .semaphore-container {
+      /* Default size. This can be overridden by inline style or specific size classes. */
+      width: 150px; /* A reasonable default width for demonstration */
+      display: flex; /* To center the pole inside if needed */
+      justify-content: center;
+      align-items: flex-start;
+      flex-shrink: 0; /* Prevent shrinking when space is limited */
+      box-sizing: border-box; /* Include padding in element's total width and height */
+    }
+
+    /* Specific size classes for the .semaphore-container */
+    /* These are the new smaller sizes */
+    .semaphore-size-large { /* This is the new 'largest' of the compact options, similar to previous 64px */
+      width: 64px;
+    }
+    .semaphore-size-medium {
+      width: 48px;
+    }
+    .semaphore-size-small { /* This will be very compact, roughly 3 lines of text in height */
+      width: 32px;
+    }
+    .semaphore-size-tiny { /* An even tinier option */
+      width: 24px;
+    }
+
+
+    /* The actual visual pole structure */
+    .semaphore-pole {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #34495e; /* Darker grey for the pole */
+      border-radius: 10px; /* Slightly smaller border-radius for compactness */
+      padding: 0.2em 0.1em; /* Further reduced vertical and horizontal padding */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5), 0 4px 4px rgba(0, 0, 0, 0.3); /* Adjusted shadow */
+      position: relative;
+      border: 1px solid #2c3e50; /* Thinner border */
+      width: 100%; /* IMPORTANT: Takes 100% of its parent .semaphore-container's width */
+      height: auto; /* Height will adjust based on content */
+      box-sizing: border-box; /* Include padding in element's total width and height */
+    }
+
+    /* Individual light housing (the black circle around each light) */
+    .light-housing {
+      width: 90%; /* Percentage of parent (.semaphore-pole) width */
+      padding-bottom: 80%; /* Creates a square aspect ratio for the light housing */
+      position: relative; /* Allows absolute positioning of the light inside */
+      background-color: #1a252f; /* Even darker for light housing */
+      border-radius: 50%; /* Makes it a perfect circle */
+      margin: 0.3em 0; /* Further reduced vertical margin */
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8); /* Inner shadow for depth */
+      border: 2px solid #0f181f; /* Thinner outer border for definition */
+    }
+
+    /* The actual light element (the colored circle) */
+    .light {
+      position: absolute; /* Positioned within .light-housing */
+      top: 10%;
+      left: 10%;
+      width: 80%; /* Takes 80% of .light-housing width */
+      height: 80%; /* Takes 80% of .light-housing height */
+      border-radius: 50%; /* Makes it a perfect circle */
+      transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions for light changes */
+      opacity: 0.2; /* Default off state opacity (subtle hint) */
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); /* Subtle inner shadow for off state */
+    }
+
+    /* On state for lights */
+    .light.on {
+      opacity: 1; /* Fully opaque when on */
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), /* Outer glow */
+      inset 0 0 10px rgba(255, 255, 255, 0.5); /* Inner glow */
+    }
+
+    /* Specific light colors for on state with strong glows (adjusted for smaller size) */
+    .light.red.on {
+      background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D50000 60%, #B71C1C 100%);
+      box-shadow: 0 0 15px #D50000, 0 0 30px #D50000, 0 0 45px #D50000, inset 0 0 10px #FF8A80;
+    }
+
+    .light.yellow.on {
+      background: radial-gradient(circle at 35% 35%, #FFFF8D 0%, #FFD600 60%, #FFAB00 100%);
+      box-shadow: 0 0 15px #FFD600, 0 0 30px #FFD600, 0 0 45px #FFD600, inset 0 0 10px #FFFF8D;
+    }
+
+    .light.green.on {
+      background: radial-gradient(circle at 35% 35%, #B9F6CA 0%, #00C853 60%, #1B5E20 100%);
+      box-shadow: 0 0 15px #00C853, 0 0 30px #00C853, 0 0 45px #00C853, inset 0 0 10px #B9F6CA;
+    }
+
+    /* Off state colors with a slight, more noticeable hint of the color */
+    .light.red {
+      background: radial-gradient(circle at 35% 35%, rgba(255, 138, 128, 0.25) 0%, rgba(213, 0, 0, 0.25) 60%, rgba(183, 28, 28, 0.25) 100%);
+    }
+
+    .light.yellow {
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 141, 0.25) 0%, rgba(255, 214, 0, 0.25) 60%, rgba(255, 171, 0, 0.25) 100%);
+    }
+
+    .light.green {
+      background: radial-gradient(circle at 35% 35%, rgba(185, 246, 202, 0.25) 0%, rgba(0, 200, 83, 0.25) 60%, rgba(27, 94, 32, 0.25) 100%);
+    }
+
+    /* Base for the semaphore pole stand */
+    .pole-base {
+      width: 80%; /* Percentage of parent (.semaphore-pole) */
+      height: 0.8em; /* Further reduced height */
+      background-color: #5d6d7e; /* Lighter grey for the base */
+      border-radius: 8px; /* Slightly smaller border-radius */
+      margin-top: 0.8em; /* Further reduced top margin */
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5); /* Adjusted shadow */
+      border: 1px solid #4a5a6a; /* Thinner border */
+    }
+
+    /* Container for control buttons */
+    .controls-container {
+      display: flex;
+      flex-wrap: wrap; /* Allow buttons to wrap */
+      justify-content: center;
+      gap: 1px; /* Space between buttons */
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px; /* Space above controls */
+    }
+
+    .control-button {
+      background-color: #3498db; /* Blue button */
+      color: white;
+      padding: 12px 25px; /* Fixed padding for buttons, as they don't need to scale as much */
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em; /* Keep em for consistent text size */
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+      min-width: 120px; /* Ensure buttons are not too small */
+      box-sizing: border-box;
+    }
+
+    .control-button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .control-button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Message box styling */
+    .message-box {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
+
+    .message-box.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Media queries to adjust overall layout and default semaphore size */
+    @media (max-width: 768px) {
+      .semaphores-row-container {
+        gap: 15px; /* Further reduced gap for tablets */
+      }
+      /* Adjust default semaphore size for tablets if no specific class is used */
+      .semaphore-container:not([class*="semaphore-size-"]) {
+        width: 90px; /* Slightly smaller default */
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+
+<div class="semaphores-row-container">
+  <!-- Semaphore 1: Default size (150px) -->
+  <div class="semaphore-container">
+    <div id="semaphore1" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+
+  <!-- Semaphore 2: 128px wide -->
+  <div class="semaphore-container" style="width: 12px;">
+    <div id="semaphore2" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+
+  <!-- Semaphore 3: Largest of the new compact options (64px) -->
+  <div class="semaphore-container semaphore-size-large">
+    <div id="semaphore3" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+
+  <!-- Semaphore 4: Medium compact option (48px) -->
+  <div class="semaphore-container semaphore-size-medium">
+    <div id="semaphore4" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+
+  <!-- Semaphore 5: Small compact option (32px - very close to 3 lines of text height) -->
+  <div class="semaphore-container semaphore-size-small">
+    <div id="semaphore5" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+
+  <!-- Semaphore 6: Tiny compact option (24px) -->
+  <div class="semaphore-container semaphore-size-tiny">
+    <div id="semaphore6" class="semaphore-pole">
+      <div class="light-housing">
+        <div class="light red"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light yellow"></div>
+      </div>
+      <div class="light-housing">
+        <div class="light green"></div>
+      </div>
+      <div class="pole-base"></div>
+    </div>
+  </div>
+</div>
+
+<div class="controls-container">
+  <button class="control-button" onclick="semaphores.semaphore1.toggle()">Toggle S1 (150px)</button>
+  <button class="control-button" onclick="semaphores.semaphore2.toggle()">Toggle S2 (128px)</button>
+  <button class="control-button" onclick="semaphores.semaphore3.toggle()">Toggle S3 (64px)</button>
+  <button class="control-button" onclick="semaphores.semaphore4.toggle()">Toggle S4 (48px)</button>
+  <button class="control-button" onclick="semaphores.semaphore5.toggle()">Toggle S5 (32px)</button>
+  <button class="control-button" onclick="semaphores.semaphore6.toggle()">Toggle S6 (24px)</button>
+</div>
+
+<div id="messageBox" class="message-box"></div>
+
+<script>
+  // Function to display a message to the user
+  function showMessage(message) {
+    const messageBox = document.getElementById('messageBox');
+    messageBox.textContent = message;
+    messageBox.classList.add('show');
+    setTimeout(() => {
+      messageBox.classList.remove('show');
+    }, 3000); // Message disappears after 3 seconds
+  }
+
+  // SemaphoreController Class to manage individual semaphores
+  class SemaphoreController {
+    constructor(semaphoreElementId) {
+      this.semaphoreElement = document.getElementById(semaphoreElementId);
+      if (!this.semaphoreElement) {
+        console.error(`Semaphore element with ID '${semaphoreElementId}' not found.`);
+        return;
+      }
+      // Select lights within this specific semaphore's element
+      this.lights = [
+        this.semaphoreElement.querySelector('.light.red'),
+        this.semaphoreElement.querySelector('.light.yellow'),
+        this.semaphoreElement.querySelector('.light.green')
+      ];
+      this.currentLightIndex = -1; // -1 for all off, 0 for red, 1 for yellow, 2 for green
+      this.initializeLights();
+    }
+
+    // Sets all lights within this semaphore to off
+    initializeLights() {
+      this.lights.forEach(light => {
+        if (light) light.classList.remove('on');
+      });
+      showMessage(`Semaphore ${this.semaphoreElement.id} initialized. All lights off.`);
+    }
+
+    // Toggles the lights for this specific semaphore
+    toggle() {
+      // Turn off the current light
+      if (this.currentLightIndex !== -1 && this.lights[this.currentLightIndex]) {
+        this.lights[this.currentLightIndex].classList.remove('on');
+      }
+
+      // Move to the next light in the sequence
+      this.currentLightIndex = (this.currentLightIndex + 1) % this.lights.length;
+
+      // Turn on the new current light
+      if (this.lights[this.currentLightIndex]) {
+        this.lights[this.currentLightIndex].classList.add('on');
+      }
+
+      let lightColor = '';
+      switch (this.currentLightIndex) {
+        case 0:
+          lightColor = 'Red';
+          break;
+        case 1:
+          lightColor = 'Yellow';
+          break;
+        case 2:
+          lightColor = 'Green';
+          break;
+      }
+      showMessage(`Semaphore ${this.semaphoreElement.id}: Light changed to: ${lightColor}`);
+    }
+  }
+
+  // Global object to store semaphore instances
+  const semaphores = {};
+
+  // Initialize all semaphores when the page loads
+  window.onload = function() {
+    semaphores.semaphore1 = new SemaphoreController('semaphore1');
+    semaphores.semaphore2 = new SemaphoreController('semaphore2');
+    semaphores.semaphore3 = new SemaphoreController('semaphore3');
+    semaphores.semaphore4 = new SemaphoreController('semaphore4');
+    semaphores.semaphore5 = new SemaphoreController('semaphore5'); // New smaller semaphore
+    semaphores.semaphore6 = new SemaphoreController('semaphore6'); // New tiny semaphore
+  };
+</script>
+</body>
+</html>

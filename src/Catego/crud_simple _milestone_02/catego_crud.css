@@ -185,7 +185,6 @@
             color: var(--color-success-bg);
             padding: 4px 8px;
             font-size: 12px;
-            cursor: pointer;
         }
 
         .oc_catego_crud_btn_cancel {
@@ -193,7 +192,6 @@
             color: var(--color-tertiary-bg);
             padding: 4px 8px;
             font-size: 12px;
-            cursor: pointer;
         }
 
         .oc_catego_crud_empty_message {

@@ -20,40 +20,28 @@
 <body>
     <div>
         <h1>Categorias!</h1>
-        <ul>
-            <li>Selector<ul>
-                <li>Permiso Add</li>
-                <li>Search</li>
-            </ul></li>
-            <li>CRUD<ul>
-                <li>Ya Add</li>
-                <li>Edit<ul><li>icons pa botones</li></ul></li>
-                <li>Delete<ul><li>Cual deleting</li><li>Usar sch_dlg</li></ul></li>
-                <li>Titulo add</li>
-            </ul></li>
-            <li>Dialogs<ul><li>Error wrapper</li></ul></li>
-        </ul>
-<hr>
+
+
         <!-- Hidden select for form integration -->
         <select id="cliente_categorias_select" name="cliente_categorias[]" multiple>
-            <option value="1" selected>Verano</option>
-            <option value="5" >Invierno</option>
-            <option value="2">Otoño</option>
-            <option value="3">Primavera</option>
-            <option value="4" selected>Escolar</option>
+            <option value="1" selected>Sin Credito</option>
+            <option value="5" selected>Transportista</option>
+            <option value="2">Mayoreo</option>
+            <option value="3">Nuevo</option>
+            <option value="4">Foraneo</option>
         </select>
-<hr>
+
         <div class="oc_catego" id="gato"
-             aria-label="Categorías de Prodcutos" role="group"
-             data-oc_catego="productos"
-             data-oc_catego_title_crud="Editar Categorías de Productos"
+             aria-label="Categorías de Clientes" role="group"
+             data-oc_catego="clientes" 
+             data-oc_catego_title_crud="Editar Categorías de Clientes"
              data-oc_catego_linked_select="cliente_categorias_select"
-             data-oc_catego_api_url="catego/ajax.php"
+             data-oc_catego_api="catego/ajax.php"
 
              data-oc_catego_permissions_crud="true"
              data-oc_catego_permissions_assign="r/w"
             >
-            <div class="oc_catego_title">Categorías</div>
+            <div class="oc_catego_title">Categorías de Clientes</div>
             <div class="oc_catego_header">
                 <div class="oc_catego_search-container">
                     <input type="search" aria-label="Buscar categorías" role="searchbox"
@@ -73,7 +61,7 @@
                     type="button" 
                     class="oc_catego_crud-button"
                     title="Administrar, altas, bajas y cambios de categorías"
-                    onclick="OcCategoCRUD.open(this.closest('.oc_catego'))"
+                    onclick="OcCategoWidget.openCRUD('clientes', this)"
                 >&#9881; Definir</button>
             </div>
             <div class="oc_catego_content">
@@ -114,7 +102,7 @@
     <dialog id="oc_catego_crud_dialog" class="sch_dialog_grow_content sch_dialog">
         <div class="sch_dialog_header" style="margin: 0 auto;padding: 0" >
             <h2 id="oc_catego_crud_title" class="sch_dialog_title">Definir Categorías</h2>
-            <button class="sch_dialog_close" onclick="OcCategoCRUD.close()">&times;</button>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeDialog(this)">&times;</button>
         </div>
 
         <div class="sch_dialog_content">
@@ -124,7 +112,7 @@
                            id="oc_catego_crud_search"
                            class="oc_catego_crud_search_input"
                            placeholder="Buscar categorías...">
-                    <button class="oc_catego_crud_search_clear" onclick="OcCategoCRUD._searchClear()">&times;</button>
+                    <button class="oc_catego_crud_search_clear" onclick="ocCategoCRUD.clearSearch()">&times;</button>
                 </div>
                 <div><button id="oc_catego_crud_add_btn" class="oc_catego_crud_btn oc_catego_crud_btn_add">+ Nueva Categoría</button></div>
             </div>
@@ -137,7 +125,7 @@
         </div>
 
         <div class="sch_dialog_footer">
-            <button class="sch_dialog_button sch_dialog_button--outline" onclick="OcCategoCRUD.close()">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeDialog(this)">
                 Cerrar
             </button>
         </div>
@@ -146,7 +134,7 @@
     <dialog id="oc_catego_crud_input_dialog" class="sch_dialog sch_dialog--small oc_catego_crud_input_dialog">
         <div class="sch_dialog_header">
             <h2 id="oc_catego_crud_input_title" class="sch_dialog_title">Nueva Categoría</h2>
-            <button class="sch_dialog_close" onclick="OcCategoCRUD.closeInputDialog()">&times;</button>
+            <button class="sch_dialog_close" onclick="ocCategoCRUD.closeInputDialog()">&times;</button>
         </div>
 
         <div class="sch_dialog_content">
@@ -156,7 +144,7 @@
                            id="oc_catego_crud_input_dialog_input"
                            class="oc_catego_crud_input_dialog_input"
                            placeholder="Nombre de la categoría...">
-                    <button class="oc_catego_crud_input_clear" onclick="OcCategoCRUD.clearInputDialog()">&times;</button>
+                    <button class="oc_catego_crud_input_clear" onclick="ocCategoCRUD.clearInputDialog()">&times;</button>
                 </div>
 
                 <div id="oc_catego_crud_input_error" class="oc_catego_crud_error" style="display: none;"></div>
@@ -164,7 +152,7 @@
         </div>
 
         <div class="sch_dialog_footer">
-            <button class="sch_dialog_button sch_dialog_button--outline" onclick="OcCategoCRUD.closeInputDialog()">
+            <button class="sch_dialog_button sch_dialog_button--outline" onclick="ocCategoCRUD.closeInputDialog()">
                 Cancelar
             </button>
             <button id="oc_catego_crud_input_save_btn" class="sch_dialog_button sch_dialog_button--success">
@@ -176,15 +164,15 @@
 
     <!-- Include JavaScript -->
     <script src="sch_dialog.js"></script>
-    <script src="OcCategoWidget.js"></script>
-    <script src="OcCategoCRUD.js"></script>
+    <script src="catego.js"></script>
+    <script src="ocCategoCRUD.js"></script>
 
     <script id="oc_catego_crud_integration">
         // Initialize CRUD system when DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => OcCategoCRUD.init());
+            document.addEventListener('DOMContentLoaded', () => ocCategoCRUD.init());
         } else {
-            OcCategoCRUD.init();
+            ocCategoCRUD.init();
         }
     </script>
 
@@ -203,7 +191,7 @@
         // Override fetch for testing without server (with debug logging)
         const originalFetch = window.fetch;
         window.fetch = function(url, options) {
-            console.log("-----MOCK FECTH: " + url, options)
+            console.log("----------- FECTH", options)
             if (url.includes('catego/ajax.php') || url.includes('ajax.php')) {
                 console.log('🌐 MOCK API CALL:', url, options);
                 return mockCategoriesAPI(url, options);
@@ -231,47 +219,22 @@
                             };
                             break;
                             
-                        case 'insert':
-                            response = {
-                                success: true,
-                                error: null,
-                                data: {
-                                    oc_category_id: id || Math.floor(Math.random() * 1000) + 100,
-                                    category_type: categoryType,
-                                    category: formData.get('category'),
-                                    category_data: {}
-                                }
-                            };
-                            console.log('💾 MOCK INSERT:', response.data);
-                            break;
                         case 'upsert':
+                            const category = formData.get('category');
+                            const id = formData.get('oc_category_id');
                             response = {
                                 success: true,
                                 error: null,
                                 data: {
                                     oc_category_id: id || Math.floor(Math.random() * 1000) + 100,
                                     category_type: categoryType,
-                                    category: formData.get('category'),
+                                    category: category,
                                     category_data: {}
                                 }
                             };
                             console.log('💾 MOCK UPSERT:', response.data);
                             break;
-                        case 'edit':
-                            var id = formData.get('oc_category_id');
-                            response = {
-                                success: true,
-                                error: null,
-                                data: {
-                                    oc_category_id: id || Math.floor(Math.random() * 1000) + 100,
-                                    category_type: categoryType,
-                                    category: formData.get('category'),
-                                    category_data: {}
-                                }
-                            };
-                            console.log('💾 MOCK EDIT:', response.data);
-                            break;
-
+                            
                         case 'delete':
                             response = {
                                 success: true,
@@ -282,7 +245,6 @@
                             break;
                             
                         default:
-                            console.log('💾 MOCK DEFAULT NOT GOT:', response.data);
                             response = { success: false, error: 'Unknown action' };
                     }
                     

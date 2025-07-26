@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Tester</title>
+<link rel="stylesheet" href="base.css">
+    <style>
+        .oc_semaforo_container {
+            display: inline-block;
+            width: 28px;
+            height: 84px;
+        }
+
+        .oc_semaforo_svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .oc_semaforo_red {
+            fill: url(#oc_semaforo_red_off);
+        }
+
+        .oc_semaforo_yellow {
+            fill: url(#oc_semaforo_yellow_off);
+        }
+
+        .oc_semaforo_green {
+            fill: url(#oc_semaforo_green_off);
+        }
+
+        .oc_semaforo_container[data-oc_semaforo_state="red"] .oc_semaforo_red {
+            fill: url(#oc_semaforo_red_on);
+        }
+
+        .oc_semaforo_container[data-oc_semaforo_state="yellow"] .oc_semaforo_yellow {
+            fill: url(#oc_semaforo_yellow_on);
+        }
+
+        .oc_semaforo_container[data-oc_semaforo_state="green"] .oc_semaforo_green {
+            fill: url(#oc_semaforo_green_on);
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="semaforo1" class="oc_semaforo_container" data-oc_semaforo_state="red">
+    <svg viewBox="0 0 100 300" xmlns="http://www.w3.org/2000/svg" class="oc_semaforo_svg">
+        <defs>
+            <!-- Gradients for On -->
+            <radialGradient id="oc_semaforo_red_on" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
+                <stop offset="0%" stop-color="#FF8A80"/>
+                <stop offset="60%" stop-color="#D50000"/>
+                <stop offset="100%" stop-color="#B71C1C"/>
+            </radialGradient>
+            <radialGradient id="oc_semaforo_yellow_on" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
+                <stop offset="0%" stop-color="#FFFF8D"/>
+                <stop offset="60%" stop-color="#FFD600"/>
+                <stop offset="100%" stop-color="#FFAB00"/>
+            </radialGradient>
+            <radialGradient id="oc_semaforo_green_on" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
+                <stop offset="0%" stop-color="#B9F6CA"/>
+                <stop offset="60%" stop-color="#00C853"/>
+                <stop offset="100%" stop-color="#1B5E20"/>
+            </radialGradient>
+
+            <!-- Gradients for Off (faint + 3D) -->
+            <radialGradient id="oc_semaforo_red_off" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="#FF8A80" stop-opacity="0.1"/>
+                <stop offset="100%" stop-color="#2d2d2d"/>
+            </radialGradient>
+            <radialGradient id="oc_semaforo_yellow_off" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="#FFD600" stop-opacity="0.1"/>
+                <stop offset="100%" stop-color="#2d2d2d"/>
+            </radialGradient>
+            <radialGradient id="oc_semaforo_green_off" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="#00C853" stop-opacity="0.1"/>
+                <stop offset="100%" stop-color="#2d2d2d"/>
+            </radialGradient>
+        </defs>
+
+        <!-- Frame outline -->
+        <<rect x="15" y="5" width="70" height="290" rx="20" ry="20" fill="silver" stroke="darkgray" stroke-width="2"/>
+
+        <!-- Lights -->
+        <circle cx="50" cy="60" r="30" class="oc_semaforo_red"/>
+        <circle cx="50" cy="150" r="30" class="oc_semaforo_yellow"/>
+        <circle cx="50" cy="240" r="30" class="oc_semaforo_green"/>
+    </svg>
+</div>
+
+<script>
+    function setOcSemaforoState(id, state) {
+        const el = document.getElementById(id);
+        if (el && ['red', 'yellow', 'green'].includes(state)) {
+            el.dataset.oc_semaforo_state = state;
+        }
+    }
+
+</script>
+</body>
+</html>

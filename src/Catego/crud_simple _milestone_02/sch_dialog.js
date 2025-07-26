@@ -105,35 +105,6 @@ function schInfo(message, title = "Info", icon = "ℹ️", button_label = "Ok", 
 }
 
 /**
- * SCH Error Function - Information dialog using SCH Alert System
- * Wrapper around schAlert() with information-specific defaults
- *
- * @param {string} message - The information message to display
- * @param {string} title - Dialog title (default: "Info")
- * @param {string} icon - UTF-8 icon to display in title (default: "🔴") 🔺
- * @param {string} button_label - Button text (default: "Ok")
- * @param {string} button_icon - UTF-8 icon for button (default: "🔺")
- *
- * @returns {Promise<boolean>} - Resolves to true when dialog is closed
- */
-function schError(message, title = "Error", icon = "🔴", button_label = "Entendido", button_icon = "🔺") {
-    const errorWrappedMessage = `
-            <div style="
-                background: var(--color-fail-bg); 
-                border: 1px solid var(--color-fail); 
-                border-radius: 6px; 
-                padding: 16px; 
-                color: var(--color-fail);
-                font-weight: 500;
-                line-height: 1.5;
-            ">
-                ${message}
-            </div>
-        `;
-    return schAlert(errorWrappedMessage, title, icon, button_label, button_icon);
-}
-
-/**
  * SCH Confirm Function - Confirmation dialog using SCH Dialog System
  * Displays a modal confirmation dialog with OK/Cancel buttons
  *
@@ -264,11 +235,11 @@ function schConfirmBorrar(message, title = "Confirme Borrar", icon = "🗑️", 
  * @param {string} type - Input type attribute (default: "text")
  * @param {Object} inputAttrs - Additional input attributes (default: {})
  *
- * @returns {Promise<string>} - const result = await schTextEdit(currentName, "Full Name", "Edit User Name"); console.log("Original name:", result.originalValue + " new value=" + result.value);
+ * @returns {Promise<string>} - Resolves with the edited value on save, rejects on cancel/close
  */
 function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏️", saveLabel = "Guardar", saveIcon = "💾", cancelLabel = "Cancelar", cancelIcon = "✗", type = "text", inputAttrs = {}) {
     return new Promise((resolve, reject) => {
-        const originalValue = value;
+
         // jQuery-like attribute setter using proper DOM methods
         const setAttributes = (element, attributes) => {
             Object.entries(attributes).forEach(([key, val]) => {
@@ -336,7 +307,7 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
             dialog.removeEventListener('close', handleCancel);
             // Remove from DOM
             dialog.remove();
-            console.log("cleanup manda",inputValue)
+
             // Resolve or reject promise
             if (shouldResolve) {
                 resolve(inputValue);
@@ -357,13 +328,9 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
         }
         // Handle Save button
         function handleSave() {
-            const value = inputField.value;
+            const inputValue = inputField.value;
             dialog.close();
-
-            cleanup(true, {
-                originalValue: originalValue,
-                value: value
-            });
+            cleanup(true, inputValue);
         }
 
         // Handle Cancel/Close events
@@ -403,10 +370,8 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
     });
 }
 
-
+// Example usage:
 /*
-Example usage:
-
 // Basic alert
 schAlert("Operation completed successfully!");
 
@@ -457,36 +422,6 @@ async function deleteItem() {
         console.log("Deletion cancelled");
     }
 }
-
-try {
-const result = await schTextEdit(currentName, "Full Name", "Edit User Name"); console.log("Original name:", result.originalValue + " new value=" + result.value);
-}catch (error) {
-        console.log("Edit was cancelled");
-    }
-// Example with .then() syntax
-function editDescription() {
-    const currentDescription = "This is the current description";
-
-    schTextEdit(currentDescription, "Description", "Edit Description", "📝")
-        .then(result => {
-            console.log("Edit completed:");
-            console.log("- Original:", result.originalValue);
-            console.log("- New:", result.value);
-            console.log("- Changed:", result.originalValue !== result.value);
-
-            // Destructure for cleaner code
-            const { originalValue, value } = result;
-
-            if (originalValue !== value) {
-                saveDescription(value);
-                showSuccessMessage(`Description updated from "${originalValue}" to "${value}"`);
-            }
-        })
-        .catch(() => {
-            console.log("Description edit was cancelled");
-        });
-}
-
 */
 
 if (document.readyState === 'loading') {

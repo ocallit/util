@@ -1,11 +1,7 @@
     /* Dialog backdrop */
-
-    /* IMPORTANT: Keep backdrop transparent to allow users to easily read the webpage behind the dialog
-   The dialog elevation comes from strong shadows instead of backdrop dimming
-   This maintains good UX by keeping content readable while dialog is open */
         dialog.sch_dialog::backdrop {
-            background-color: transparent;
-            backdrop-filter: none;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
         }
 
         dialog.sch_dialog:not([open]) {
@@ -18,13 +14,10 @@
             border-radius: 12px;
             padding: 0;
             background: var(--color-surface);
-            box-shadow:
-                    0 32px 64px rgba(0, 0, 0, 0.35),
-                    0 16px 32px rgba(0, 0, 0, 0.2),
-                    0 8px 16px rgba(0, 0, 0, 0.15),
-                    0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--elevation-4);
             max-width: 90vw;
             max-height: 90vh;
+
             position: relative;
             animation: dialogSlideIn 0.3s ease-out;
             resize: both;
