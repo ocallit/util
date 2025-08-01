@@ -1,4 +1,14 @@
+/**
+ * On html5 Dialogs
+ * - z-Index magic: Browser automatically handles stacking via "top layer", Last opened dialog appears on top automatically
+ * - "By default, HTML5 dialogs opened with showModal() are automatically centered both horizontally and vertically every time they open."
+ */
 
+/**
+ *
+ * @type {string}
+ */
+const SCH_DIALOG_CANCELED = 'DIALOG_CANCELED';
 function sch_dialog_init() {
     // Close only .sch_dialog dialogs with Escape key
     document.addEventListener('keydown', function (e) {
@@ -12,6 +22,34 @@ function sch_dialog_init() {
     console.log('✅ sch_dialog_ini: initialized');
 }
 
+function schDialog({title = "", html, buttons = []}) {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'sch_dialog sch_dialog_grow_content';
+    dialog.innerHTML = `
+        <div class="sch_dialog_header">
+            <div class="sch_dialog_title"></div>
+            <button class="sch_dialog_close" type="button">&times;</button>
+        </div>
+        <div class="sch_dialog_content"></div>
+        <div class="sch_dialog_footer"></div>`;
+    if(typeof title === 'string')
+        dialog.querySelector('.sch_dialog_title').innerHTML = title;
+    else
+        dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+    if(typeof html === 'string')
+        dialog.querySelector('.sch_dialog_content').innerHTML = html;
+    else
+        dialog.querySelector('.sch_dialog_content').replaceChildren(html);
+    if(buttons.length) {
+
+    } else {
+        dialog.querySelector('.sch_dialog_footer').remove();
+    }
+
+    document.body.appendChild(dialog);
+    OcDialogDrag.initialize(dialog);
+    dialog.showModal();
+}
 
 /**
  * SCH Alert Function - Simple alert dialog using SCH Dialog System
@@ -57,6 +95,7 @@ function schAlert(message, title = "Aviso", icon = "⚠️", button_label = "Ok"
             okButton.removeEventListener('click', handleClose);
             dialog.removeEventListener('close', handleClose);
 
+            OcDialogDrag.cleanup(dialog);
             // Remove from DOM
             dialog.remove();
 
@@ -80,7 +119,7 @@ function schAlert(message, title = "Aviso", icon = "⚠️", button_label = "Ok"
         // Handle dialog close event (cleanup)
         dialog.addEventListener('close', cleanup);
 
-        // Show dialog
+        OcDialogDrag.initialize(dialog);
         dialog.showModal();
 
         // Focus the OK button for better UX
@@ -151,7 +190,7 @@ function schConfirm(message, title = "Confirme", icon = "❓", okLabel = "Si", o
     return new Promise((resolve, reject) => {
         // Create unique dialog element
         const dialog = document.createElement('dialog');
-        dialog.className = 'sch_dialog sch_dialog--medium sch_dialog_grow_content';
+        dialog.className = 'sch_dialog sch_dialog_grow_content';
 
         // Build dialog HTML structure
         dialog.innerHTML = `
@@ -186,7 +225,7 @@ function schConfirm(message, title = "Confirme", icon = "❓", okLabel = "Si", o
             okButton.removeEventListener('click', handleOk);
             cancelButton.removeEventListener('click', handleCancel);
             dialog.removeEventListener('close', handleCancel);
-
+            OcDialogDrag.cleanup(dialog);
             // Remove from DOM
             dialog.remove();
 
@@ -223,7 +262,7 @@ function schConfirm(message, title = "Confirme", icon = "❓", okLabel = "Si", o
         // Handle dialog close event (Escape key, backdrop click)
         dialog.addEventListener('close', handleCancel);
 
-        // Show dialog
+        OcDialogDrag.initialize(dialog);
         dialog.showModal();
 
         // Focus the OK button for better UX
@@ -281,7 +320,7 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
         };
 
         const dialog = document.createElement('dialog');
-        dialog.className = 'sch_dialog sch_dialog--medium sch_dialog_grow_content';
+        dialog.className = 'sch_dialog sch_dialog_grow_content';
         dialog.innerHTML = `
             <div class="sch_dialog_header">
                 <h2 class="sch_dialog_title">
@@ -334,6 +373,7 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
             inputField.removeEventListener('keydown', handleKeydown);
             clearButton.removeEventListener('click', handleClearClick);
             dialog.removeEventListener('close', handleCancel);
+            OcDialogDrag.cleanup(dialog);
             // Remove from DOM
             dialog.remove();
             console.log("cleanup manda",inputValue)
@@ -394,7 +434,7 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
         // Handle dialog close event (Escape key, backdrop click)
         dialog.addEventListener('close', handleCancel);
 
-        // Show dialog
+        OcDialogDrag.initialize(dialog);
         dialog.showModal();
 
         // Focus the input field and select all text for easy editing
@@ -403,6 +443,97 @@ function schTextEdit(value = "", label = "Valor", title = "Editar", icon = "✏�
     });
 }
 
+
+function schForm(params) {
+    const {
+        title = '✎ Edita',
+        formContent = '',
+        onValidate,
+        onSave,
+        saveLabel = '💾 Guardar',
+        cancelLabel = '❌ Cancelar'
+    } = params
+
+    return new Promise((resolve, reject) => {
+        const dialog = document.createElement('dialog');
+        dialog.className = 'sch_dialog sch_dialog_grow_content';
+        dialog.innerHTML = `
+        <div class="sch_dialog_header">
+            <div class="sch_dialog_title"></div>
+            <button class="sch_dialog_close" type="button">&times;</button>
+        </div>
+        <div class="sch_dialog_content"><div class="sch_errors sch_hidden"></div><form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form></div>
+        <div class="sch_dialog_footer">
+            <button class="sch_dialog_button sch_dialog_button--primary" type="button">${saveLabel}</button>
+            <button class="sch_dialog_button sch_dialog_button--secondary" type="button">${cancelLabel}</button>
+        </div>`;
+
+        if(typeof title === 'string')
+            dialog.querySelector('.sch_dialog_title').innerHTML = title;
+        else
+            dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+
+        if(typeof formContent === 'string')
+            dialog.querySelector('.sch_form_tag').innerHTML = formContent;
+        else
+            dialog.querySelector('.sch_form_tag').replaceChildren(formContent);
+
+
+        document.body.appendChild(dialog);
+        const form = dialog.querySelector('.sch_form_tag');
+        const saveBtn = dialog.querySelector('.sch_dialog_button--primary');
+        const cancelBtn = dialog.querySelector('.sch_dialog_button--secondary');
+        const closeBtn = dialog.querySelector('.sch_dialog_close');
+        const serverErrors = dialog.querySelector('.sch_errors');
+
+        function cleanup() {
+            saveBtn.removeEventListener('click', onSaveClick);
+            cancelBtn.removeEventListener('click', onCancel);
+            closeBtn.removeEventListener('click', onCancel);
+            OcDialogDrag.cleanup(dialog);
+            dialog.close();
+            dialog.remove();
+        }
+
+        function onSaveClick(e) {
+            saveBtn.disabled = true;
+            e.preventDefault();
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                saveBtn.disabled = false;
+                return;
+            }
+            const formData = Object.fromEntries(new FormData(form).entries());
+            if(typeof onValidate === "function" && !onValidate(formData)) {
+                saveBtn.disabled = false;
+                return;
+            }
+
+            Promise.resolve(onSave(formData))
+                .then(() => {
+                    cleanup();
+                    resolve(formData); // Resolve the promise with form data
+                })
+                .catch(err => {
+                    serverErrors.textContent = typeof err === 'string' ? err : 'An error occurred.';
+                    serverErrors.style.display = 'block';
+                    saveBtn.disabled = false;
+                });
+        }
+
+        function onCancel(e) {
+            e.preventDefault();
+            cleanup();
+            reject(new Error(SCH_DIALOG_CANCELED));
+        }
+
+        saveBtn.addEventListener('click', onSaveClick);
+        cancelBtn.addEventListener('click', onCancel);
+        closeBtn.addEventListener('click', onCancel);
+        OcDialogDrag.initialize(dialog);
+        dialog.showModal();
+    });
+}
 
 /*
 Example usage:
@@ -488,6 +619,43 @@ function editDescription() {
 }
 
 */
+
+function clear_btn(btn) {
+    try {
+        var input = btn.previousElementSibling;
+        input.value = '';
+        input.focus();
+    } catch(er) {}
+}
+function symbolRowInit() {
+    document.querySelectorAll('.symbols-row').forEach(row => {
+        row.removeEventListener('click', symbolRowClick);
+        row.addEventListener('click', symbolRowClick);
+    });
+}
+function symbolRowClick(event) {
+    function previousInput(el) {
+        while(el) {
+            el = el.previousElementSibling;
+            if(el && el.tagName === 'INPUT') return el;
+        }
+        return null;
+    }
+
+    if(event.target.tagName !== 'SPAN') return;
+    event.preventDefault();
+    event.stopPropagation();
+    const symbol = event.target.innerHTML;
+    const input = previousInput(event.currentTarget.parentElement);
+    if(input) {
+        input.value += symbol;
+        input.focus();
+    }
+}
+if(document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', symbolRowInit);
+else
+    symbolRowInit();
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', sch_dialog_init);

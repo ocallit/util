@@ -1,17 +1,67 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<title>Oh Input</title>
 	<style>
 	  .clear-btn {cursor:pointer;margin-left:-1.3em;background: none; border: none; }
+	  INPUT[DISABLED]~.clear-btn {display:none;pointer-events: none}
+	  INPUT[READONLY]~.clear-btn {display:none;pointer-events: none}
+	  INPUT[READONLY]~.symbols-container .symbols-row {display:none;pointer-events: none}
+	  INPUT[DISABLED]~.symbols-container .symbols-row {display:none;pointer-events: none}
+	  INPUT[READONLY]~.symbols-container .symbols-scroll_tip {display:none;pointer-events: none}
+	  INPUT[DISABLED]~.symbols-container .symbols-scroll_tip {display:none;pointer-events: none}
+	  	.symbols-container {margin: 0;padding: 0;display:flex}
+		.symbols-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.1em;
+			margin-top: 0.1em;
+			padding-right: 0.2em;
+			width: 95%;
+			height:1.8em;
+			overflow-y: scroll;
+			scrollbar-width: auto;
+		}
+		.symbols-row span {
+			font-size: 0.9em;
+			padding: 0.15em 0.3em;
+			border-radius: 4px;
+			cursor: pointer;
+			background-color: #efefef;
+			color: #444;
+			transition: background 0.2s, color 0.2s;
+		}
+		.symbols-row span:hover {background-color: #ddd;color: #000;}
+		.symbols-row span::selection {background: #ddd;color: inherit;}
+		.symbols-scroll_tip {}
 	</style>
 </head>
 <body>
-	<div>
-	  <input placeholder="Test"><button type="button" tabindex="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
+
+	<div style="width:30ch">
+	    <input placeholder="Categoría" type="text" value="" style="width:95%"><button type="button" tabindex="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
+		<div class="symbols-container">
+			<div class="symbols-row">
+				<span>🧩</span><span>💡</span>
+				<span>🆕</span>
+				<span>🧭</span>
+				<span>✅</span><span>✓</span><span>❌</span><span>✗</span><span>⚠️</span><span>ℹ️</span>
+				<span>↑</span><span>↓</span>
+				<span>★</span><span>☀</span>
+				<span>❤</span><span>⚡</span><span>📍</span><span>📌</span><span>📎</span><span>✨</span>
+				<span>💬</span><span>🚀</span>
+			</div>
+			<div class="symbols-scroll_tip">&#8597;</div>
+		</div>
 	</div>
+	<hr>
 	<div>
-	  <input placeholder="Test"><button type="button" tabstop="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
+		<input placeholder="Tester" type="text" value="Tanga"><button type="button" tabindex="-1" class="clear-btn" onclick="clear_btn(this)">&times;</button>
 	</div>
+
 	<script>
 		function clear_btn(btn) {
 			try {
@@ -20,9 +70,38 @@
 				input.focus();
 			} catch(er) {;}
 		}
+		function symbolRowInit() {
+			document.querySelectorAll('.symbols-row').forEach(row => {
+				row.removeEventListener('click', symbolRowClick);
+				row.addEventListener('click', symbolRowClick);
+			});
+		}
+		function symbolRowClick(event) {
+			function previousInput(el) {
+				while(el) {
+					el = el.previousElementSibling;
+					if(el && el.tagName === 'INPUT') return el;
+				}
+				return null;
+			}
 
+			if(event.target.tagName !== 'SPAN') return;
+			event.preventDefault();
+			event.stopPropagation();
+			const symbol = event.target.innerHTML;
+			const input = previousInput(event.currentTarget.parentElement);
+			if(input) {
+				input.value += symbol;
+				input.focus();
+			}
+		}
+		if(document.readyState === 'loading')
+			document.addEventListener('DOMContentLoaded', symbolRowInit);
+		else
+			symbolRowInit();
 	</script>
 <script>
+	/* evaluate if it is a good idea, it is not good for input type=number, date, and any others?*/
 	function addClearButtons() {
 		const inputs = document.querySelectorAll('input:not([data-oc_clean_done])');
 
@@ -54,7 +133,6 @@
 			wrapper.appendChild(btn);
 		});
 	}
-	// addClearButtons()
 </script>
 </body>
 </html>

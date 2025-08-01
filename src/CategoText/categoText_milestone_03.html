@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Category Selector</title>
+    <style>
+        /* [Previous CSS styles remain exactly the same] */
+        .category-widget {
+            width: 60ch;
+            border: 1px solid #ddd;
+            padding: 0.1em 0.3em;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .category-list {
+            border: 1px solid darkgray;
+            padding: 0.5em;
+            border-radius: 4px;
+            margin: 0;
+            line-height: 1.5;
+            max-height: 80px;
+            overflow-y: auto;
+            background-color: white;
+        }
+        
+        .category-selected {
+            background-color: darkblue;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 0 2px;
+            display: inline-block;
+        }
+        .category-select-all-btn {cursor:pointer;color: darkblue}
+        .category-sort-selected-btn {cursor:pointer;color: darkblue}
+        .category-unselect-all-btn {cursor:pointer}
+        .category-readonly-btn {cursor:pointer}
+        .category-crud-btn {cursor:pointer}
+        .category-edit-btn {cursor:pointer;display: none}
+
+        .category-unselected {
+            background-color: whitesmoke;
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 0 2px;
+            display: inline-block;
+        }
+        .category-readonly {background-color: cornsilk}
+        .category-readonly .category-select-all-btn {display: none}
+        .category-readonly .category-sort-selected-btn {display: none}
+        .category-readonly .category-unselect-all-btn {display: none}
+        .category-readonly .category-readonly-btn {display: none}
+        .category-readonly .category-edit-btn {display: inline-block}
+
+        .category-readonly .category-unselected {display: none}
+        .category-readonly .category-selected {background-color: inherit;color: inherit;padding: inherit;margin: initial;pointer-events: none}
+    </style>
+</head>
+<body>
+    <h1>JSON Category Selector</h1>
+    
+    <!-- Object Format Example -->
+    <div class="category-widget" id="widget1">
+        <div style="display:flex;flex-direction:row;justify-content: space-between;align-items: flex-start;margin: 0;padding: 0">
+            <h3 style="margin:0.3em 1em 0 0.3em;padding: 0">Categorias</h3>
+            <div class="widget-controls" style="margin:0.3em 1em 0 0.3em;padding: 0">
+                <button type="button" title="Seleccionar Todos" class="category-select-all-btn">🗹</button>
+                <button type="button" title="Seleccionar Todos" class="category-unselect-all-btn">□</button>
+                <button type="button" title="Ordenar" class="category-sort-selected-btn">⇅</button>
+                <button type="button" title="Modo de consulta" class="category-readonly-btn">👁</button>
+                <button type="button" title="Editar" class="category-edit-btn">✎</button>
+                <button type="button" title="Altas, bajas y cambios de categorías" class="category-crud-btn">⚙</button>
+            </div>
+        </div>
+        <div class="category-list"
+             data-categories='{"1001":"Spring","1002":"Winter","1003":"Autumn","1004":"Summer","1005":"Sports", "10011":"Spring 1","10021":"Winter 1","10031":"Autumn","10041":"Summer1","10051":"Sports1"}'
+             data-categories-selected='["1001","1004"]'>
+        </div>
+        <input type="hidden" name="selected_categories" class="selected-categories-input">
+        <input type="hidden" name="selected_ids" class="selected-ids-input">
+        <select class="linked-select" multiple style="display:none"></select>
+    </div>
+    
+    <!-- Array of Objects Format Example -->
+    <div class="category-widget category-readonly" id="widget2">
+        <div style="display:flex;flex-direction:row;justify-content: space-between;align-items: flex-start;margin: 0;padding: 0">
+            <h3 style="margin:0.3em 1em 0 0.3em;padding: 0">Categorias, from an array</h3>
+            <div class="widget-controls" style="margin:0.3em 1em 0 0.3em;padding: 0">
+                <button type="button" class="category-select-all-btn">🗹</button>
+                <button type="button" class="category-unselect-all-btn">□</button>
+                <button type="button" class="category-sort-selected-btn">⇅</button>
+                <button type="button" class="category-readonly-btn">👁</button>
+                <button type="button" class="category-edit-btn">✎</button>
+            </div>
+        </div>
+        <div class="category-list"
+             data-categories='{"1001":"Spring","1002":"Winter","1003":"Autumn","1004":"Summer","1005":"Sports", "10011":"Spring 1","10021":"Winter 1","10031":"Autumn","10041":"Summer1","10051":"Sports1"}'
+             data-categories-selected='["1001","1004"]'>
+        </div>
+        <input type="hidden" name="selected_categories" class="selected-categories-input">
+        <input type="hidden" name="selected_ids" class="selected-ids-input">
+        <select class="linked-select" multiple style="display:none"></select>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const widgets = document.querySelectorAll('.category-widget');
+            widgets.forEach(initializeCategoryWidget);
+        });
+        
+        function initializeCategoryWidget(widgetElement) {
+            const container = widgetElement.querySelector('.category-list');
+            const categoriesData = JSON.parse(container.dataset.categories);
+            const selectedIds = JSON.parse(container.dataset.categoriesSelected || '[]');
+            const controls = {
+                selectAll: widgetElement.querySelector('.category-select-all-btn'),
+                unselectAll: widgetElement.querySelector('.category-unselect-all-btn'),
+                sortSelected: widgetElement.querySelector('.category-sort-selected-btn'),
+                linkedSelect: widgetElement.querySelector('.linked-select'),
+                readonly: widgetElement.querySelector('.category-readonly-btn'),
+                edit: widgetElement.querySelector('.category-edit-btn'),
+
+                hiddenInputs: {
+                    categories: widgetElement.querySelector('.selected-categories-input'),
+                    ids: widgetElement.querySelector('.selected-ids-input')
+                }
+            };
+            
+            // Parse categories based on format (object or array)
+            const categories = Array.isArray(categoriesData)
+                ? parseArrayFormat(categoriesData)
+                : parseObjectFormat(categoriesData);
+            
+            renderCategories(container, controls.linkedSelect, categories, selectedIds);
+            setupEventListeners(widgetElement, container, controls, categories);
+            updateHiddenInputs(container, controls.hiddenInputs);
+        }
+        
+        function parseObjectFormat(obj) {
+            return Object.entries(obj).map(([id, name]) => ({ id, name }));
+        }
+        
+        function parseArrayFormat(arr) {
+            return arr.map(item => {
+                const [id, name] = Object.entries(item)[0];
+                return { id, name };
+            });
+        }
+        
+        function renderCategories(container, selectElement, categories, selectedIds) {
+            container.innerHTML = '';
+            selectElement.innerHTML = '';
+            
+            categories.forEach((category, index) => {
+                // Create span element
+                const span = document.createElement('span');
+                span.textContent = category.name;
+                span.className = selectedIds.includes(category.id) 
+                    ? 'category-selected' 
+                    : 'category-unselected';
+                span.dataset.id = category.id;
+                span.dataset.category = category.name;
+                
+                // Create select option
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                option.selected = selectedIds.includes(category.id);
+                
+                // Add to DOM
+                container.appendChild(span);
+                if (index < categories.length - 1) {
+                    container.appendChild(document.createTextNode('  '));
+                }
+                selectElement.appendChild(option);
+            });
+        }
+        
+        function setupEventListeners(widgetElement, container, controls) {
+            // Category span clicks
+            container.addEventListener('click', function(e) {
+                if (e.target.dataset.id) {
+                    e.target.classList.toggle('category-selected');
+                    e.target.classList.toggle('category-unselected');
+                    updateSelectFromSpans(container, controls.linkedSelect);
+                    updateHiddenInputs(container, controls.hiddenInputs);
+                }
+            });
+            
+            // Select element changes
+            controls.linkedSelect.addEventListener('change', function() {
+                updateSpansFromSelect(container, controls.linkedSelect);
+                updateHiddenInputs(container, controls.hiddenInputs);
+            });
+            
+            // Control buttons
+            controls.selectAll.addEventListener('click', () => {
+                container.querySelectorAll('[data-id]').forEach(el => {
+                    el.classList.add('category-selected');
+                    el.classList.remove('category-unselected');
+                });
+                updateSelectFromSpans(container, controls.linkedSelect);
+                updateHiddenInputs(container, controls.hiddenInputs);
+            });
+            
+            controls.unselectAll.addEventListener('click', () => {
+                container.querySelectorAll('[data-id]').forEach(el => {
+                    el.classList.add('category-unselected');
+                    el.classList.remove('category-selected');
+                });
+                updateSelectFromSpans(container, controls.linkedSelect);
+                updateHiddenInputs(container, controls.hiddenInputs);
+            });
+            
+            controls.sortSelected.addEventListener('click', () => {
+                sortSelectedFirst(container);
+                updateHiddenInputs(container, controls.hiddenInputs);
+            });
+            controls.sortSelected.addEventListener('click', () => {
+                sortSelectedFirst(container);
+                updateHiddenInputs(container, controls.hiddenInputs);
+            });
+            controls.readonly.addEventListener('click', (ev) => {
+                ev.target.closest(".category-widget").classList.add("category-readonly");
+            });
+            controls.edit.addEventListener('click', (ev) => {
+                ev.target.closest(".category-widget").classList.remove("category-readonly");
+            });
+        }
+        
+        function updateSelectFromSpans(container, selectElement) {
+            const selectedIds = Array.from(container.querySelectorAll('.category-selected'))
+                .map(el => el.dataset.id);
+            
+            Array.from(selectElement.options).forEach(option => {
+                option.selected = selectedIds.includes(option.value);
+            });
+        }
+        
+        function updateSpansFromSelect(container, selectElement) {
+            const selectedIds = Array.from(selectElement.selectedOptions)
+                .map(option => option.value);
+            
+            container.querySelectorAll('[data-id]').forEach(span => {
+                const isSelected = selectedIds.includes(span.dataset.id);
+                span.className = isSelected ? 'category-selected' : 'category-unselected';
+            });
+        }
+        
+        function sortSelectedFirst(container) {
+            const elements = Array.from(container.childNodes);
+            const selected = [];
+            const unselected = [];
+            
+            elements.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE && node.dataset.id) {
+                    if (node.classList.contains('category-selected')) {
+                        selected.push(node);
+                    } else {
+                        unselected.push(node);
+                    }
+                } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === ',') {
+                    // Skip commas
+                }
+            });
+            
+            container.innerHTML = '';
+            
+            selected.forEach((el, i) => {
+                container.appendChild(el);
+                if (i < selected.length - 1 || unselected.length > 0) {
+                    container.appendChild(document.createTextNode(' '));
+                }
+            });
+            
+            unselected.forEach((el, i) => {
+                container.appendChild(el);
+                if (i < unselected.length - 1) {
+                    container.appendChild(document.createTextNode(' '));
+                }
+            });
+        }
+        
+        function updateHiddenInputs(container, hiddenInputs) {
+            const selectedElements = container.querySelectorAll('.category-selected');
+            const categories = [];
+            const ids = [];
+            
+            selectedElements.forEach(el => {
+                categories.push(el.dataset.category);
+                ids.push(el.dataset.id);
+            });
+            
+            hiddenInputs.categories.value = categories.join(',');
+            hiddenInputs.ids.value = ids.join(',');
+            
+            console.log('Updated hidden inputs:', {
+                categories: hiddenInputs.categories.value,
+                ids: hiddenInputs.ids.value
+            });
+        }
+
+    </script>
+</body>
+</html>

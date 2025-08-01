@@ -168,7 +168,7 @@ const OcCategoCRUD = {
         const item = button.closest('.oc_catego_crud_category_item');
         const input = item.querySelector('input');
         const name = input.value.trim();
-        if(!name) return alert('Nombre requerido');
+        if(!name) return schError('Nombre requerido');
 
         const form = new URLSearchParams();
         form.set('action', 'upsert');
@@ -185,7 +185,7 @@ const OcCategoCRUD = {
                 if(!json.success) throw new Error(json.error || 'Error al guardar');
                 this._updateCategories();
             })
-            .catch(err => alert(err.message));
+            .catch(err => schError(err.message));
     },
 
     _deleteCategory(categoryId, categoryName) {

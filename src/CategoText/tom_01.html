@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Category Widget with Tom Select</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+  <style>
+    .category-widget {
+      margin-bottom: 2em;
+      border: 1px solid #ccc;
+      padding: 1em;
+      border-radius: 8px;
+      background: #fefefe;
+      display: flex;
+      flex-direction: row;
+    }
+    .category-select-hidden {display: none;pointer-events: none;}
+    .category-readonly {
+      font-family: sans-serif;
+      padding: 0.5em;
+      color: #333;
+    }
+    .category-controls {
+      margin-top: 0.5em;
+    }
+    .category-controls button {
+      margin-right: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Widget container -->
+<div class="category-widget" data-widget-id="cat1">
+  <select readonly multiple size="3" class="category-select">
+    <option value="c1" SELECTED = "SELECTED">Invierno</option>
+    <option value="a" >Nuevo</option>
+    <option value="b" SELECTED = "SELECTED">Escolar</option>
+    <option value="c2" SELECTED = "SELECTED">Invierno 1</option>
+    <option value="c43" SELECTED = "SELECTED">Invierno 2</option>
+    <option value="c2" SELECTED = "SELECTED">Invierno 3</option>
+  </select>
+  <div class="category-controls">
+    <button type="button" onclick="addCategory(this)">⚙</button><button type="button" title="copiar" onclick="addCategory(this)">📋</button>
+  </div>
+</div>
+
+
+<script>
+  function tomCatego(selectElement) {
+
+    function getReadOnlyDiv() {
+      if(!selectElement) return null;
+      let sibling = selectElement.nextElementSibling;
+      if(sibling && sibling.classList.contains('category-readonly')) {
+        return sibling;
+      }
+      const readonlyDiv = document.createElement('div');
+      readonlyDiv.className = 'category-readonly';
+      readonlyDiv.hidden = true;
+      selectElement.parentNode.insertBefore(readonlyDiv, selectElement.nextSibling);
+      return readonlyDiv;
+    }
+
+    // add copy?
+    // add crud catego
+
+    if(selectElement.hasAttribute("readonly")) {
+      selectElement.classList.add("category-select-hidden");
+      let row = getReadOnlyDiv();
+      row.removeAttribute("hidden");
+      row.innerHTML = Array.from(selectElement.selectedOptions)
+          .map(option => option.textContent.trim())
+          .join(', ');
+      return;
+    }
+
+    new TomSelect(selectElement, {
+      plugins: ['remove_button', 'clear_button'],
+      create: false,
+      maxItems: null,
+      hideSelected: true,
+      closeAfterSelect: false,
+      diacritics: true,
+    });
+  }
+  function initCategoryWidgets() {
+    document.querySelectorAll('.category-widget').forEach(widget => {
+      const select = widget.querySelector('.category-select');
+      tomCatego(select); return;
+      if(select.hasAttribute("readonly")) {
+        select.classList.add("category-select-hidden");
+        widget.querySelector('.category-controls').remove();
+        const row = widget.querySelector('.category-readonly');
+        row.removeAttribute("hidden");
+        row.innerHTML = Array.from(select.selectedOptions)
+            .map(option => option.textContent.trim())
+            .join(', ');
+        return;
+      }
+      new TomSelect(select, {
+        plugins: ['remove_button', 'clear_button'],
+        create: false,
+        maxItems: null,
+        hideSelected: true,
+        closeAfterSelect: false,
+        diacritics: true,
+      });
+    });
+  }
+
+
+  function addCategory(button) {
+    const widget = button.closest('.category-widget');
+    const label = prompt('New category name:');
+    if (!label) return;
+    const value = label.toLowerCase().replace(/\s+/g, '_');
+
+    const tom = widgetInstances.get(widget);
+    if (!tom.options[value]) {
+      tom.addOption({ value, text: label });
+      tom.refreshOptions(false);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', initCategoryWidgets);
+</script>
+
+</body>
+</html>
