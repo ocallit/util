@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex-Based Adaptive Header</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --header-bg: #2c3e50;
+            --text-color: #ecf0f1;
+            --accent-color: #3498db;
+            --hover-color: #2980b9;
+            --separator-color: rgba(255,255,255,0.2);
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding-top: 60px;
+        }
+        
+        /* Flex-Based Header Structure */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            color: var(--text-color);
+            z-index: 1000;
+        }
+        
+        /* Top Row - Always Visible */
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            min-height: 50px;
+        }
+        
+        /* Bottom Row - Breadcrumbs */
+        .header-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(0,0,0,0.1);
+            border-top: 1px solid var(--separator-color);
+        }
+        
+        /* Flexible Spacing Components */
+        .home-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .title-container {
+            display: flex;
+            align-items: center;
+            min-width: 0; /* Allows text truncation */
+            flex-grow: 1;
+            gap: 0.5rem;
+            margin: 0 0.5rem;
+        }
+        
+        .page-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1.1rem;
+        }
+        
+        .controls-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .breadcrumbs {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+        
+        /* Interactive Elements */
+        .btn {
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .btn:hover {
+            background: var(--hover-color);
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            flex-shrink: 0;
+        }
+        
+        .separator {
+            width: 1px;
+            height: 24px;
+            background: var(--separator-color);
+            flex-shrink: 0;
+        }
+        
+        /* Dynamic Controls Container */
+        .dynamic-controls {
+            display: contents; /* Children participate directly in flex layout */
+        }
+        
+        .extra-controls {
+            display: none;
+            margin-left: auto;
+        }
+        
+        /* Automatic Adaptation Logic */
+        @media (hover: hover) {
+            /* Only show hover states on devices that support them */
+            .btn:hover {
+                background: var(--hover-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <!-- Top Row -->
+        <div class="header-top-row">
+            <a href="/" class="home-link">
+                <span>🏠</span>
+                <span class="home-text">Home</span>
+            </a>
+            
+            <div class="separator"></div>
+            
+            <div class="title-container">
+                <span>📊</span>
+                <span class="page-title">Sales Dashboard: Q3 2023 Performance</span>
+            </div>
+            
+            <div class="separator"></div>
+            
+            <div class="controls-container">
+                <div class="dynamic-controls">
+                    <button class="btn essential">Focus</button>
+                    <button class="btn export-btn">Export</button>
+                    <button class="btn save-btn">Save</button>
+                </div>
+                <button class="extra-controls icon-btn">⚙️</button>
+            </div>
+        </div>
+        
+        <!-- Bottom Row -->
+        <div class="header-bottom-row">
+            <div class="breadcrumbs">
+                <a href="/">Home</a> > 
+                <a href="/reports">Reports</a> > 
+                <span>Sales Dashboard</span>
+            </div>
+        </div>
+    </header>
+    
+    <main style="padding: 1rem;">
+        <h1>Sales Dashboard</h1>
+        <p>Actual page content that needs to remain visible</p>
+    </main>
+
+    <script>
+        // Automatic space management
+        function optimizeHeaderSpace() {
+            const header = document.querySelector('.header-top-row');
+            const homeText = document.querySelector('.home-text');
+            const dynamicControls = document.querySelector('.dynamic-controls');
+            const extraControlsBtn = document.querySelector('.extra-controls');
+            
+            // Calculate available space
+            const usedSpace = Array.from(header.children).reduce((acc, child) => {
+                return acc + child.getBoundingClientRect().width;
+            }, 0);
+            
+            const availableSpace = header.getBoundingClientRect().width - usedSpace;
+            
+            // Hide home text if needed
+            if (availableSpace < 100) {
+                homeText.style.display = 'none';
+            } else {
+                homeText.style.display = 'inline';
+            }
+            
+            // Hide secondary controls if needed
+            const exportBtn = document.querySelector('.export-btn');
+            const saveBtn = document.querySelector('.save-btn');
+            
+            if (availableSpace < 150) {
+                exportBtn.style.display = 'none';
+                extraControlsBtn.style.display = 'block';
+            } else {
+                exportBtn.style.display = 'block';
+                saveBtn.style.display = 'block';
+                extraControlsBtn.style.display = 'none';
+            }
+        }
+        
+        // Run on load and resize
+        window.addEventListener('load', optimizeHeaderSpace);
+        window.addEventListener('resize', optimizeHeaderSpace);
+    </script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <title>Ventas Mensuales por Producto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../src/css/base.css">
+    <style>
+        /* Product Sales Specific Styles */
+        .ocProductSales_container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-radius: 8px;
+            box-shadow: var(--elevation-1);
+        }
+
+        .ocProductSales_chart_container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            background: var(--color-surface);
+            position: relative;
+        }
+
+        .ocProductSales_loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--color-text-light);
+            font-size: 1.1rem;
+        }
+
+        :root {
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text-light: #666666;
+            --elevation-1: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="ocProductSales_container">
+        <!-- Chart Container -->
+        <div class="ocProductSales_chart_container" id="ocProductSales_chartContainer">
+            <div class="ocProductSales_loading" id="ocProductSales_loading">
+                Cargando datos del gráfico...
+            </div>
+        </div>
+    </div>
+
+    <!-- Load ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+
+    <script>
+        // File: ocProductSales.js
+        // Path: /features/product_sales/ocProductSales.js
+        // Version: 2.0.0 - Updated with forecast support
+
+        class OcEcharts {
+            constructor() {
+                this.chart = null;
+                this.chartContainer = document.getElementById('ocProductSales_chartContainer');
+                this.loading = document.getElementById('ocProductSales_loading');
+                
+                this.seriesConfig = {};
+                this.currentData = {};
+                
+                this.setupFetchOverride();
+                this.initializeChart();
+                
+                // Load initial data from server
+                this.loadInitialData();
+            }
+
+            setupFetchOverride() {
+                const originalFetch = window.fetch;
+                window.fetch = (url, options) => {
+                    if (url.includes('?test=true')) {
+                        return this.mockAPIResponse(url, options);
+                    }
+                    return originalFetch(url, options);
+                };
+            }
+
+            mockAPIResponse(url, options) {
+                // Mock series configuration - now includes forecast series
+                const mockSeriesConfig = {
+                    "Producto Alpha (USD)": {
+                        "color": "#00008b",
+                        "yAxis": 0,
+                        "lineType": "solid",
+                        "connectNulls": true
+                    },
+                    "Producto Beta (Piezas)": {
+                        "color": "#4682b4", 
+                        "yAxis": 1,
+                        "lineType": "solid",
+                        "connectNulls": false
+                    },
+                    "Producto Gamma (USD)": {
+                        "color": "#ff6b35",
+                        "yAxis": 0,
+                        "lineType": "solid"
+                        // No connectNulls property - let ECharts use default
+                    },
+                    "Producto Alpha Forecast (USD)": {
+                        "color": "#00008b",
+                        "yAxis": 0,
+                        "lineType": "dashed"
+                    },
+                    "Producto Beta Forecast (Piezas)": {
+                        "color": "#4682b4", 
+                        "yAxis": 1,
+                        "lineType": "dashed"
+                    },
+                    "Producto Gamma Forecast (USD)": {
+                        "color": "#ff6b35",
+                        "yAxis": 0,
+                        "lineType": "dashed"
+                    }
+                };
+
+                // Mock time series data - now includes both historical and forecast
+                const mockSeriesData = {
+                    "Producto Alpha (USD)": [
+                        ["2024-01-01", 15000], ["2024-02-01", 18000], ["2024-03-01", null], // null for missing data
+                        ["2024-04-01", 19000], ["2024-05-01", 25000], ["2024-06-01", 28000],
+                        ["2024-07-01", 32000], ["2024-08-01", 29000]
+                    ],
+                    "Producto Beta (Piezas)": [
+                        ["2024-01-01", 1200], ["2024-02-01", 1400], ["2024-03-01", null], // null for missing data
+                        ["2024-04-01", 1500], ["2024-05-01", 1700], ["2024-06-01", 2000],
+                        ["2024-07-01", 2200], ["2024-08-01", 1900]
+                    ],
+                    "Producto Gamma (USD)": [
+                        ["2024-01-01", 8000], ["2024-02-01", 9500], ["2024-03-01", 0], // 0 for missing data
+                        ["2024-04-01", 10500], ["2024-05-01", 12000], ["2024-06-01", 13500],
+                        ["2024-07-01", 15000], ["2024-08-01", 14200]
+                    ],
+                    "Producto Alpha Forecast (USD)": [
+                        ["2024-09-01", 33500], ["2024-10-01", 35200], ["2024-11-01", 37800],
+                        ["2024-12-01", 36400], ["2025-01-01", 39100], ["2025-02-01", 41000]
+                    ],
+                    "Producto Beta Forecast (Piezas)": [
+                        ["2024-09-01", 2350], ["2024-10-01", 2480], ["2024-11-01", 2620],
+                        ["2024-12-01", 2580], ["2025-01-01", 2710], ["2025-02-01", 2850]
+                    ],
+                    "Producto Gamma Forecast (USD)": [
+                        ["2024-09-01", 16200], ["2024-10-01", 17100], ["2024-11-01", 18500],
+                        ["2024-12-01", 17800], ["2025-01-01", 19200], ["2025-02-01", 20100]
+                    ]
+                };
+
+                if (url.includes('product_sales_page.php')) {
+                    // Initial page configuration
+                    const mockResponse = {
+                        success: true,
+                        error: null,
+                        data: {
+                            series_config: mockSeriesConfig
+                        }
+                    };
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve(mockResponse)
+                    });
+                } else {
+                    // Chart data response - includes both historical and forecast
+                    const mockResponse = {
+                        success: true,
+                        error: null,
+                        data: {
+                            series: mockSeriesData,
+                            unit_left: "USD",
+                            unit_right: "Piezas",
+                            period: "2024-01-01 to 2025-02-01"
+                        }
+                    };
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve(mockResponse)
+                    });
+                }
+            }
+
+            initializeChart() {
+                this.chart = echarts.init(this.chartContainer);
+                
+                // Set loading state
+                this.chart.showLoading({
+                    text: 'Cargando datos...',
+                    color: '#00008b',
+                    textColor: '#212529',
+                    maskColor: 'rgba(255, 255, 255, 0.8)'
+                });
+            }
+
+            async loadInitialData() {
+                try {
+                    // Get initial series configuration from server
+                    const pageResponse = await fetch('/api/product_sales_page.php?test=true');
+                    const pageData = await pageResponse.json();
+                    
+                    if (pageData.success) {
+                        this.seriesConfig = pageData.data.series_config || {};
+                        console.log('Series config loaded:', this.seriesConfig);
+                    }
+                    
+                    // Load chart data (now includes both historical and forecast)
+                    await this.updateChart();
+                } catch (error) {
+                    console.error('Error loading initial data:', error);
+                    this.showError('Error al cargar los datos iniciales');
+                }
+            }
+
+            async updateChart() {
+                this.showLoading(true);
+                
+                try {
+                    const response = await fetch('/api/product_sales_data.php?test=true', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({})
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.currentData = data.data;
+                        this.renderChart(data.data);
+                    } else {
+                        this.showError(data.error || 'Error al obtener los datos');
+                    }
+                } catch (error) {
+                    console.error('Error updating chart:', error);
+                    this.showError('Error de conexión al servidor');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            renderChart(data) {
+                const series = [];
+                const colors = ['#00008b', '#4682b4', '#ff6b35', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+                
+                // Extract product names from series names (remove units in parentheses)
+                const productNames = Object.keys(data.series)
+                    .filter(seriesName => !seriesName.includes('Forecast'))
+                    .map(seriesName => {
+                        return seriesName.replace(/\s*\([^)]*\)$/, ''); // Remove (USD), (Piezas), etc.
+                    });
+                const uniqueProductNames = [...new Set(productNames)];
+                const productsTitle = uniqueProductNames.join(', ');
+                
+                // Check which y-axes are actually used
+                const usedYAxes = new Set();
+                let colorIndex = 0;
+                for (const [seriesName, points] of Object.entries(data.series)) {
+                    const config = this.seriesConfig[seriesName] || {};
+                    const yAxisIndex = config.yAxis || 0;
+                    usedYAxes.add(yAxisIndex);
+                    
+                    // Use color from config or fallback to default colors
+                    const seriesColor = config.color || colors[colorIndex % colors.length];
+                    
+                    // Determine line style based on lineType in config
+                    const lineStyle = {
+                        color: seriesColor,
+                        width: 2
+                    };
+                    
+                    // Add dash pattern if lineType is dashed
+                    if (config.lineType === 'dashed') {
+                        lineStyle.type = 'dashed';
+                    }
+                    
+                    // Handle missing data - use server config or let ECharts use its default
+                    const connectNulls = config.connectNulls; // undefined if not set, ECharts will use default
+                    
+                    const seriesOptions = {
+                        name: seriesName,
+                        type: 'line',
+                        data: points.map(point => [new Date(point[0]).getTime(), point[1]]),
+                        showSymbol: false,
+                        smooth: true,
+                        yAxisIndex: yAxisIndex,
+                        lineStyle: lineStyle,
+                        itemStyle: {
+                            color: seriesColor  // This sets the legend color
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        }
+                    };
+                    
+                    // Only set connectNulls if explicitly provided by server
+                    if (connectNulls !== undefined) {
+                        seriesOptions.connectNulls = connectNulls;
+                    }
+                    
+                    series.push(seriesOptions);
+                    colorIndex++;
+                }
+
+                // Build y-axis configuration based on what's actually used
+                const yAxisConfig = [];
+                
+                // Always include left axis (index 0)
+                yAxisConfig.push({
+                    type: 'value',
+                    name: data.unit_left || 'USD',
+                    position: 'left',
+                    nameLocation: 'middle',
+                    nameGap: 50,
+                    axisLabel: {
+                        formatter: function (value) {
+                            return new Intl.NumberFormat('es-MX').format(value);
+                        }
+                    },
+                    axisLine: { show: true },
+                    splitLine: { show: true }
+                });
+
+                // Only add right axis (index 1) if it's actually used
+                if (usedYAxes.has(1)) {
+                    yAxisConfig.push({
+                        type: 'value',
+                        name: data.unit_right || 'Piezas',
+                        position: 'right',
+                        nameLocation: 'middle',
+                        nameGap: 50,
+                        axisLabel: {
+                            formatter: function (value) {
+                                return new Intl.NumberFormat('es-MX').format(value);
+                            }
+                        },
+                        axisLine: { show: true },
+                        splitLine: { show: false }
+                    });
+                }
+
+                const option = {
+                    title: [
+                        {
+                            text: productsTitle,
+                            left: 'center',
+                            textStyle: {
+                                color: '#00008b',
+                                fontSize: 16,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        {
+                            text: '', // Will be updated by dataZoom event
+                            left: 'right',
+                            top: 35,
+                            textStyle: {
+                                color: '#666666',
+                                fontSize: 12,
+                                fontWeight: 'normal'
+                            }
+                        }
+                    ],
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {
+                                show: true,
+                                title: 'Save as Image',
+                                name: 'ventas_mensuales_productos'
+                            },
+                            magicType: {
+                                show: true,
+                                type: ['line', 'bar'],
+                                title: {
+                                    line: 'Switch to Line Chart',
+                                    bar: 'Switch to Bar Chart'
+                                }
+                            },
+                            restore: {
+                                show: true,
+                                title: 'Restore'
+                            }
+                        },
+                        iconStyle: {
+                            borderColor: '#00008b',
+                            borderWidth: 1
+                        },
+                        emphasis: {
+                            iconStyle: {
+                                borderColor: '#4682b4',
+                                borderWidth: 2
+                            }
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        },
+                        formatter: (params) => {
+                            return this.formatTooltip(params, data);
+                        }
+                    },
+                    legend: {
+                        data: Object.keys(data.series),
+                        top: 60,
+                        type: 'plain',  // Use plain instead of scroll for wrapping
+                        orient: 'horizontal',
+                        left: 'center',
+                        itemGap: 20,
+                        textStyle: {
+                            fontSize: 12
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '8%',
+                        top: '25%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'time',
+                        axisLabel: {
+                            rotate: 90,
+                            formatter: function (value) {
+                                const date = new Date(value);
+                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                return `${months[date.getMonth()]}/${date.getFullYear().toString().slice(-2)}`;
+                            }
+                        }
+                    },
+                    yAxis: yAxisConfig,
+                    dataZoom: [
+                        {
+                            type: 'slider',
+                            show: true,
+                            start: 0,
+                            end: 100,
+                            bottom: 15
+                        },
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: series
+                };
+
+                this.chart.setOption(option, true);
+                
+                // Set up event listener for dataZoom to update subtitle with visible date range
+                this.chart.off('dataZoom'); // Remove any existing listeners
+                this.chart.on('dataZoom', (params) => {
+                    this.updateVisibleDateRange();
+                });
+                
+                // Set initial subtitle with full date range
+                this.updateVisibleDateRange();
+            }
+
+            updateVisibleDateRange() {
+                if (!this.chart || !this.currentData) return;
+                
+                const option = this.chart.getOption();
+                const dataZoom = option.dataZoom[0]; // Get slider dataZoom
+                
+                // Get all data points to calculate visible range
+                const allDates = [];
+                Object.values(this.currentData.series).forEach(points => {
+                    points.forEach(point => {
+                        allDates.push(new Date(point[0]).getTime());
+                    });
+                });
+                
+                if (allDates.length === 0) return;
+                
+                // Sort dates and calculate visible range
+                allDates.sort((a, b) => a - b);
+                const totalRange = allDates[allDates.length - 1] - allDates[0];
+                const startPercent = dataZoom.start || 0;
+                const endPercent = dataZoom.end || 100;
+                
+                const visibleStart = allDates[0] + (totalRange * startPercent / 100);
+                const visibleEnd = allDates[0] + (totalRange * endPercent / 100);
+                
+                const formatDate = (timestamp) => {
+                    const date = new Date(timestamp);
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return `${months[date.getMonth()]}/${date.getFullYear()}`;
+                };
+                
+                const subtitle = `${formatDate(visibleStart)} - ${formatDate(visibleEnd)}`;
+                
+                // Update subtitle
+                this.chart.setOption({
+                    title: [
+                        {}, // Keep first title unchanged
+                        {
+                            text: subtitle
+                        }
+                    ]
+                });
+            }
+
+            formatTooltip(params, data) {
+                if (!params || params.length === 0) return '';
+                
+                const date = new Date(params[0].axisValue);
+                const formattedDate = date.toLocaleDateString('es-MX', { 
+                    year: 'numeric', 
+                    month: 'long' 
+                });
+                
+                let html = `<strong>${formattedDate}</strong><br/>`;
+                
+                // Calculate totals by unit
+                const totals = {};
+                
+                // Get current chart option to check which y-axes exist
+                const chartOption = this.chart.getOption();
+                const hasRightAxis = chartOption.yAxis && chartOption.yAxis.length > 1;
+                
+                // Start table with tbody
+                html += `<table style="border-collapse: collapse; margin-top: 8px;"><tbody>`;
+                
+                params.forEach(param => {
+                    const value = parseFloat(param.value[1]);
+                    
+                    // Get the yAxisIndex for this series
+                    const seriesIndex = param.seriesIndex;
+                    const yAxisIndex = chartOption.series[seriesIndex].yAxisIndex || 0;
+                    
+                    // Determine unit and indicator based on yAxisIndex and available axes
+                    let unit, yAxisIndicator;
+                    if (yAxisIndex === 1 && hasRightAxis) {
+                        unit = data.unit_right || 'Piezas';
+                        yAxisIndicator = '→';
+                    } else {
+                        unit = data.unit_left || 'USD';
+                        yAxisIndicator = '←';
+                    }
+                    
+                    // Add to totals
+                    if (!totals[unit]) {
+                        totals[unit] = 0;
+                    }
+                    totals[unit] += value;
+                    
+                    const formattedValue = new Intl.NumberFormat('es-MX').format(value);
+                    
+                    html += `
+                        <tr>
+                            <td style="padding: 2px 6px;">
+                                <span style="display:inline-block;border-radius:50%;width:10px;height:10px;background-color:${param.color};"></span>
+                            </td>
+                            <td style="padding: 2px 6px;">${param.seriesName}</td>
+                            <td style="padding: 2px 6px; text-align: right; white-space: nowrap;"><strong>${formattedValue}</strong></td>
+                            <td style="padding: 2px 6px; text-align: center; white-space: nowrap;">${unit}</td>
+                            <td style="padding: 2px 6px; text-align: center; color: #999;">${yAxisIndicator}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody>`;
+                
+                // Add totals in table footer
+                const totalKeys = Object.keys(totals);
+                if (totalKeys.length > 0) {
+                    html += `<tfoot>`;
+                    html += `
+                        <tr>
+                            <td colspan="5" style="padding: 4px 6px; border-top: 1px solid #ddd;"></td>
+                        </tr>
+                    `;
+                    
+                    totalKeys.forEach(unit => {
+                        const formattedTotal = new Intl.NumberFormat('es-MX').format(totals[unit]);
+                        html += `
+                            <tr>
+                                <td style="padding: 2px 6px;">📊</td>
+                                <td style="padding: 2px 6px; font-weight: bold; color: #666;">Total ${unit}:</td>
+                                <td style="padding: 2px 6px; text-align: right; white-space: nowrap; font-weight: bold;"><strong>${formattedTotal}</strong></td>
+                                <td style="padding: 2px 6px; text-align: center; white-space: nowrap; font-weight: bold;">${unit}</td>
+                                <td style="padding: 2px 6px;"></td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tfoot>`;
+                }
+                
+                html += `</table>`;
+                
+                return html;
+            }
+
+            showLoading(show) {
+                if (show) {
+                    this.loading.style.display = 'block';
+                    this.chart.showLoading({
+                        text: 'Actualizando gráfico...',
+                        color: '#00008b',
+                        textColor: '#212529',
+                        maskColor: 'rgba(255, 255, 255, 0.8)'
+                    });
+                } else {
+                    this.loading.style.display = 'none';
+                    this.chart.hideLoading();
+                }
+            }
+
+            showError(message) {
+                this.loading.innerHTML = `<div style="color: var(--color-fail);">❌ ${message}</div>`;
+                this.loading.style.display = 'block';
+            }
+
+            // Public method to refresh data (can be called externally)
+            async refreshData() {
+                await this.updateChart();
+            }
+
+            // Get all data at a specific month/year - clean and direct
+            getDataAtDate(targetDate) {
+                if (!this.currentData || !this.currentData.series) {
+                    return null;
+                }
+
+                const result = {};
+                const targetTime = new Date(targetDate).getTime();
+
+                // Method 1: Direct data lookup (fastest)
+                for (const [seriesName, points] of Object.entries(this.currentData.series)) {
+                    const point = points.find(([dateStr, value]) => {
+                        return new Date(dateStr).getTime() === targetTime;
+                    });
+                    
+                    if (point) {
+                        result[seriesName] = point[1]; // value
+                    }
+                }
+
+                return Object.keys(result).length > 0 ? result : null;
+            }
+
+            // Get data at date with closest match if exact date not found
+            getDataAtDateClosest(targetDate) {
+                if (!this.currentData || !this.currentData.series) {
+                    return null;
+                }
+
+                const result = {};
+                const targetTime = new Date(targetDate).getTime();
+
+                for (const [seriesName, points] of Object.entries(this.currentData.series)) {
+                    let closestPoint = null;
+                    let minDiff = Infinity;
+
+                    points.forEach(([dateStr, value]) => {
+                        const pointTime = new Date(dateStr).getTime();
+                        const diff = Math.abs(pointTime - targetTime);
+                        
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestPoint = [dateStr, value];
+                        }
+                    });
+
+                    if (closestPoint) {
+                        result[seriesName] = closestPoint[1];
+                    }
+                }
+
+                return Object.keys(result).length > 0 ? result : null;
+            }
+
+            // Get data using ECharts built-in methods (most accurate)
+            getDataAtDateFromChart(targetDate) {
+                if (!this.chart) {
+                    return null;
+                }
+
+                try {
+                    const targetTime = new Date(targetDate).getTime();
+                    const option = this.chart.getOption();
+                    const result = {};
+
+                    // Use ECharts series data directly
+                    option.series.forEach((series, index) => {
+                        const dataPoint = series.data.find(point => {
+                            return point[0] === targetTime;
+                        });
+                        
+                        if (dataPoint) {
+                            result[series.name] = dataPoint[1];
+                        }
+                    });
+
+                    return Object.keys(result).length > 0 ? result : null;
+                } catch (error) {
+                    console.error('Error getting data from chart:', error);
+                    return null;
+                }
+            }
+
+            // Convenience method with date string parsing
+            getDataAtMonth(monthYear) {
+                // Accept formats like: "2024-03", "Mar 2024", "March 2024", "2024-03-01"
+                let targetDate;
+                
+                if (monthYear.includes('-') && monthYear.length <= 7) {
+                    // "2024-03" format
+                    targetDate = monthYear + '-01';
+                } else if (monthYear.includes(' ')) {
+                    // "Mar 2024" or "March 2024" format
+                    targetDate = new Date(monthYear + ' 1').toISOString().split('T')[0];
+                } else {
+                    targetDate = monthYear;
+                }
+
+                return this.getDataAtDate(targetDate);
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.chart1 = new OcEchart();
+        });
+    </script>
+</body>
+</html>
