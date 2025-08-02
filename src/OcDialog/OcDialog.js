@@ -9,66 +9,150 @@ var OcDialog = {
     // Constants
     CANCELED: 'DIALOG_CANCELED',
 
-    // Core dialog functions
-    init() {
-        // Close only .sch_dialog dialogs with Escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                const openDialog = document.querySelector('dialog.sch_dialog[open]');
-                if (openDialog) {
-                    openDialog.close();
-                }
-            }
-        });
-        console.log('✅ OcDialog: initialized');
-    },
-
-
     /**
      * Generic dialog creator
      * @param {Object} params - Dialog configuration
-     * @returns {Promise} - Promise that resolves/rejects based on user action
+     * @param {string|Element} params.title - Dialog title (string or DOM element)
+     * @param {string|Element} params.html - Dialog content (string or DOM element)
+     * @param {Array} params.buttons - Button configuration array
+     * buttons: [{label:"button label", callback:function, class:"css class to add", promise_resolve:true}, ...]
+     * @returns {Promise} - Promise that resolves on buttons with promise_resolve=true, rejects on close/escape
      */
     dialog({title = "", html, buttons = []}) {
-        const dialog = document.createElement('dialog');
-        dialog.className = 'sch_dialog sch_dialog_grow_content';
-        dialog.innerHTML = `
-            <div class="sch_dialog_header">
-                <div class="sch_dialog_title"></div>
-                <button class="sch_dialog_close" type="button">&times;</button>
-            </div>
-            <div class="sch_dialog_content"></div>
-            <div class="sch_dialog_footer"></div>`;
+        return new Promise((resolve, reject) => {
+            const dialog = document.createElement('dialog');
+            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.innerHTML = `
+                <div class="sch_dialog_header">
+                    <div class="sch_dialog_title"></div>
+                    <button class="sch_dialog_close" type="button">&times;</button>
+                </div>
+                <div class="sch_dialog_content">
+                    <div class="sch_errors sch_hidden"><button type="button" class="sch_errors_close">&times;</button></div>
+                    <form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form>
+                </div>
+                <div class="sch_dialog_footer"></div>`;
 
-        if(typeof title === 'string')
-            dialog.querySelector('.sch_dialog_title').innerHTML = title;
-        else
-            dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+            // Set title
+            if(typeof title === 'string')
+                dialog.querySelector('.sch_dialog_title').innerHTML = title;
+            else
+                dialog.querySelector('.sch_dialog_title').replaceChildren(title);
 
-        if(typeof html === 'string')
-            dialog.querySelector('.sch_dialog_content').innerHTML = html;
-        else
-            dialog.querySelector('.sch_dialog_content').replaceChildren(html);
+            // Set content
+            if(typeof html === 'string')
+                dialog.querySelector('.sch_dialog_content').innerHTML = html;
+            else
+                dialog.querySelector('.sch_dialog_content').replaceChildren(html);
 
-        if(buttons.length) {
-            // Handle buttons array
-        } else {
-            dialog.querySelector('.sch_dialog_footer').remove();
-        }
+            // Handle buttons
+            const footer = dialog.querySelector('.sch_dialog_footer');
+            const buttonHandlers = []; // Store handlers for cleanup
 
-        function handleClose() {dialog.close();}
-        function cleanup() {
-            closeButton.removeEventListener('click', handleClose);
-            dialog.removeEventListener('close', cleanup);
-        }
-        document.body.appendChild(dialog);
-        const closeButton = dialog.querySelector('.sch_dialog_close');
-        closeButton.addEventListener('click', handleClose);
-        dialog.addEventListener('close', cleanup);
+            if(buttons.length) {
+                buttons.forEach((buttonConfig, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
 
-        OcDialogDrag.initialize(dialog);
-        dialog.showModal();
+                    // Set button class - first button gets primary if no class specified
+                    let buttonClass = 'sch_dialog_button';
+                    if (buttonConfig.class) {
+                        buttonClass += ` ${buttonConfig.class}`;
+                    } else if (index === 0) {
+                        buttonClass += ' sch_dialog_button--primary';
+                    }
+                    button.className = buttonClass;
+
+                    button.innerHTML = buttonConfig.label || `Button ${index + 1}`;
+
+                    // Create named function to avoid memory leak
+                    function handleButtonClick(e) {
+                        // Call callback if provided
+                        if (typeof buttonConfig.callback === 'function') {
+                            buttonConfig.callback(e);
+                        }
+
+                        // Handle promise resolution
+                        if (buttonConfig.promise_resolve === true) {
+                            // If there's a form, collect form data
+                            const form = dialog.querySelector('form');
+                            let formData = {};
+                            if (form) {
+                                formData = Object.fromEntries(new FormData(form).entries());
+                            }
+                            dialog.close();
+                            cleanup(true, formData);
+                        } else {
+                            dialog.close();
+                            cleanup(false);
+                        }
+                    }
+
+                    button.addEventListener('click', handleButtonClick);
+                    buttonHandlers.push({button, handler: handleButtonClick});
+                    footer.appendChild(button);
+                });
+            } else {
+                footer.remove();
+            }
+
+            // Handle close button click
+            function handleClose() {
+                dialog.close();
+                cleanup(false);
+            }
+
+            // Handle ESC key for this specific dialog
+            function handleKeydown(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dialog.close();
+                    cleanup(false);
+                }
+            }
+
+            // Cleanup function
+            function cleanup(shouldResolve = false, data = null) {
+                closeButton.removeEventListener('click', handleClose);
+                dialog.removeEventListener('keydown', handleKeydown);
+                dialog.removeEventListener('close', handleDialogClose);
+
+                // Remove button event listeners to prevent memory leaks
+                buttonHandlers.forEach(({button, handler}) => {
+                    button.removeEventListener('click', handler);
+                });
+
+                OcDialogDrag.cleanup(dialog);
+                dialog.remove();
+
+                if (shouldResolve) {
+                    resolve(data);
+                } else {
+                    reject(new Error(OcDialog.CANCELED));
+                }
+            }
+
+            // Handle dialog close event (ESC, backdrop click, programmatic close)
+            function handleDialogClose() {
+                cleanup(false);
+            }
+
+            document.body.appendChild(dialog);
+
+            const closeButton = dialog.querySelector('.sch_dialog_close');
+            closeButton.addEventListener('click', handleClose);
+            dialog.addEventListener('keydown', handleKeydown);
+            dialog.addEventListener('close', handleDialogClose);
+
+            OcDialogDrag.initialize(dialog);
+            dialog.showModal();
+
+            // Don't focus any button - let dialog remain unfocused
+        });
     },
+
+
 
     /**
      * Simple alert dialog
@@ -105,21 +189,21 @@ var OcDialog = {
             document.body.appendChild(dialog);
 
             function cleanup() {
-                closeButton.removeEventListener('click', handleClose);
-                okButton.removeEventListener('click', handleClose);
-                dialog.removeEventListener('close', handleClose);
+                closeButton.removeEventListener('click', handleButtonClose);
+                okButton.removeEventListener('click', handleButtonClose);
+                dialog.removeEventListener('close', handleButtonClose);
                 OcDialogDrag.cleanup(dialog);
                 dialog.remove();
                 resolve(true);
             }
 
-            function handleClose() {dialog.close();}
+            function handleButtonClose() {dialog.close();}
 
             const closeButton = dialog.querySelector('.sch_dialog_close');
             const okButton = dialog.querySelector('.sch_dialog_button--primary');
 
-            closeButton.addEventListener('click', handleClose);
-            okButton.addEventListener('click', handleClose);
+            closeButton.addEventListener('click', handleButtonClose);
+            okButton.addEventListener('click', handleButtonClose);
             dialog.addEventListener('close', cleanup);
 
             OcDialogDrag.initialize(dialog);
@@ -546,10 +630,8 @@ const symbolRowClick = OcDialog.utils.symbolRowClick;
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        OcDialog.init();
         OcDialog.utils.symbolRowInit();
     });
 } else {
-    OcDialog.init();
     OcDialog.utils.symbolRowInit();
 }
