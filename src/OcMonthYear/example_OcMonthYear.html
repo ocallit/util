@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>OcMonthYear</title>
+    <!-- 📅 load css -->
+    <link href="ocMonthYear.css" rel="stylesheet" >
+    <!-- 📅 load js -->
+    <script src="OcMonthYear.js"></script>
+    <!-- 📅 init -->
+    <script>
+
+    </script>
+</head>
+<body>
+
+    <!-- 📅 change id for div and hidden input! & copy html Structure-->
+    <div id="period-1" class="ocmonthyear-widget">
+        <!-- 📅 change id for div and hidden input! -->
+        <input id="period-1-hidden" type="hidden" name="start_period"  data-hidden-field class="ocmonthyear-hidden">
+        <div class="ocmonthyear-widget-inputs">
+            <select class="ocmonthyear-select" data-month-select>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <input type="text" class="ocmonthyear-year-input" data-year-input list="ocmonthyear-year-list-1" pattern="[0-9]{4}" maxlength="4">
+            <datalist id="ocmonthyear-year-list-1" data-year-datalist></datalist>
+        </div>
+        <div class="ocmonthyear-quick-buttons">
+            <button type="button" class="ocmonthyear-quick-button" data-quick="last">&lt;</button>
+            <button type="button" class="ocmonthyear-quick-button" data-quick="current">●</button>
+            <button type="button" class="ocmonthyear-quick-button" data-quick="next">&gt;</button>
+        </div>
+    </div>
+
+
+    <ul>
+        <li>init()</li>
+        <li><b>Triggers</b> addEventListener('monthYearChanged',...)<pre>
+{
+    monthyear: this.hiddenField.value,
+    field: this.hiddenField.id || null
+
+    id: this.element.id,
+    month: month,
+    monthName: this.monthSelect.options[this.monthSelect.selectedIndex].text,
+    year: year,
+    formatted: this.hiddenField.value,
+}
+        </pre></li>
+    </ul>
+
+</body>
+</html>

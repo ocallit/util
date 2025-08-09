@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <title>OcEcharts Simple Monthly Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style id="styles_switch">
+        .switch-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            font-family: sans-serif;
+            font-size: 12px;
+            position: relative;
+            cursor:pointer;
+        }
+
+        INPUT.switch-toggle {
+            opacity: 0;
+            width: 40px;
+            height: 20px;
+            position: absolute;
+        }
+
+        .switch-toggle-wrapper {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            background-color: #ccc;
+            border-radius: 20px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: 0.3s;
+        }
+
+        .switch-slider::before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            top: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        INPUT.switch-toggle:checked ~ .switch-toggle-wrapper .switch-slider {background-color: #2196F3;}
+
+        INPUT.switch-toggle:checked ~ .switch-toggle-wrapper .switch-slider::before {transform: translateX(20px);}
+
+        .switch-label-off,
+        .switch-label-on {transition: opacity 0.3s ease, color 0.3s ease;}
+        .switch-label-off {color: silver}
+        INPUT.switch-toggle:checked ~ .switch-label-off {opacity: 0.3;color: silver}
+
+        INPUT.switch-toggle:not(:checked) ~ .switch-label-on {
+            opacity: 0.3;
+        }
+
+        INPUT.switch-toggle:checked ~ .switch-label-on {
+            color: #2196F3;
+        }
+    </style>
+    <style id="styles_hoja">
+        BODY {
+            font-family: 'Segoe UI', Roboto,-apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        SELECT {background-color: white}
+        BUTTON, LABEL {cursor: pointer}
+        .ocChart_chart_area {
+            width: 97%;
+            height: 900px;
+            margin: 0 0.5em;
+            padding: 0 1em;
+            resize: both;
+            overflow: auto;
+        }
+    </style>
+    <style id="styles_tablainfo">
+        .ocecharts_highlight_tablnifo {   }
+        #ocechart_tableinfo {
+            border: 1px darkblue solid;
+            border-bottom: 3px solid rgba(0,0,139, 0.6);
+            border-right: 3px solid rgba(0, 0,139, 0.6);
+            border-collapse: collapse;
+            color: darkblue;
+            font-size: 12px;
+        }
+        #ocechart_tableinfo TH {border: 1px silver solid;padding: 0.3em}
+        #ocechart_tableinfo TD {border: 1px silver solid;text-align: right;padding: 0.3em}
+        #ocechart_tableinfo TD:first-child {text-align: left}
+
+        #ocechart_tableinfo tr td:nth-child(2),
+        #ocechart_tableinfo tr td:nth-child(7) {
+            border-right: none;
+        }
+        #ocechart_tableinfo tr td:nth-child(3),
+        #ocechart_tableinfo tr td:nth-child(8) {
+            border-left: none;
+        }
+        #ocechart_tableinfo tr td:nth-child(3),
+        #ocechart_tableinfo tr td:nth-child(4),
+        #ocechart_tableinfo tr td:nth-child(5),
+        #ocechart_tableinfo tr td:nth-child(6),
+        #ocechart_tableinfo tr td:nth-child(8) {
+            color: #00F;
+        }
+    </style>
+</head>
+<body>
+<header style="margin:0 1em;display:flex;flex-direction: row;flex-wrap: wrap;gap:2em;justify-content: flex-start;align-items: flex-start">
+    <nav><a href="../../backoffice">Inicio</a></nav>
+    <details open style="min-width: 480px;color: darkgreen"><summary style="cursor:pointer">Valores</summary>
+        <table id="ocechart_tableinfo"><thead><tr>
+            <th>
+                <label class="switch-container">
+                   Show <span class="switch-label-off">All</span>
+                    <INPUT type="checkbox" class="switch-toggle" id="switchView">
+                    <div class="switch-toggle-wrapper"><span class="switch-slider"></span></div>
+                    <span class="switch-label-on">Selected</span>
+                </label>
+            <th colspan="2">Primer valor
+            <th class="ocechart_tableinfo_primer_visible"></th>
+            <th id="ocechart_tableinfo_pointer" style="width:12ch">
+            <th class="ocechart_tableinfo_ultimo_visible"></th>
+            <th colspan="2">Último valor
+        </tr></thead><tbody></tbody></table>
+    </details>
+    <details open style="min-width: 480px;color: darkgreen"><summary style="cursor:pointer">Filtros</summary>
+        <div style="color:black;margin-left: 1em;padding: 0.3em 1em;border: 1px solid darkgreen;
+            display:flex;flex-direction: row;flex-wrap: wrap;justify-content: flex-start;align-items: flex-start;gap: 1em;">
+            <div>
+                Bodegas
+            </div>
+            <div>
+                Tiendas
+            </div>
+            <div>
+                <label>Unidades<br>
+                    <select>
+                        <option value="Rollos">Rollos</option>
+                        <option value="Quantity">Quantity: Kg ó Mts</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </details>
+</header>
+<!-- ECharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+<script src="OcEcharts.js"></script>
+<div class="ocChart_chart_area" id="ocProductSales_chartContainer" style="border:2px blue solid">
+    <div class="ocProductSales_loading" id="ocProductSales_loading">
+        Cargando datos del gráfico...
+    </div>
+</div>
+<script>
+    // Global chart instance using the existing OcEcharts class
+    let salesChart;
+
+    // Initialize when page loads - PRIORITY #1
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set up mocking before initializing OcEcharts
+        setupMockAPI();
+        const initialParams = {
+            includeForecasts: true
+        };
+
+        // Initialize clean OcEcharts (no internal mocking)
+        salesChart = new OcEcharts(
+            '#ocProductSales_chartContainer',
+            '/api/monthly_sales.php',
+            initialParams
+        );
+
+
+    });
+
+    // Optional: Test method to demonstrate OcEcharts data access
+    function testDataAccess() {
+        if(!salesChart) {
+            console.log('Chart not initialized yet');
+            return;
+        }
+
+        // Test getting data for a specific month
+        const mayData = salesChart.getDataAtMonth('2024-05');
+        console.log('May 2024 Data:', mayData);
+
+        // Test getting closest data to a date
+        const closestData = salesChart.getDataAtDateClosest('2024-05-15');
+        console.log('Closest to May 15:', closestData);
+    }
+
+    // Expose test function to console for debugging
+    window.testDataAccess = testDataAccess;
+    window.salesChart = salesChart; // For console debugging
+    console.log('OcEcharts template loaded. var salesChart Use  testDataAccess() in console.');
+</script>
+
+
+
+
+    <script id="mockAajx">
+        // Mock setup for testing - this replaces the mock in OcEcharts.js
+        function setupMockAPI() {
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options) {
+                console.log('🔍 Fetch called:' + url, options);
+                // Always use mock for this template
+                return mockAPIResponse(url, options);
+            };
+        }
+
+        // Mock API response function (simplified version of what's in OcEcharts)
+        function mockAPIResponse(url, options) {
+            console.log('🎭 Using mock API response for: ' + url, options);
+            
+            // Parse the request body to get current parameters
+            let requestParams = {};
+            if(options && options.body) {
+                try {
+                    requestParams = JSON.parse(options.body);
+                } catch(e) {
+                    console.log('Could not parse request body:', options.body);
+                }
+            }
+
+            // Mock series configuration
+            const mockSeriesConfig = {
+                "Azucena": {
+                    "color": "#00008b",
+                    "yAxis": 0,
+                    "lineType": "solid",
+                    "connectNulls": true
+                },
+                "Bolton": {
+                    "color": "#4682b4",
+                    "yAxis": 1,
+                    "lineType": "solid",
+                    "connectNulls": false
+                },
+                "Felpa China": {
+                    "color": "#ff6b35",
+                    "yAxis": 0,
+                    "lineType": "solid"
+                }
+            };
+
+            // Mock time series data
+            const allMockData = {
+                "Azucena": [
+                    ["2024-01-01", 15000], ["2024-02-01", 18000], ["2024-03-01", null],
+                    ["2024-04-01", 19000], ["2024-05-01", 25000], ["2024-06-01", 28000],
+                    ["2024-07-01", 32000], ["2024-08-01", 29000], ["2024-09-01", 31000],
+                    ["2024-10-01", 33000], ["2024-11-01", 35000], ["2024-12-01", 37000]
+                ],
+                "Bolton": [
+                    ["2024-01-01", 1200], ["2024-02-01", 1400], ["2024-03-01", null],
+                    ["2024-04-01", 1500], ["2024-05-01", 1700], ["2024-06-01", 2000],
+                    ["2024-07-01", 2200], ["2024-08-01", 1900], ["2024-09-01", 2100],
+                    ["2024-10-01", 2300], ["2024-11-01", 2500], ["2024-12-01", 2700]
+                ],
+                "Felpa China": [
+                    ["2024-01-01", 8000], ["2024-02-01", 9500], ["2024-03-01", 0],
+                    ["2024-04-01", 10500], ["2024-05-01", 12000], ["2024-06-01", 13500],
+                    ["2024-07-01", 15000], ["2024-08-01", 14200], ["2024-09-01", 16000],
+                    ["2024-10-01", 17000], ["2024-11-01", 18000], ["2024-12-01", 19000]
+                ]
+            };
+
+            if(url.includes('config') || requestParams.action === 'config') {
+                // Initial page configuration
+                const mockResponse = {
+                    success: true,
+                    error: null,
+                    data: {
+                        series_config: mockSeriesConfig,
+                    }
+                };
+                console.log("                   config return",mockResponse);
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockResponse)
+                });
+            } else {
+                // Chart data response
+                const mockResponse = {
+                    success: true,
+                    error: null,
+                    data: {
+                        series: allMockData,
+                        unit_left: "USD",
+                        unit_right: "Piezas",
+                        period: "2024-01-01 to 2024-12-31",
+                        applied_filters: requestParams
+                    }
+                };
+                console.log("                   data return",mockResponse);
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockResponse)
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>

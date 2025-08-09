@@ -1,0 +1,115 @@
+:root {
+    --ocmonthyear-primary: #00008b;
+    --ocmonthyear-secondary: #4682b4;
+    --ocmonthyear-text: #212529;
+    --ocmonthyear-text-light: #6c757d;
+    --ocmonthyear-border: #dee2e6;
+    --ocmonthyear-surface: #ffffff;
+    --ocmonthyear-bg-light: #f8f9fa;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.ocmonthyear-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: var(--ocmonthyear-surface);
+    border: 1px solid var(--ocmonthyear-border);
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: var(--shadow);
+    width: fit-content;
+    transition: all 0.2s ease;
+}
+
+/* Focus state for the entire widget */
+.ocmonthyear-widget:focus-within {
+    border-color: var(--ocmonthyear-primary);
+    box-shadow: 0 0 0 3px rgba(0, 0, 139, 0.1);
+}
+
+.ocmonthyear-widget-inputs {
+    display: flex;
+    gap: 2px;
+}
+
+.ocmonthyear-select,
+.ocmonthyear-year-input {
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 1px solid var(--ocmonthyear-border);
+    border-radius: 6px;
+    background: var(--ocmonthyear-surface);
+    color: var(--ocmonthyear-text);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+    text-align: center;
+}
+
+.ocmonthyear-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 16px;
+}
+
+.ocmonthyear-year-input {
+    width: 5ch;
+}
+
+.ocmonthyear-select:hover,
+.ocmonthyear-year-input:hover {
+    border-color: var(--ocmonthyear-secondary);
+}
+
+.ocmonthyear-quick-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.ocmonthyear-quick-button {
+    padding: 6px 12px;
+    border: 1px solid var(--ocmonthyear-border);
+    background: var(--ocmonthyear-surface);
+    color: var(--ocmonthyear-text-light);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.ocmonthyear-quick-button:hover {
+    border-color: var(--ocmonthyear-secondary);
+    color: var(--ocmonthyear-secondary);
+    background: var(--ocmonthyear-bg-light);
+}
+
+.ocmonthyear-quick-button:active {
+    transform: scale(0.98);
+}
+
+/* Hidden field for form submission */
+.ocmonthyear-hidden {
+    display: none;
+}
+
+/* Mobile devices with coarse pointer (touchscreens) */
+@media (pointer: coarse) {
+    .ocmonthyear-select,
+    .ocmonthyear-year-input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .ocmonthyear-quick-button {
+        min-height: 36px;
+        padding: 8px 12px;
+    }
+}

@@ -1,192 +1,39 @@
 /**
  *  OcEcharts/OcEcharts.js
- *  @version 3.0.0
+ *  @version 3.1.0 - Clean version without mock fetch
  */
 
 class OcEcharts {
+
+    TABLEINFO_COL_FIRST_DATE = 1;
+    TABLEINFO_COL_FIRST_VALUE = 2;
+    TABLEINFO_COL_FIRST_VISIBLE = 3;
+    TABLEINFO_COL_TOOLTIP = 4;
+    TABLEINFO_COL_LAST_VISIBLE = 5;
+    TABLEINFO_COL_LAST_DATE = 6;
+    TABLEINFO_COL_LAST_VALUE = 7;
+
     constructor(containerSelector, apiUrl, initialParams = {}) {
         this.chart = null;
         this.chartContainer = document.querySelector(containerSelector);
-        this.loading = this.chartContainer.querySelector('.ocProductSales_loading');
         this.apiUrl = apiUrl;
 
         // Store current parameters for API calls - no defaults, just what caller provides
         this.currentParams = {...initialParams};
 
         this.seriesConfig = {};
-        this.currentData = {};
 
-        this.setupFetchOverride();
-        this.initializeChart();
+        // Remove the setupFetchOverride call - let the HTML handle mocking
+        this._initializeChart();
 
         // Load initial data
-        this.loadInitialData();
+        this._loadInitialData();
     }
 
-    setupFetchOverride() {
-        const originalFetch = window.fetch;
-        window.fetch = (url, options) => {
-            if(url.includes('?test=true') || url.includes('&test=true')) {
-                return this.mockAPIResponse(url, options);
-            }
-            return originalFetch(url, options);
-        };
-    }
-
-    mockAPIResponse(url, options) {
-        // Parse the request body to get current parameters
-        let requestParams = {};
-        if(options && options.body) {
-            try {
-                requestParams = JSON.parse(options.body);
-            } catch(e) {
-                console.log('Could not parse request body:', options.body);
-            }
-        }
-
-        console.log('Mock API call with params:', requestParams);
-
-        // Mock series configuration - dynamically based on requested products
-        const mockSeriesConfig = {
-            "Producto Alpha (USD)": {
-                "color": "#00008b",
-                "yAxis": 0,
-                "lineType": "solid",
-                "connectNulls": true
-            },
-            "Producto Beta (Piezas)": {
-                "color": "#4682b4",
-                "yAxis": 1,
-                "lineType": "solid",
-                "connectNulls": false
-            },
-            "Producto Gamma (USD)": {
-                "color": "#ff6b35",
-                "yAxis": 0,
-                "lineType": "solid"
-            }
-        };
-
-        // Add forecast series if requested
-        if(requestParams.includeForecasts !== false) {
-            mockSeriesConfig["Producto Alpha Forecast (USD)"] = {
-                "color": "#00008b",
-                "yAxis": 0,
-                "lineType": "dashed"
-            };
-            mockSeriesConfig["Producto Beta Forecast (Piezas)"] = {
-                "color": "#4682b4",
-                "yAxis": 1,
-                "lineType": "dashed"
-            };
-            mockSeriesConfig["Producto Gamma Forecast (USD)"] = {
-                "color": "#ff6b35",
-                "yAxis": 0,
-                "lineType": "dashed"
-            };
-        }
-
-        // Mock time series data - filter by date range if specified
-        const allMockData = {
-            "Producto Alpha (USD)": [
-                ["2024-01-01", 15000], ["2024-02-01", 18000], ["2024-03-01", null],
-                ["2024-04-01", 19000], ["2024-05-01", 25000], ["2024-06-01", 28000],
-                ["2024-07-01", 32000], ["2024-08-01", 29000]
-            ],
-            "Producto Beta (Piezas)": [
-                ["2024-01-01", 1200], ["2024-02-01", 1400], ["2024-03-01", null],
-                ["2024-04-01", 1500], ["2024-05-01", 1700], ["2024-06-01", 2000],
-                ["2024-07-01", 2200], ["2024-08-01", 1900]
-            ],
-            "Producto Gamma (USD)": [
-                ["2024-01-01", 8000], ["2024-02-01", 9500], ["2024-03-01", 0],
-                ["2024-04-01", 10500], ["2024-05-01", 12000], ["2024-06-01", 13500],
-                ["2024-07-01", 15000], ["2024-08-01", 14200]
-            ],
-            "Producto Alpha Forecast (USD)": [
-                ["2024-09-01", 33500], ["2024-10-01", 35200], ["2024-11-01", 37800],
-                ["2024-12-01", 36400], ["2025-01-01", 39100], ["2025-02-01", 41000]
-            ],
-            "Producto Beta Forecast (Piezas)": [
-                ["2024-09-01", 2350], ["2024-10-01", 2480], ["2024-11-01", 2620],
-                ["2024-12-01", 2580], ["2025-01-01", 2710], ["2025-02-01", 2850]
-            ],
-            "Producto Gamma Forecast (USD)": [
-                ["2024-09-01", 16200], ["2024-10-01", 17100], ["2024-11-01", 18500],
-                ["2024-12-01", 17800], ["2025-01-01", 19200], ["2025-02-01", 20100]
-            ]
-        };
-
-        // Filter series data based on date range
-        const filteredData = {};
-        const dateFrom = requestParams.dateFrom ? new Date(requestParams.dateFrom) : null;
-        const dateTo = requestParams.dateTo ? new Date(requestParams.dateTo) : null;
-
-        for(const [seriesName, points] of Object.entries(allMockData)) {
-            // Skip forecast series if not requested
-            if(seriesName.includes('Forecast') && requestParams.includeForecasts === false) {
-                continue;
-            }
-
-            // Filter by product selection if specified
-            if(requestParams.products && requestParams.products.length > 0) {
-                const matchesProduct = requestParams.products.some(product =>
-                    seriesName.toLowerCase().includes(product.toLowerCase())
-                );
-                if(!matchesProduct) {
-                    continue;
-                }
-            }
-
-            // Filter by date range
-            filteredData[seriesName] = points.filter(([dateStr, value]) => {
-                const pointDate = new Date(dateStr);
-                if(dateFrom && pointDate < dateFrom) return false;
-                if(dateTo && pointDate > dateTo) return false;
-                return true;
-            });
-        }
-
-        if(url.includes('config') || url.includes('page')) {
-            // Initial page configuration
-            const mockResponse = {
-                success: true,
-                error: null,
-                data: {
-                    series_config: mockSeriesConfig,
-                    available_products: ["Alpha", "Beta", "Gamma"],
-                    available_currencies: ["USD", "EUR", "MXN"],
-                    date_range: {
-                        min: "2024-01-01",
-                        max: "2025-02-01"
-                    }
-                }
-            };
-            return Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve(mockResponse)
-            });
-        } else {
-            // Chart data response
-            const mockResponse = {
-                success: true,
-                error: null,
-                data: {
-                    series: filteredData,
-                    unit_left: requestParams.currency || "USD",
-                    unit_right: "Piezas",
-                    period: `${dateFrom ? dateFrom.toISOString().split('T')[0] : '2024-01-01'} to ${dateTo ? dateTo.toISOString().split('T')[0] : '2025-02-01'}`,
-                    applied_filters: requestParams
-                }
-            };
-            return Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve(mockResponse)
-            });
-        }
-    }
-
-    initializeChart() {
+    /** Initialize the ECharts instance and set initial loading state */
+    _initializeChart() {
+        if(this.chart)
+            this.chart.dispose();
         this.chart = echarts.init(this.chartContainer);
 
         // Set loading state
@@ -198,7 +45,8 @@ class OcEcharts {
         });
     }
 
-    async loadInitialData() {
+    /** Load initial configuration and chart data on first load */
+    async _loadInitialData() {
         try {
             // Get initial configuration from server
             const response = await fetch(this.apiUrl, {
@@ -209,8 +57,7 @@ class OcEcharts {
                 },
                 body: JSON.stringify({
                     action: 'config',
-                    ...this.currentParams,
-                    test: true // For mock response
+                    ...this.currentParams
                 })
             });
 
@@ -225,7 +72,7 @@ class OcEcharts {
             await this.updateChart(this.currentParams);
         } catch(error) {
             console.error('Error loading initial data:', error);
-            this.showError('Error al cargar los datos iniciales');
+            this._showError('Error al cargar los datos iniciales');
         }
     }
 
@@ -234,7 +81,7 @@ class OcEcharts {
         // Replace current parameters with exactly what user sent
         this.currentParams = {...newParams};
 
-        this.showLoading(true);
+        this._showLoading(true);
 
         try {
             const response = await fetch(this.apiUrl, {
@@ -245,33 +92,84 @@ class OcEcharts {
                 },
                 body: JSON.stringify({
                     action: 'get_chart_data',
-                    ...this.currentParams,
-                    test: true // For mock response
+                    ...this.currentParams
                 })
             });
 
             const data = await response.json();
 
             if(data.success) {
-                this.currentData = data.data;
-                this.renderChart(data.data);
+                this._renderChart(data.data);
             } else {
-                this.showError(data.error || 'Error al obtener los datos');
+                this._showError(data.error || 'Error al obtener los datos');
             }
         } catch(error) {
             console.error('Error updating chart:', error);
-            this.showError('Error de conexión al servidor');
+            this._showError('Error de conexión al servidor');
         } finally {
-            this.showLoading(false);
+            this._showLoading(false);
         }
     }
 
-    // Get current parameters (useful for external components)
-    getCurrentParams() {
-        return {...this.currentParams};
+    /** region: Datos Interactivos */
+
+    addData(serverData) {
+        // Get current chart options
+        const oldOption = this.chart.getOption();
+
+        // Initialize or get existing xAxis data
+        const xAxisData = oldOption.xAxis[0].data || [];
+
+        // Process each series from server data
+        const seriesUpdates = oldOption.series.map(oldSeries => {
+            const seriesName = oldSeries.name;
+
+            // Skip if server didn't send data for this series
+            if(!serverData[seriesName] || serverData[seriesName].length === 0) {
+                return oldSeries;
+            }
+
+            // Get the new data point ([xValue, yValue])
+            const [newX, newY] = serverData[seriesName][0];
+            const seriesData = oldSeries.data || [];
+
+            // Check if xValue exists in xAxis
+            const xIndex = xAxisData.indexOf(newX);
+
+            if(xIndex === -1) {
+                // New xValue - append to xAxis and series data
+                xAxisData.push(newX);
+                seriesData.push(newY);
+            } else {
+                // Existing xValue - update the yValue at this position
+                seriesData[xIndex] = newY;
+            }
+
+            return {
+                ...oldSeries,
+                data: seriesData
+            };
+        });
+
+        // Update chart with minimal changes
+        try {
+            this.chart.setOption({
+                xAxis: {data: xAxisData},
+                series: seriesUpdates
+            }, {
+                notMerge: false,  // This is the default - means merge with existing options
+                lazyUpdate: true  // Better performance for frequent updates
+            });
+        } catch(e) {
+            console.error("OcEcharts.addData", e);
+        }
     }
 
-    renderChart(data) {
+    /** endregion: Datos Interactivos */
+
+    /** Paint, Render the complete ECharts configuration with series, axes, tooltips and toolbar */
+    _renderChart(data) {
+
         const series = [];
         const colors = ['#00008b', '#4682b4', '#ff6b35', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
 
@@ -312,7 +210,8 @@ class OcEcharts {
             const seriesOptions = {
                 name: seriesName,
                 type: 'line',
-                data: points.map(point => [new Date(point[0]).getTime(), point[1]]),
+                // yyyy-mm-dd es sin timezone misma fecha en cualquier timezone
+                data: points.map(point => [this.parseLocalDate(point[0]), point[1]]),
                 showSymbol: false,
                 smooth: true,
                 yAxisIndex: yAxisIndex,
@@ -430,7 +329,7 @@ class OcEcharts {
                     type: 'cross'
                 },
                 formatter: (params) => {
-                    return this.formatTooltip(params, data);
+                    return this._formatTooltip(params, data);
                 }
             },
             legend: {
@@ -445,21 +344,19 @@ class OcEcharts {
                 }
             },
             grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '8%',
-                top: '25%',
-                containLabel: true
+                left: 60,    // Fixed pixel value instead of percentage - enough for Y-axis labels
+                right: 80,   // Fixed pixel value - enough for right Y-axis if present
+                bottom: 80,  // Fixed pixel value - enough for dataZoom slider + X-axis labels
+                top: 65,     // Fixed pixel value - enough for title + legend
+                containLabel: false // Changed to false since we're using fixed margins
             },
             xAxis: {
                 type: 'time',
+                boundaryGap: false,
                 axisLabel: {
                     rotate: 90,
                     formatter: function(value) {
-                        const date = new Date(value);
-                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                        return `${months[date.getMonth()]}/${date.getFullYear().toString().slice(-2)}`;
+                        return OcEcharts.formatDate(new Date(value));
                     }
                 }
             },
@@ -470,6 +367,7 @@ class OcEcharts {
                     show: true,
                     start: 0,
                     end: 100,
+                    filterMode: 'none',
                     bottom: 15
                 },
                 {
@@ -479,29 +377,40 @@ class OcEcharts {
             series: series
         };
 
-        this.chart.setOption(option, true);
+        try {
+            this.chart.setOption(option, true);
+        } catch(e) {
+            console.error("OcEcharts._renderChart", e);
+            return;
+        }
 
         // Set up event listener for dataZoom to update subtitle with visible date range
         this.chart.off('dataZoom');
         this.chart.on('dataZoom', (params) => {
-            this.updateVisibleDateRange();
+            this._updateVisibleDateRange();
         });
-
-        // Set initial subtitle with full date range
-        this.updateVisibleDateRange();
+        this.chart.off('updateAxisPointer');
+        this._updateVisibleDateRange();
+        this._tableInfoAddSeries(data);
     }
 
-    updateVisibleDateRange() {
-        if(!this.chart || !this.currentData) return;
+    /** Update the subtitle to show the currently visible date range based on zoom level */
+    _updateVisibleDateRange() {
+        if(!this.chart) return;
 
         const option = this.chart.getOption();
+        if(!option.series || option.series.length === 0) return;
+
         const dataZoom = option.dataZoom[0];
 
-        // Get all data points to calculate visible range
+        // Get all data points from live ECharts data to calculate visible range
         const allDates = [];
-        Object.values(this.currentData.series).forEach(points => {
-            points.forEach(point => {
-                allDates.push(new Date(point[0]).getTime());
+        option.series.forEach(series => {
+            const seriesData = series.data || [];
+            seriesData.forEach(dataPoint => {
+                if(Array.isArray(dataPoint) && dataPoint.length >= 2) {
+                    allDates.push(dataPoint[0]); // dataPoint[0] is already a timestamp
+                }
             });
         });
 
@@ -516,29 +425,28 @@ class OcEcharts {
         const visibleStart = allDates[0] + (totalRange * startPercent / 100);
         const visibleEnd = allDates[0] + (totalRange * endPercent / 100);
 
-        const formatDate = (timestamp) => {
-            const date = new Date(timestamp);
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${months[date.getMonth()]}/${date.getFullYear()}`;
-        };
-
-        const subtitle = `${formatDate(visibleStart)} - ${formatDate(visibleEnd)}`;
+        const subtitle = `${OcEcharts.formatDate(visibleStart)} - ${OcEcharts.formatDate(visibleEnd)}`;
 
         // Update subtitle
-        this.chart.setOption({
-            title: [
-                {},
-                {
-                    text: subtitle
-                }
-            ]
-        });
+        try {
+            this.chart.setOption({
+                title: [
+                    {},
+                    {
+                        text: subtitle
+                    }
+                ]
+            });
+        } catch(e) {
+            console.error("OcEcharts._updateVidibleDateRange", e);
+        }
+        this._updateTableVisibleRange();
     }
 
-    formatTooltip(params, data) {
+    /** Format tooltip content with tables, totals, and proper styling for hover display */
+    _formatTooltip(params, data) {
         if(!params || params.length === 0) return '';
-
+        this._tableInfoDisplaySelectedValues(params);
         const date = new Date(params[0].axisValue);
         const formattedDate = date.toLocaleDateString('es-MX', {
             year: 'numeric',
@@ -628,9 +536,9 @@ class OcEcharts {
         return html;
     }
 
-    showLoading(show) {
+    /** Show or hide loading spinner and ECharts loading overlay */
+    _showLoading(show) {
         if(show) {
-            this.loading.style.display = 'block';
             this.chart.showLoading({
                 text: 'Actualizando gráfico...',
                 color: '#00008b',
@@ -638,146 +546,228 @@ class OcEcharts {
                 maskColor: 'rgba(255, 255, 255, 0.8)'
             });
         } else {
-            this.loading.style.display = 'none';
             this.chart.hideLoading();
         }
     }
 
-    showError(message) {
-        this.loading.innerHTML = `<div style="color: var(--color-fail);">❌ ${message}</div>`;
-        this.loading.style.display = 'block';
+    /** Display error message in the loading area */
+    _showError(message) {
+        alert(message)
     }
 
 
-// Public method to refresh data (gets fresh data without disturbing user view)
-    async refreshData() {
-        // NO loading spinner, NO chart reset - just quietly get fresh data
+    /** region: TableInfo */
+
+    _echarts_lastValueTableHideShowSeries(params) {
+        const tableBody = document.querySelector('#ocechart_tableinfo tbody');
         try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    action: 'get_chart_data',
-                    ...this.currentParams,  // Send current parameters as-is
-                    test: true // For mock response
-                })
-            });
-
-            const data = await response.json();
-
-            if(data.success) {
-                // Update internal data
-                this.currentData = data.data;
-
-                // Update chart data WITHOUT resetting anything
-                const series = [];
-                const colors = ['#00008b', '#4682b4', '#ff6b35', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
-                let colorIndex = 0;
-
-                for(const [seriesName, points] of Object.entries(data.data.series)) {
-                    const config = this.seriesConfig[seriesName] || {};
-                    const yAxisIndex = config.yAxis || 0;
-                    const seriesColor = config.color || colors[colorIndex % colors.length];
-
-                    const lineStyle = {
-                        color: seriesColor,
-                        width: 2
-                    };
-
-                    if(config.lineType === 'dashed') {
-                        lineStyle.type = 'dashed';
-                    }
-
-                    const connectNulls = config.connectNulls;
-
-                    const seriesOptions = {
-                        name: seriesName,
-                        type: 'line',
-                        data: points.map(point => [new Date(point[0]).getTime(), point[1]]),
-                        showSymbol: false,
-                        smooth: true,
-                        yAxisIndex: yAxisIndex,
-                        lineStyle: lineStyle,
-                        itemStyle: {
-                            color: seriesColor
-                        },
-                        emphasis: {
-                            focus: 'series'
-                        }
-                    };
-
-                    if(connectNulls !== undefined) {
-                        seriesOptions.connectNulls = connectNulls;
-                    }
-
-                    series.push(seriesOptions);
-                    colorIndex++;
+            let allSeriesVisible = document.getElementById("lastValueAll").checked;
+            let selected = typeof parmas === 'undefined' ? this.chart.getOption().legend[0].selected : params.selected;
+            for(let seriesName in selected)
+                if(selected.hasOwnProperty(seriesName)) {
+                    let row = tableBody.querySelector(`tr[data-ocseries='${seriesName}']`);
+                    if(row)
+                        row.style.display = allSeriesVisible || selected[seriesName] ? '' : 'none';
                 }
-
-                // Update ONLY the series data, preserving zoom, title, etc.
-                this.chart.setOption({
-                    series: series
-                }, false); // false = don't reset chart state
-
-                console.log('Data refreshed silently');
-            }
-        } catch(error) {
-            console.error('Error refreshing data:', error);
-            // Don't show error to user - this is a background refresh
+        } catch(er) {
+            console.log("echarts_lastValueTableHideShowSeries error", er);
         }
     }
 
-    // Data access methods (unchanged from original)
+    /** Method to populate the table with initial and latest series data */
+    _tableInfoAddSeries(data) {
+        const option = this.chart.getOption();
+        if(typeof option === 'undefined')
+            return;
+        const tableBody = document.querySelector('#ocechart_tableinfo tbody');
+        if(!tableBody) {
+            console.warn('Table with id "ocechart_tableinfo" not found.', 'no table info done');
+            return;
+        }
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        const allSeriesData = this.getAllData();
+        const firstDate = this.formatLocalDate(option.xAxis[0].min);
+        const lastDate = this.formatLocalDate(option.xAxis[0].max);
+
+        for(const seriesName in allSeriesData) {
+            const seriesPoints = allSeriesData[seriesName];
+
+            // Get initial data point
+            const firstPoint = seriesPoints[0] ?? [];
+            const initialDate = firstPoint[0] ?? '';
+            const initialValue = firstPoint ? new Intl.NumberFormat('es-MX').format(firstPoint[1]) : '';
+
+            // Get latest data point
+            const lastPoint = seriesPoints.length ? seriesPoints[seriesPoints.length - 1] : [];
+            const latestDate = lastPoint[0] ?? '';
+            const latestValue = lastPoint ? new Intl.NumberFormat('es-MX').format(lastPoint[1]) : '';
+
+            const row = tableBody.insertRow();
+            row.dataset.ocseries = seriesName;
+
+            // Cell for series name with color indicator
+            const seriesCell = row.insertCell(0);
+            const color = this.seriesConfig[seriesName]?.color || '#000000';
+            seriesCell.innerHTML = `
+                    <span style="display:inline-block;border-radius:50%;width:10px;height:10px;background-color:${color};margin-right:5px;"></span>
+                    <span>${seriesName}</span>
+                `;
+
+            // Cells for initial data
+            row.insertCell(this.TABLEINFO_COL_FIRST_DATE).textContent = initialDate;
+            row.insertCell(this.TABLEINFO_COL_FIRST_VALUE).textContent = initialValue;
+
+
+            row.insertCell(this.TABLEINFO_COL_FIRST_VISIBLE).textContent = '';
+            row.insertCell(this.TABLEINFO_COL_TOOLTIP).textContent = '';
+            row.insertCell(this.TABLEINFO_COL_LAST_VISIBLE).textContent = '';
+
+
+            // Cells for latest data
+            row.insertCell(this.TABLEINFO_COL_LAST_DATE).textContent = latestDate;
+            row.insertCell(this.TABLEINFO_COL_LAST_VALUE).textContent = latestValue;
+        }
+        this._updateTableVisibleRange();
+    }
+
+    _updateTableVisibleRange() {
+        const tableBody = document.querySelector('#ocechart_tableinfo tbody');
+        if(!tableBody) return;
+
+        const firstLastVisible = this.getFirstLastVisibleValues();
+        if(!firstLastVisible) return;
+
+        Array.from(tableBody.rows).forEach(row => {
+            const seriesName = row.dataset.ocseries;
+            const seriesData = firstLastVisible[seriesName];
+
+            if(seriesData) {
+                // Update First Visible column
+                row.cells[this.TABLEINFO_COL_FIRST_VISIBLE].textContent = seriesData.first ?
+                    new Intl.NumberFormat('es-MX').format(seriesData.first.value) : '';
+
+                // Update Last Visible column
+                row.cells[this.TABLEINFO_COL_LAST_VISIBLE].textContent = seriesData.last ?
+                    new Intl.NumberFormat('es-MX').format(seriesData.last.value) : '';
+
+                // Update the date labels in the header if available
+                if(seriesData.first && seriesData.last) {
+                    const header = tableBody.parentNode.querySelector('th:nth-child(' + this.TABLEINFO_COL_FIRST_VISIBLE + ')');
+                    if(header) header.textContent = this.formatLocalDate(seriesData.first.timestamp);
+
+                    const lastHeader = tableBody.parentNode.querySelector('th:nth-child(' + this.TABLEINFO_COL_LAST_VISIBLE + ')');
+                    if(lastHeader) lastHeader.textContent = this.formatLocalDate(seriesData.last.timestamp);
+                }
+            } else {
+                row.cells[this.TABLEINFO_COL_FIRST_VISIBLE].textContent = '';
+                row.cells[this.TABLEINFO_COL_LAST_VISIBLE].textContent = '';
+            }
+        });
+    }
+
+    /** Method to update the tooltip-related cells in the infotable */
+    _tableInfoDisplaySelectedValues(params) {
+        if(!params || params.length === 0)
+            return;
+        const tableBody = document.querySelector('#ocechart_tableinfo tbody');
+        if(!tableBody) return;
+
+        // First, clear the tooltip-related columns and remove highlight for ALL rows
+        Array.from(tableBody.rows).forEach(row => {
+            row.classList.remove('ocecharts_highlight_tablnifo');
+            row.cells[this.TABLEINFO_COL_TOOLTIP].textContent = ''; // Clear Tooltip Value
+        });
+
+        document.getElementById("ocechart_tableinfo_pointer").innerText = OcEcharts.formatDate(params[0].axisValue);
+        params.forEach(param => {
+            const seriesName = param.seriesName;
+            const value = parseFloat(param.value[1]);
+            const formattedValue = new Intl.NumberFormat('es-MX').format(value);
+
+            const row = tableBody.querySelector(`tr[data-ocseries="${seriesName}"]`);
+            if(row) {
+                row.classList.add('ocecharts_highlight_tablnifo');
+                row.cells[this.TABLEINFO_COL_TOOLTIP].textContent = formattedValue;
+            }
+        });
+    }
+
+    /** endregion: TableInfo */
+
+    /* region: Get Series Values **/
+
     getDataAtDate(targetDate) {
-        if(!this.currentData || !this.currentData.series) {
+        if(!this.chart) {
+            return null;
+        }
+
+        const option = this.chart.getOption();
+        if(!option.series || option.series.length === 0) {
             return null;
         }
 
         const result = {};
-        const targetTime = new Date(targetDate).getTime();
+        // Convert target date to local timestamp for comparison
+        const targetTime = this.parseLocalDate(targetDate);
 
-        for(const [seriesName, points] of Object.entries(this.currentData.series)) {
-            const point = points.find(([dateStr, value]) => {
-                return new Date(dateStr).getTime() === targetTime;
+        option.series.forEach(series => {
+            const seriesName = series.name;
+            const seriesData = series.data || [];
+
+            const point = seriesData.find(dataPoint => {
+                if(Array.isArray(dataPoint) && dataPoint.length >= 2) {
+                    // dataPoint[0] is already a local timestamp from ECharts
+                    return dataPoint[0] === targetTime;
+                }
+                return false;
             });
 
             if(point) {
                 result[seriesName] = point[1];
             }
-        }
+        });
 
         return Object.keys(result).length > 0 ? result : null;
     }
 
     getDataAtDateClosest(targetDate) {
-        if(!this.currentData || !this.currentData.series) {
+        if(!this.chart) {
+            return null;
+        }
+
+        const option = this.chart.getOption();
+        if(!option.series || option.series.length === 0) {
             return null;
         }
 
         const result = {};
-        const targetTime = new Date(targetDate).getTime();
+        // Convert target date to local timestamp for comparison
+        const targetTime = this.parseLocalDate(targetDate);
 
-        for(const [seriesName, points] of Object.entries(this.currentData.series)) {
+        option.series.forEach(series => {
+            const seriesName = series.name;
+            const seriesData = series.data || [];
             let closestPoint = null;
             let minDiff = Infinity;
 
-            points.forEach(([dateStr, value]) => {
-                const pointTime = new Date(dateStr).getTime();
-                const diff = Math.abs(pointTime - targetTime);
+            seriesData.forEach(dataPoint => {
+                if(Array.isArray(dataPoint) && dataPoint.length >= 2) {
+                    // dataPoint[0] is already a local timestamp from ECharts
+                    const pointTime = dataPoint[0];
+                    const diff = Math.abs(pointTime - targetTime);
 
-                if(diff < minDiff) {
-                    minDiff = diff;
-                    closestPoint = [dateStr, value];
+                    if(diff < minDiff) {
+                        minDiff = diff;
+                        closestPoint = dataPoint;
+                    }
                 }
             });
 
             if(closestPoint) {
                 result[seriesName] = closestPoint[1];
             }
-        }
+        });
 
         return Object.keys(result).length > 0 ? result : null;
     }
@@ -795,6 +785,174 @@ class OcEcharts {
 
         return this.getDataAtDate(targetDate);
     }
+
+    getRowData() {
+        if(!this.chart) {
+            return {};
+        }
+
+        const option = this.chart.getOption();
+        if(!option.series || option.series.length === 0) {
+            return {};
+        }
+
+    }
+
+    seriesToGrid(echartsData) {
+        // Step 1: Collect all unique dates (x values)
+        const allDates = new Set();
+
+        // Get all dates from all series
+        Object.values(echartsData).forEach(seriesData => {
+            seriesData.forEach(([date]) => {
+                allDates.add(date);
+            });
+        });
+
+        // Convert to sorted array
+        const x = Array.from(allDates).sort();
+
+        // Step 2: Convert each series to row format
+        const data = Object.entries(echartsData).map(([serieName, serieData]) => {
+            // Create row object with serie name
+            const row = {serie: serieName};
+
+            // Convert array of [date, value] pairs to object properties
+            serieData.forEach(([date, value]) => {
+                row[date] = value;
+            });
+
+            return row;
+        });
+
+        return {x, data};
+    }
+
+    getAllData() {
+        if(!this.chart) {
+            return {};
+        }
+
+        const option = this.chart.getOption();
+        if(typeof option === 'undefined')
+            return {}
+        if(!option.series || option.series.length === 0) {
+            return {};
+        }
+
+        const result = {};
+
+        option.series.forEach(series => {
+            const seriesName = series.name;
+            const seriesData = series.data || [];
+            // Convert ECharts timestamps back to birthday-style date strings
+            result[seriesName] = seriesData.map(point => {
+                if(Array.isArray(point) && point.length >= 2) {
+                    // Convert timestamp back to YYYY-MM-DD using formatLocalDate
+                    const dateStr = this.formatLocalDate(point[0]);
+                    return [dateStr, point[1]];
+                }
+                return point;
+            });
+        });
+
+        return result;
+    }
+
+    /** Get the first and last visible data points for each series */
+    getFirstLastVisibleValues() {
+        if(!this.chart) {
+            return {};
+        }
+
+        const option = this.chart.getOption();
+        if(!option.series || option.series.length === 0) {
+            return {};
+        }
+
+        const dataZoom = option.dataZoom[0];
+        const startPercent = dataZoom.start || 0;
+        const endPercent = dataZoom.end || 100;
+
+        const result = {};
+
+        option.series.forEach(series => {
+            const seriesName = series.name;
+            const seriesData = series.data || [];
+
+            if(seriesData.length === 0) return;
+
+            // Sort data by timestamp to ensure correct order
+            const sortedData = [...seriesData].sort((a, b) => a[0] - b[0]);
+
+            // Calculate visible range indices
+            const totalPoints = sortedData.length;
+            const startIndex = Math.floor((startPercent / 100) * totalPoints);
+            const endIndex = Math.ceil((endPercent / 100) * totalPoints) - 1;
+
+            // Get visible data slice
+            const visibleData = sortedData.slice(startIndex, endIndex + 1);
+
+            if(visibleData.length > 0) {
+                const firstVisible = visibleData[0];
+                const lastVisible = visibleData[visibleData.length - 1];
+
+                result[seriesName] = {
+                    first: {
+                        date: this.formatLocalDate(firstVisible[0]),
+                        value: firstVisible[1],
+                        timestamp: firstVisible[0]
+                    },
+                    last: {
+                        date: this.formatLocalDate(lastVisible[0]),
+                        value: lastVisible[1],
+                        timestamp: lastVisible[0]
+                    },
+                    visibleCount: visibleData.length
+                };
+            }
+        });
+
+        return result;
+    }
+
+    /* endregion: Get Series Values **/
+
+
+    /** region: DateUtils */
+    /**
+     * Convert YYYY-MM-DD to local timestamp (no timezone shift)
+     * This preserves the exact date regardless of user's timezone
+     */
+    parseLocalDate(dateString) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(year, month - 1, day).getTime(); // Local timezone
+    }
+
+    /**
+     * Convert local timestamp back to YYYY-MM-DD
+     * This preserves the exact date that was originally sent
+     */
+    formatLocalDate(timestamp) {
+        return OcEcharts.formatDate(new Date(timestamp));
+    }
+
+    static formatDate(date) {
+        try {
+            if(typeof date === 'undefined' || date === null) return;
+            if(typeof date === "string") return date;
+            if(typeof date === 'number') date = new Date(date)
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${months[date.getMonth()]}/${date.getFullYear().toString().slice(-2)}`;
+        } catch(er) {
+            console.log("rr date", date)
+            console.log("rr", err)
+            return "ERRRIR"
+        }
+    }
+
+    /** endregion: DateUtils */
+
 }
 
 // Export for use in other modules

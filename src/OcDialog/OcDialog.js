@@ -16,9 +16,10 @@ var OcDialog = {
      * @param {string|Element} params.html - Dialog content (string or DOM element)
      * @param {Array} params.buttons - Button configuration array
      * buttons: [{label:"button label", callback:function, class:"css class to add", promise_resolve:true}, ...]
+     * @param {bool} keepHtml on true the html received is not removed from the DOM
      * @returns {Promise} - Promise that resolves on buttons with promise_resolve=true, rejects on close/escape
      */
-    dialog({title = "", html, buttons = []}) {
+    dialog({title = "", html, buttons = [], keepHtml = false}) {
         return new Promise((resolve, reject) => {
             const dialog = document.createElement('dialog');
             dialog.className = 'sch_dialog sch_dialog_grow_content';
@@ -122,6 +123,12 @@ var OcDialog = {
                 buttonHandlers.forEach(({button, handler}) => {
                     button.removeEventListener('click', handler);
                 });
+                // Handle content preservation
+                if (keepContent && typeof html !== 'string') {
+                    // Move content back to body with display:none before removing dialog
+                    html.style.display = 'none';
+                    document.body.appendChild(html);
+                }
 
                 OcDialogDrag.cleanup(dialog);
                 dialog.remove();
@@ -586,6 +593,7 @@ var OcDialog = {
         },
 
         symbolRowInit() {
+            //@TODO no debe ser document.
             document.querySelectorAll('.symbols-row').forEach(row => {
                 row.removeEventListener('click', OcDialog.utils.symbolRowClick);
                 row.addEventListener('click', OcDialog.utils.symbolRowClick);
