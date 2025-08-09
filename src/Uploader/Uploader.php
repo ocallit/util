@@ -17,6 +17,11 @@
  * @see https://www.php.net/manual/en/features.file-upload.php
  */
 class FileUploader {
+    /*
+     * umask values
+     *    Directory: 777 - 002 = 775 (rwxrwxr-x)
+     *    File: 666 - 002 = 664 (rw-rw-r--)
+     */
     // Default umask for directory creation (u=rwx,g=rwx,o=r-x)
     public int $directoryUmask = 0775;
     // Default umask for file creation (u=rwx,g=rwx,o=r-x)

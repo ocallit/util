@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
+require_once __DIR__ . "/Uploader.php";
+require_once __DIR__ . "/UploaderMock.php";
 /**
  * @covers \FileUploader
  */
@@ -13,7 +14,7 @@ final class FileUploaderTest extends TestCase
 
     protected function setUp(): void
     {
-        require_once __DIR__ . '/../Uploader.php';
+
         $this->uploader = new UploaderMock();
         $this->originalIniSettings['upload_max_filesize'] = ini_get('upload_max_filesize');
         $this->originalIniSettings['post_max_size'] = ini_get('post_max_size');

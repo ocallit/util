@@ -1,0 +1,50 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "airbnb-base"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    // Disable stylistic rules
+    "indent": "off",
+    "quotes": "off",
+    "semi": "off",
+    "comma-dangle": "off",
+    "arrow-parens": "off",
+    "function-paren-newline": "off",
+    "implicit-arrow-linebreak": "off",
+    "operator-linebreak": "off",
+    "no-mixed-spaces-and-tabs": "off",
+    "no-tabs": "off",
+    "object-curly-newline": "off",
+    "object-curly-spacing": "off",
+    "space-before-function-paren": "off",
+    "space-infix-ops": "off",
+    "no-trailing-spaces": "off",
+    "linebreak-style": "off",
+    "max-len": "off",
+    "eol-last": "off",
+    "brace-style": "off",
+    "keyword-spacing": "off",
+    "no-multi-spaces": "off",
+    "space-in-parens": "off",
+    "array-bracket-spacing": "off",
+    "computed-property-spacing": "off",
+    "func-call-spacing": "off",
+    "no-whitespace-before-property": "off",
+    "template-curly-spacing": "off",
+    "key-spacing": "off",
+    "no-confusing-arrow": "off",
+    "no-extra-parens": "off",
+    "no-unexpected-multiline": "off",
+    "spaced-comment": "off",
+    "padded-blocks": "off"
+  }
+}
