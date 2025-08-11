@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Producto Row Viewer</title>
+    
+    <!-- Include project CSS files -->
+    <link rel="stylesheet" href="../src/css/base.css">
+    <link rel="stylesheet" href="../src/css/demo.css">
+    <link rel="stylesheet" href="../src/OcDialog/sch_dialog.css">
+    
+    <!-- External libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <style>
+        /* Producto row viewer specific styles */
+        .ocProductoViewer_container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 95vw;
+            background: var(--color-surface);
+            border-radius: 8px;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .ocProductoViewer_section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .ocProductoViewer_field {
+            flex: 1 1 0;
+            min-width: 200px;
+            max-width: 400px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: var(--elevation-glass-1);
+        }
+        
+        .ocProductoViewer_label {
+            display: block;
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .ocProductoViewer_content {
+            color: var(--color-text);
+            font-size: 16px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .ocProductoViewer_content--center {
+            text-align: center;
+        }
+        
+        .ocProductoViewer_content--right {
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .ocProductoViewer_content--preformatted {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background: var(--color-neutral-bg);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--color-border);
+        }
+        
+        .ocProductoViewer_foto {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: var(--elevation-glass-1);
+        }
+        
+        .ocProductoViewer_precio {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-success);
+        }
+        
+        .ocProductoViewer_clave {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--color-primary);
+        }
+        
+        .ocProductoViewer_tipo_badge {
+            background: var(--color-secondary-bg);
+            color: var(--color-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--color-secondary);
+        }
+        
+        .ocProductoViewer_activo_si {
+            color: var(--color-success);
+            font-weight: 600;
+        }
+        
+        .ocProductoViewer_activo_no {
+            color: var(--color-fail);
+            font-weight: 600;
+        }
+        
+        /* Demo grid styles */
+        .ocProductoViewer_demo_grid {
+            margin: 20px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--elevation-2);
+        }
+        
+        .ocProductoViewer_demo_header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: var(--color-primary-bg);
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .ocProductoViewer_demo_table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .ocProductoViewer_demo_table th,
+        .ocProductoViewer_demo_table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .ocProductoViewer_demo_table th {
+            background: var(--color-neutral-bg);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+        
+        .ocProductoViewer_demo_table tr:hover {
+            background: var(--color-neutral-bg);
+            cursor: pointer;
+        }
+        
+        .ocProductoViewer_demo_button {
+            background: var(--color-primary);
+            color: var(--color-primary-bg);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .ocProductoViewer_demo_button:hover {
+            background: var(--color-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-glass-2);
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 20px; background: var(--color-neutral-bg);">
+
+    <!-- Demo grid to simulate jqGrid data -->
+    <div class="ocProductoViewer_demo_grid">
+        <div class="ocProductoViewer_demo_header">
+            <h2>Productos Demo - Click en una fila para ver detalles</h2>
+        </div>
+        <table class="ocProductoViewer_demo_table">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Activo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="ocProductoViewer_demo_tbody">
+                <!-- Demo data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Hidden container for the product form -->
+    <div id="ocProductoViewer_form_container" >
+        <div class="ocProductoViewer_container">
+            <!-- Main Information Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Clave</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_clave" id="d_clave"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Producto</span>
+                    <div class="ocProductoViewer_content" id="d_producto"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Nombre Corto</span>
+                    <div class="ocProductoViewer_content" id="d_nombre_corto"></div>
+                </div>
+            </div>
+
+            <!-- Secondary Information Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Sinónimos</span>
+                    <div class="ocProductoViewer_content" id="d_sinonimos"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Tipo de Bebida</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--center" id="d_tipo_bebida"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Activo</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--center" id="d_activo"></div>
+                </div>
+            </div>
+
+            <!-- Photo and Price Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Foto</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--center" id="d_foto"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Precio</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right ocProductoViewer_precio" id="d_precio"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Último Cambio Precio</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--center" id="d_ultimo_cambio_precio"></div>
+                </div>
+            </div>
+
+            <!-- Physical Properties Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Presentación</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--center" id="d_presentacion"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Equiv. Botellas</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_equivalente_botellas"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Peso Unidad (kg)</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_peso_unidad_kg"></div>
+                </div>
+            </div>
+
+            <!-- Dimensions Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Alto (cm)</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_alto_cm"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Ancho (cm)</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_ancho_cm"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Largo (cm)</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_largo_cm"></div>
+                </div>
+            </div>
+
+            <!-- Weight Section -->
+            <div class="ocProductoViewer_section">
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Peso Caja (kg)</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--right" id="d_peso_caja_kg"></div>
+                </div>
+                
+                <div class="ocProductoViewer_field">
+                    <span class="ocProductoViewer_label">Descripción</span>
+                    <div class="ocProductoViewer_content ocProductoViewer_content--preformatted" id="d_descripcion"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include OcDialog and OcFormReadOnly -->
+    <script src="../src/OcDialog/OcDialog.js"></script>
+    <script src="../src/OcDialog/OcDialogDrag.js"></script>
+    <script src="../src/OcDialog/OcFormReadOnly.js"></script>
+
+    <script>
+        let formReader = new OcFormReadOnly();
+        let demoData = [];
+        let currentRowIndex = 0;
+
+        // Sample data that mimics jqGrid structure
+        const sampleData = [
+            {
+                clave: "BEE001",
+                producto: "Cerveza Corona Extra 355ml",
+                nombre_corto: "Corona Extra",
+                sinonimos: "Corona, Coronita",
+                foto: `<img src="../productos/BEE001.png" style="height:64px; width:auto;" alt="Corona Extra">`,
+                tipo_bebida: "Clara",
+                precio: "25.50",
+                ultimo_cambio_precio: "2025-01-15 10:30:00",
+                descripcion: "Cerveza ligera de origen mexicano\nIdeal para acompañar con limón\nRefrescante y suave",
+                activo: "Si",
+                presentacion: "Botella 355ml",
+                equivalente_botellas: "1.00",
+                peso_unidad_kg: "0.65",
+                peso_caja_kg: "15.60",
+                alto_cm: "20.5",
+                ancho_cm: "6.2",
+                largo_cm: "6.2"
+            },
+            {
+                clave: "WIS002",
+                producto: "Whisky Johnnie Walker Black Label 750ml",
+                nombre_corto: "JW Black",
+                sinonimos: "Johnny Walker, Black Label",
+                foto: `<img src="../productos/WIS002.png" style="height:64px; width:auto;" alt="JW Black">`,
+                tipo_bebida: "Whisky",
+                precio: "485.00",
+                ultimo_cambio_precio: "2025-01-10 15:45:00",
+                descripcion: "Whisky escocés premium\nMezcla de 12 años\nNotas ahumadas y especiadas",
+                activo: "Si",
+                presentacion: "Botella 750ml",
+                equivalente_botellas: "2.11",
+                peso_unidad_kg: "1.20",
+                peso_caja_kg: "14.40",
+                alto_cm: "28.5",
+                ancho_cm: "8.5",
+                largo_cm: "8.5"
+            },
+            {
+                clave: "VOD003",
+                producto: "Vodka Absolut Original 1L",
+                nombre_corto: "Absolut",
+                sinonimos: "Absolut Vodka",
+                foto: `<img src="../productos/VOD003.png" style="height:64px; width:auto;" alt="Absolut">`,
+                tipo_bebida: "Aguardiente",
+                precio: "320.00",
+                ultimo_cambio_precio: "2025-01-08 09:15:00",
+                descripcion: "Vodka sueco premium\nDestilado de trigo de invierno\nSabor limpio y suave",
+                activo: "Si",
+                presentacion: "Botella 1L",
+                equivalente_botellas: "2.82",
+                peso_unidad_kg: "1.35",
+                peso_caja_kg: "16.20",
+                alto_cm: "32.0",
+                ancho_cm: "9.0",
+                largo_cm: "9.0"
+            },
+            {
+                clave: "VIN004",
+                producto: "Vino Tinto Casa Madero Shiraz 750ml",
+                nombre_corto: "Madero Shiraz",
+                sinonimos: "Casa Madero, Shiraz",
+                foto: `<img src="../productos/VIN004.png" style="height:64px; width:auto;" alt="Casa Madero">`,
+                tipo_bebida: "Vino Rosado",
+                precio: "180.00",
+                ultimo_cambio_precio: "2025-01-05 14:20:00",
+                descripcion: "Vino tinto mexicano\nUvas Shiraz de Valle de Parras\nCuerpo medio con taninos suaves",
+                activo: "No",
+                presentacion: "Botella 750ml",
+                equivalente_botellas: "2.11",
+                peso_unidad_kg: "1.15",
+                peso_caja_kg: "13.80",
+                alto_cm: "30.5",
+                ancho_cm: "7.5",
+                largo_cm: "7.5"
+            },
+            {
+                clave: "TEQ005",
+                producto: "Tequila José Cuervo Especial Gold 700ml",
+                nombre_corto: "Cuervo Gold",
+                sinonimos: "Jose Cuervo, Cuervo Dorado",
+                foto: `<img src="../productos/TEQ005.png" style="height:64px; width:auto;" alt="Cuervo Gold">`,
+                tipo_bebida: "Aguardiente",
+                precio: "245.00",
+                ultimo_cambio_precio: "2025-01-12 11:00:00",
+                descripcion: "Tequila mixto reposado\n35% agave azul\nSabor suave y dorado",
+                activo: "Si",
+                presentacion: "Botella 700ml",
+                equivalente_botellas: "1.97",
+                peso_unidad_kg: "1.10",
+                peso_caja_kg: "13.20",
+                alto_cm: "26.5",
+                ancho_cm: "8.0",
+                largo_cm: "8.0"
+            }
+        ];
+        function initializeDemoData() {
+            demoData = sampleData;
+            populateDemoTable();
+        }
+
+        function populateDemoTable() {
+            const tbody = document.getElementById('ocProductoViewer_demo_tbody');
+            tbody.innerHTML = '';
+
+            demoData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.clave}</td>
+                    <td>${row.producto}</td>
+                    <td>${row.tipo_bebida}</td>
+                    <td style="text-align: right;">${parseFloat(row.precio).toFixed(2)}</td>
+                    <td style="text-align: center;">
+                        <span class="${row.activo === 'Si' ? 'ocProductoViewer_activo_si' : 'ocProductoViewer_activo_no'}">
+                            ${row.activo}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="ocProductoViewer_demo_button" onclick="showProductDetails(${index})">
+                            👁️ Ver
+                        </button>
+                    </td>
+                `;
+
+                // Make row clickable
+                tr.style.cursor = 'pointer';
+                tr.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        showProductDetails(index);
+                    }
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function showProductDetails(rowIndex) {
+            currentRowIndex = rowIndex;
+            const productData = demoData[rowIndex];
+
+            // Prepare form container
+            const formContainer = document.getElementById('ocProductoViewer_form_container');
+
+            // Format data for display
+            const displayData = formatProductData(productData);
+            await formReader.show(
+                `📦 ${productData.producto} - Detalles`,
+                formContainer,
+                displayData,
+                navigationCallback,
+                true // keepForm = true to preserve the form
+            );
+
+            try {
+
+            } catch (error) {
+                if (error.message !== OcDialog.CANCELED) {
+                    console.error('Error showing product details:', error);
+                    OcDialog.error('Error al mostrar los detalles del producto');
+                }
+            }
+        }
+
+        function formatProductData(productData) {
+            const formatted = {};
+
+            // Format each field according to its display requirements
+            Object.keys(productData).forEach(key => {
+                let value = productData[key] || '';
+
+                switch (key) {
+                    case 'precio':
+                        formatted[`d_${key}`] = value ? `${parseFloat(value).toLocaleString('es-MX', {minimumFractionDigits: 2})}` : '';
+                        break;
+
+                    case 'activo':
+                        const isActive = value === 'Si';
+                        formatted[`d_${key}`] = `<span class="${isActive ? 'ocProductoViewer_activo_si' : 'ocProductoViewer_activo_no'}">${value}</span>`;
+                        break;
+
+                    case 'tipo_bebida':
+                        formatted[`d_${key}`] = value ? `<span class="ocProductoViewer_tipo_badge">${value}</span>` : '';
+                        break;
+
+                    case 'ultimo_cambio_precio':
+                        if (value) {
+                            const date = new Date(value);
+                            formatted[`d_${key}`] = date.toLocaleString('es-MX');
+                        } else {
+                            formatted[`d_${key}`] = '';
+                        }
+                        break;
+
+                    case 'equivalente_botellas':
+                    case 'peso_unidad_kg':
+                    case 'peso_caja_kg':
+                    case 'alto_cm':
+                    case 'ancho_cm':
+                    case 'largo_cm':
+                        formatted[`d_${key}`] = value ? parseFloat(value).toLocaleString('es-MX', {minimumFractionDigits: 2}) : '';
+                        break;
+
+                    case 'foto':
+                        // Preserve the HTML for images
+                        formatted[`d_${key}`] = value || '<span style="color: var(--color-text-muted);">Sin imagen</span>';
+                        break;
+
+                    default:
+                        formatted[`d_${key}`] = value;
+                        break;
+                }
+            });
+
+            return formatted;
+        }
+
+        async function navigationCallback(direction, currentValues) {
+            console.log("navicationCallback in:", direction, currentValues);
+            let newIndex;
+
+            if (direction === 'next') {
+                newIndex = (currentRowIndex + 1) % demoData.length;
+            } else {
+                newIndex = currentRowIndex - 1;
+                if (newIndex < 0) {
+                    newIndex = demoData.length - 1;
+                }
+            }
+
+            currentRowIndex = newIndex;
+            const newProductData = demoData[newIndex];
+
+            // Format the new data
+            const newDisplayData = formatProductData(newProductData);
+            console.log("navicationCallback retruns:", `📦 ${newProductData.producto} - Detalles`, newDisplayData);
+            return {
+                title: `📦 ${newProductData.producto} - Detalles`,
+                values: newDisplayData
+            };
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDemoData();
+        });
+    </script>
+
+</body>
+</html>

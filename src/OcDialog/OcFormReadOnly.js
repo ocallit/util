@@ -1,12 +1,4 @@
-/**
- * File: OcFormReadOnly.js
- * Path: /src/js/OcFormReadOnly.js
- * Version: 2.0.0
- * 
- * OcFormReadOnly - Navigation Dialog System
- * Creates a read-only form dialog with prev/next navigation
- * Each instance can manage one dialog at a time
- */
+
 class OcFormReadOnly {
     constructor() {
         this.currentDialog = null;
@@ -74,12 +66,14 @@ class OcFormReadOnly {
         this._fill(this.currentForm, this.currentValues);
 
         return new Promise((resolve, reject) => {
-            this.currentDialog = OcDialog.dialog({
+            const dialogResult =  OcDialog.dialog({
                 title: title,
                 html: this.currentForm,
                 buttons: buttons,
                 keepHtml: keepForm
             });
+            this.currentDialog = dialogResult.promise;
+            this.dialogElement = dialogResult.dialog;
 
             // Handle dialog close/cancel
             this.currentDialog.catch((error) => {
@@ -219,6 +213,7 @@ class OcFormReadOnly {
      * @private
      */
     async _handleNavigation(direction, button) {
+
         if(this.isNavigating) {
             return; // Prevent multiple simultaneous navigation calls
         }
@@ -239,21 +234,25 @@ class OcFormReadOnly {
                 const {title: newTitle, values: newValues} = result;
 
                 if(newTitle && typeof newTitle === 'string') {
-                    // Update dialog title
-                    const titleElement = this.currentDialog.querySelector('.sch_dialog_title');
-                    if(titleElement) {
-                        titleElement.innerHTML = newTitle;
-                    }
+                     // Update dialog title
+                     // const titleElement = this.currentForm.querySelector('.sch_dialog_title');
+                    // if(titleElement) titleElement.innerHTML = newTitle;
+
                 }
 
                 if(newValues && typeof newValues === 'object') {
                     // Update current values and refill form
                     this.currentValues = {...newValues};
+                    console.log("VALLING --------------", this.currentValues);
+                    console.log("              ", this.currentForm);
                     this._fill(this.currentForm, this.currentValues);
+
                 }
             }
 
         } catch(error) {
+            console.error(error);
+            console.log(":::::::::::::::::::");
             // Show error message
             this._showError(typeof error === 'string' ? error : error.message || 'Error de navegación');
         } finally {
@@ -269,7 +268,9 @@ class OcFormReadOnly {
      * @private
      */
     _showError(message) {
-        const errorContainer = this.currentDialog.querySelector('.sch_dialog .sch_errors');
+        alert(message); return;
+        console.log("this.currentDialog", this.currentForm);
+        const errorContainer = this.currentForm.querySelector('.sch_dialog .sch_errors');
         if(errorContainer) {
             errorContainer.innerHTML = `
                 <button type="button" class="sch_errors_close" onclick="this.parentElement.classList.add('sch_hidden')">&times;</button>
@@ -333,7 +334,7 @@ class OcFormReadOnly {
 
 // Export the class - NO singleton
 // Users can create multiple instances as needed
-window.OcFormReadOnly = OcFormReadOnly;
+// window.OcFormReadOnly = OcFormReadOnly;
 
 // Usage examples:
 /*
