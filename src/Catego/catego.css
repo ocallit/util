@@ -1,6 +1,4 @@
-/* ocCatego  CSS */
-/* File: catego.css */
-/* Path: /categi.css */
+/* Path: ./categi.css */
 /* Version: 1.0.0 */
 
 /* Arrow Buttons */
@@ -120,7 +118,7 @@
 }
 
 .oc_catego_column--selected .oc_catego_list:empty::after {
-    content: 'Sin categorías';
+    content: 'Arrastra aquí';
 }
 
 .oc_catego_column--selected .oc_catego_column-header {
@@ -370,7 +368,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     width:34ch
 }
@@ -386,8 +384,7 @@
     color: var(--color-text);
     transition: border-color 0.2s;
     box-sizing: border-box;
-    width: 30ch;
-    max-width: 30ch;
+    width: 20ch;
 }
 
 .oc_catego_search-input:focus {

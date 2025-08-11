@@ -89,54 +89,88 @@
     <!-- Include widget CSS -->
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="catego.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="catego.js"></script>
 </head>
 <body>
 
         <!-- Hidden select for form integration -->
-        <select id="bodega_id" name="bodega_id[]" multiple style="display:none">
-            <option value="1" selected="selected">Naranja</option>
-            <option value="5" selected="selected">Cielo</option>
-            <option value="2">Virgoma</option>
-            <option value="3">Gris</option>
-            <option value="4">Clavel</option>
+        <select id="cliente_categorias_select" name="cliente_categorias[]" multiple style="display:none">
+            <option value="1" selected>Sin Credito</option>
+            <option value="5" selected>Transportista</option>
+            <option value="2">Mayoreo</option>
+            <option value="3">Con Credito</option>
+            <option value="4">Foraneo</option>
         </select>
 
         <!-- Widget HTML -->
-        <div class="oc_catego" data-oc_catego="Bodega" data-oc_catego_linked_select="bodega_id" aria-label="Bodegas" role="group">
+        <div class="oc_catego" data-oc_catego="clientes" data-oc_catego_linked_select="cliente_categorias_select"
+             aria-label="Categorías de Clientes" role="group">
+            <div class="oc_catego_title">Categorías de Clientes</div>
 
             <div class="oc_catego_header">
                 <div class="oc_catego_search-container">
-                    <div>Bodegas</div>
-                    <div>
-                    <input placeholder="Buscar..." type="search" class="oc_catego_search-input" aria-label="Buscar" value="">
-                    <button type="button" tabindex="-1" class="oc_catego_clear-btn" onclick="ocWidgetCatego.clearSearch(this)" title="Limpiar búsqueda">&times;</button>
-                    </div>
+                    <input 
+                        type="search"
+                        class="oc_catego_search-input"
+                        placeholder="Buscar categorías..."
+                        aria-label="Buscar categorías"
+                        value=""
+                    >
+                    <button 
+                        type="button" 
+                        tabindex="-1" 
+                        class="oc_catego_clear-btn"
+                        onclick="ocWidgetCatego.clearSearch(this)"
+                        title="Limpiar búsqueda"
+                    >&times;</button>
                 </div>
+                <!-- enhancement for phase 2
+                <button 
+                    type="button" 
+                    class="oc_catego_crud-button"
+                    title="Administrar, altas, bajas y cambios de categorías"
+                    onclick="ocWidgetCatego.openCRUD('clientes')"
+                >&#9881; Definir</button>
+                -->
             </div>
 
             <div class="oc_catego_content">
                 <div class="oc_catego_column oc_catego_column--selected">
-                    <div class="oc_catego_column-header">✓ Mostrar</div>
-                    <div class="oc_catego_list oc_catego_si" role="listbox" aria-label="Bodegas a mostrar">Vacio muestra todas</div>
+                    <div class="oc_catego_column-header">✓ Asignadas</div>
+                    <div class="oc_catego_list oc_catego_si" role="listbox" aria-label="Categorías asignadas"></div>
                     <div class="oc_catego_column-footer">
-                        <button class="oc_catego_move-all-button oc_catego_move-all-button--from-assigned" type="button" onclick="ocWidgetCatego.moveAllCategories(this, 'right')" title="Quitartodas las bodegas">Quitar Todas ››</button>
-                        <div class="oc_catego_column-count">n bodegas</div>
+                        <button 
+                            class="oc_catego_move-all-button oc_catego_move-all-button--from-assigned"
+                            type="button"
+                            onclick="ocWidgetCatego.moveAllCategories(this, 'right')"
+                            title="Remover todas las categorías"
+                        >Quitar Todas ››</button>
+                        <div class="oc_catego_column-count">n categorías</div>
                     </div>
                 </div>
 
                 <div class="oc_catego_column oc_catego_column--available">
                     <div class="oc_catego_column-header">○ Disponibles</div>
-                    <div class="oc_catego_list oc_catego_disponibles" role="listbox" aria-label="Bodegas disponibles"></div>
+                    <div class="oc_catego_list oc_catego_disponibles" role="listbox" aria-label="Categorías disponibles"></div>
                     <div class="oc_catego_column-footer">
-                        <button class="oc_catego_move-all-button oc_catego_move-all-button--from-available" type="button" onclick="ocWidgetCatego.moveAllCategories(this, 'left')" title="Asignar todas las categorías">‹‹ Asignar Todas</button>
-                        <div class="oc_catego_column-count">n bodegas</div>
+                        <button 
+                            class="oc_catego_move-all-button oc_catego_move-all-button--from-available"
+                            type="button"
+                            onclick="ocWidgetCatego.moveAllCategories(this, 'left')"
+                            title="Asignar todas las categorías"
+                        >‹‹ Asignar Todas</button>
+                        <div class="oc_catego_column-count">n categorías</div>
                     </div>
                 </div>
             </div>
         </div>
 
+
+
+    <!-- Include widget JavaScript -->
+    <script src="catego.js"></script>
+    
     <!-- Demo functions -->
     <script id="demo-functions">
         // Demo functions for testing

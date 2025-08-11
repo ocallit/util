@@ -1,6 +1,5 @@
 /* ocCatego js with SortableJS Integration */
-/* File: catego.js */
-/* Path: /catego/catego.js */
+/* Path: ./catego.js */
 /* Version: 1.1.0 */
 
 const ocWidgetCatego = {
@@ -135,13 +134,13 @@ const ocWidgetCatego = {
             button.innerHTML = '→';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--right';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'right')");
-            button.setAttribute('title', 'Remover categoría');
+            button.setAttribute('title', 'Quitar');
         } else {
             // Item is now in "available" list
             button.innerHTML = '←';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--left';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'left')");
-            button.setAttribute('title', 'Asignar categoría');
+            button.setAttribute('title', 'Agregar');
         }
     },
 
@@ -283,7 +282,7 @@ const ocWidgetCatego = {
         const arrowDirection = isSelected ? 'right' : 'left';
         const arrowClass = isSelected ? 'oc_catego_arrow-button--right' : 'oc_catego_arrow-button--left';
         const arrowSymbol = isSelected ? '→' : '←';
-        const arrowTitle = isSelected ? 'Remover categoría' : 'Asignar categoría';
+        const arrowTitle = isSelected ? 'Quitar' : 'Agregar';
         const moveDirection = isSelected ? 'right' : 'left';
 
         categoryItem.innerHTML = `
@@ -307,8 +306,6 @@ const ocWidgetCatego = {
      */
     updateWidgetCategories(widget, newCategories) {
         if (!widget || !Array.isArray(newCategories)) return;
-
-        console.log('🔄 Updating widget with new categories:', newCategories);
 
         // Get current selected categories
         const currentSelected = this.getValue(widget);
@@ -370,13 +367,13 @@ const ocWidgetCatego = {
             button.innerHTML = '→';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--right';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'right')");
-            button.setAttribute('title', 'Remover categoría');
+            button.setAttribute('title', 'Remover ' );
         } else {
             targetList = widget.querySelector('.oc_catego_disponibles');
             button.innerHTML = '←';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--left';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'left')");
-            button.setAttribute('title', 'Asignar categoría');
+            button.setAttribute('title', 'Asignar' );
         }
 
         categoryItem.style.transform = 'scale(0.8)';
@@ -414,12 +411,12 @@ const ocWidgetCatego = {
                         arrowButton.innerHTML = '→';
                         arrowButton.className = 'oc_catego_arrow-button oc_catego_arrow-button--right';
                         arrowButton.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'right')");
-                        arrowButton.setAttribute('title', 'Remover categoría');
+                        arrowButton.setAttribute('title', 'Quitar');
                     } else {
                         arrowButton.innerHTML = '←';
                         arrowButton.className = 'oc_catego_arrow-button oc_catego_arrow-button--left';
                         arrowButton.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'left')");
-                        arrowButton.setAttribute('title', 'Asignar categoría');
+                        arrowButton.setAttribute('title', 'Asignar' );
                     }
 
                     targetList.appendChild(item);
@@ -446,8 +443,8 @@ const ocWidgetCatego = {
         const siFooter = widget.querySelector('.oc_catego_column--selected .oc_catego_column-count');
         const availableFooter = widget.querySelector('.oc_catego_column--available .oc_catego_column-count');
 
-        if (siFooter) siFooter.textContent = `${siCount} categoría${siCount !== 1 ? 's' : ''}`;
-        if (availableFooter) availableFooter.textContent = `${availableCount} categoría${availableCount !== 1 ? 's' : ''}`;
+        if (siFooter) siFooter.textContent = `${siCount} item${siCount !== 1 ? 's' : ''}`;
+        if (availableFooter) availableFooter.textContent = `${availableCount} item${availableCount !== 1 ? 's' : ''}`;
     },
 
     updateMoveAllButtons(widget) {
@@ -508,12 +505,12 @@ const ocWidgetCatego = {
 
         if (siFooter) {
             const totalSi = siList.children.length;
-            siFooter.textContent = `${siVisible} categoría${siVisible !== 1 ? 's' : ''} visible${siVisible !== totalSi ? ` de ${totalSi}` : ''}`;
+            siFooter.textContent = `${siVisible} item${siVisible !== 1 ? 's' : ''} visible${siVisible !== totalSi ? ` de ${totalSi}` : ''}`;
         }
 
         if (availableFooter) {
             const totalAvailable = availableList.children.length;
-            availableFooter.textContent = `${availableVisible} categoría${availableVisible !== 1 ? 's' : ''} visible${availableVisible !== totalAvailable ? ` de ${totalAvailable}` : ''}`;
+            availableFooter.textContent = `${availableVisible} items${availableVisible !== 1 ? 's' : ''} visible${availableVisible !== totalAvailable ? ` de ${totalAvailable}` : ''}`;
         }
     },
 
@@ -604,12 +601,12 @@ const ocWidgetCatego = {
             button.innerHTML = '→';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--right';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'right')");
-            button.setAttribute('title', 'Remover categoría');
+            button.setAttribute('title', 'Quitar');
         } else {
             button.innerHTML = '←';
             button.className = 'oc_catego_arrow-button oc_catego_arrow-button--left';
             button.setAttribute('onclick', "ocWidgetCatego.moveCategory(this, 'left')");
-            button.setAttribute('title', 'Asignar categoría');
+            button.setAttribute('title', 'Agregar');
         }
     },
 
