@@ -11,7 +11,7 @@
  *   8.* properties para procesar images o no a) cambiar tamaño si mas grande de, b) convertir a webp o png o jpg, c) quitar EXIF, quitar metadatos?, e) hacer thumbnail de sizer
  */
 
-
+namespace ocallit\Util\Uploader;
 /**
  * FileUploader class
  * @see https://www.php.net/manual/en/features.file-upload.php

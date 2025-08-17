@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-require_once __DIR__ . "/Uploader.php";
+require_once __DIR__ . "/FileUploader.php";
 require_once __DIR__ . "/UploaderMock.php";
 /**
  * @covers \FileUploader
