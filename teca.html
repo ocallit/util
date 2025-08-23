@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jqGrid Custom Multi-Select Filter</title>
+
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+
+    <!-- Guriddo jqGrid CSS from cdnjs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.8.2/css/ui.jqgrid.css">
+
+    <style>
+        /* Optional: Improve layout and custom element appearance */
+        body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; padding: 20px; }
+        .ui-jqgrid .ui-jqgrid-htable th div { white-space: normal !important; height: auto !important; }
+        .custom-filter-container { display: flex; align-items: center; }
+        .custom-filter-input { flex-grow: 1; border-right: none; }
+        .custom-filter-button { height: 22px; width: 30px; margin: 0; padding: 0; }
+        #category-checkboxes-container { max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+        #category-checkboxes-container label { display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<h2>Product Inventory</h2>
+<p>Use the filter in the "Categories" column header to perform a multi-select search.</p>
+
+<!-- The Grid -->
+<table id="jqGrid"></table>
+<div id="jqGridPager"></div>
+
+<!-- Hidden jQuery UI Dialog for the multi-select filter -->
+<div id="multiSelectDialog" title="Filter by Categories" style="display:none;">
+    <fieldset>
+        <legend>Operator</legend>
+        <div id="operator-radios">
+            <label><input type="radio" name="category_operator" value="OR" checked> OR (Contains any)</label><br>
+            <label><input type="radio" name="category_operator" value="AND"> AND (Contains all)</label><br>
+            <label><input type="radio" name="category_operator" value="NOT OR"> NOT OR (Contains none)</label><br>
+            <label><input type="radio" name="category_operator" value="NOT AND"> NOT AND (Does not contain all)</label>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Categories</legend>
+        <div id="category-checkboxes-container">
+            <!-- Checkboxes will be inserted here by JavaScript -->
+        </div>
+    </fieldset>
+</div>
+
+<!-- Scripts -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- jQuery UI -->
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+<!-- Guriddo jqGrid JS from cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.8.2/js/jquery.jqgrid.min.js"></script>
+<!-- Guriddo jqGrid English Locale file (Important for proper initialization) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/5.8.2/js/i18n/grid.locale-en.js"></script>
+
+<script>
+    'use strict';
+
+    // Sample data for the grid
+    const mydata = [
+        { id: 1, product: "Laptop Pro", categories: "Electronics, Computers" },
+        { id: 2, product: "Wireless Mouse", categories: "Electronics, Accessories" },
+        { id: 3, product: "T-Shirt", categories: "Apparel, Clothing" },
+        { id: 4, product: "Coffee Maker", categories: "Home, Kitchen, Electronics" },
+        { id: 5, product: "Running Shoes", categories: "Apparel, Footwear" },
+        { id: 6, product: "Smart Watch", categories: "Electronics, Wearables, Accessories" },
+        { id: 7, product: "Jeans", categories: "Apparel, Clothing" },
+        { id: 8, product: "Blender", categories: "Home, Kitchen" },
+        { id: 9, product: "Desk Lamp", categories: "Home, Office" },
+        { id: 10, product: "Keyboard", categories: "Electronics, Computers, Accessories" }
+    ];
+
+    // --- Helper function to get unique categories from data ---
+    const getUniqueCategories = (data) => {
+        const categorySet = new Set();
+        data.forEach(item => {
+            if (item.categories) {
+                item.categories.split(',')
+                    .map(cat => cat.trim())
+                    .forEach(cat => categorySet.add(cat));
+            }
+        });
+        return Array.from(categorySet).sort();
+    };
+
+    const uniqueCategories = getUniqueCategories(mydata);
+
+    // This object will hold the current state of our custom filter
+    let categoryFilterState = {
+        operator: 'OR',
+        values: []
+    };
+
+    // --- Named functions for event listeners to ensure they can be removed ---
+
+    /**
+     * Opens the multi-select dialog when the filter button is clicked.
+     */
+    const handleOpenDialog = () => {
+        // Populate checkboxes
+        const container = $('#category-checkboxes-container');
+        container.empty();
+        uniqueCategories.forEach(cat => {
+            const isChecked = categoryFilterState.values.includes(cat) ? 'checked' : '';
+            container.append(
+                `<label><input type="checkbox" class="category-checkbox" value="${cat}" ${isChecked}> ${cat}</label>`
+            );
+        });
+
+        // Set the saved operator
+        $(`input[name="category_operator"][value="${categoryFilterState.operator}"]`).prop('checked', true);
+
+        $('#multiSelectDialog').dialog('open');
+    };
+
+    /**
+     * Applies the filter based on selections in the dialog.
+     */
+    const handleApplyFilter = () => {
+        // Update state object
+        categoryFilterState.operator = $('input[name="category_operator"]:checked').val();
+        categoryFilterState.values = $('.category-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        // Update the display input in the toolbar
+        const displayValue = categoryFilterState.values.length > 0
+            ? `${categoryFilterState.operator}: ${categoryFilterState.values.join(', ')}`
+            : '';
+        $('#gs_categories_display').val(displayValue);
+
+        // Trigger the jqGrid search
+        // The `triggerToolbar` method is better for programmatic toolbar search
+        $('#jqGrid')[0].triggerToolbar();
+
+        $('#multiSelectDialog').dialog('close');
+    };
+
+    /**
+     * Clears the filter and closes the dialog.
+     */
+    const handleClearFilter = () => {
+        // Reset state object
+        categoryFilterState.operator = 'OR';
+        categoryFilterState.values = [];
+
+        // Clear display input
+        $('#gs_categories_display').val('');
+
+        // Trigger search to show all data
+        $('#jqGrid')[0].triggerToolbar();
+
+        $('#multiSelectDialog').dialog('close');
+    };
+
+    // --- jqGrid Custom Search Functions ---
+
+    /**
+     * Creates the custom HTML element for the filter toolbar.
+     * @param {any} value - The initial value.
+     * @param {object} options - Column options.
+     * @returns {HTMLElement} - The container element for our custom filter.
+     */
+    const createMultiSelectElement = (value, options) => {
+        const container = $('<div class="custom-filter-container"></div>');
+        // The readonly input that displays the current filter
+        const displayInput = $('<input type="text" readonly class="custom-filter-input" id="gs_categories_display">');
+        // The button that opens the dialog
+        const button = $('<button class="custom-filter-button">...</button>');
+
+        button.on('click', handleOpenDialog);
+
+        // Example of how to remove the listener later if needed
+        // button.off('click', handleOpenDialog);
+
+        container.append(displayInput).append(button);
+
+        return container[0];
+    };
+
+    /**
+     * Returns the current filter state to jqGrid's search engine.
+     * @param {HTMLElement} elem - The custom element.
+     * @returns {object} - The filter state object.
+     */
+    const getMultiSelectValue = (elem) => {
+        // Return a clone to prevent mutation
+        return { ...categoryFilterState };
+    };
+
+    /**
+     * The core search logic that jqGrid will execute for each row.
+     * @param {string} cellValue - The comma-separated string from the grid cell.
+     * @param {object} searchValue - The filter state object from getMultiSelectValue.
+     * @returns {boolean} - True if the row matches, false otherwise.
+     */
+    const customCategorySearch = (cellValue, searchValue) => {
+        if (!searchValue || !searchValue.values || searchValue.values.length === 0) {
+            return true; // No filter applied
+        }
+
+        const cellCategories = cellValue ? cellValue.split(',').map(c => c.trim()) : [];
+        const selectedCategories = searchValue.values;
+        const operator = searchValue.operator;
+
+        switch (operator) {
+            case 'OR':
+                // true if ANY selected category is in the cell's categories
+                return selectedCategories.some(cat => cellCategories.includes(cat));
+            case 'AND':
+                // true if ALL selected categories are in the cell's categories
+                return selectedCategories.every(cat => cellCategories.includes(cat));
+            case 'NOT OR':
+                // true if NONE of the selected categories are in the cell's categories
+                return !selectedCategories.some(cat => cellCategories.includes(cat));
+            case 'NOT AND':
+                // true if NOT ALL of the selected categories are in the cell's categories
+                return !selectedCategories.every(cat => cellCategories.includes(cat));
+            default:
+                return true;
+        }
+    };
+
+
+    $(document).ready(() => {
+        // --- Initialize the jQuery UI Dialog ---
+        $("#multiSelectDialog").dialog({
+            autoOpen: false,
+            modal: true,
+            width: 400,
+            buttons: {
+                "Apply": handleApplyFilter,
+                "Clear": handleClearFilter,
+                "Cancel": function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        // --- Initialize the jqGrid ---
+        $("#jqGrid").jqGrid({
+            datatype: "local",
+            data: mydata,
+            colModel: [
+                { label: 'ID', name: 'id', width: 50, key: true },
+                { label: 'Product', name: 'product', width: 200 },
+                {
+                    label: 'Categories',
+                    name: 'categories',
+                    width: 300,
+                    stype: 'custom', // Use a custom search type
+                    searchoptions: {
+                        custom_element: createMultiSelectElement,
+                        custom_value: getMultiSelectValue,
+                        custom_search: customCategorySearch
+                    }
+                }
+            ],
+            viewrecords: true,
+            width: 780,
+            height: 250,
+            rowNum: 10,
+            pager: "#jqGridPager",
+            caption: "Product Data with Custom Category Filter"
+        });
+
+        // --- Enable the filter toolbar ---
+        $('#jqGrid').jqGrid('filterToolbar', {
+            searchOnEnter: false, // Search as values change
+            defaultSearch: 'cn'
+        });
+    });
+</script>
+
+</body>
+</html>

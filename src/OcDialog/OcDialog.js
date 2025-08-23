@@ -493,6 +493,7 @@ var OcDialog = {
 
     /**
      * Text editing dialog
+     *
      * @param {string} value - Initial value
      * @param {string} label - Input label
      * @param {string} title - Dialog title

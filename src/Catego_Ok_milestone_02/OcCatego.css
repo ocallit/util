@@ -1,0 +1,682 @@
+/* OcCatego.css - Category Management Dialog Styles */
+
+/* ===================================================================
+   REUSABLE RESIZABLE DIALOG PATTERN
+   ================================================================ */
+/*
+<div class="ocDialog-resizable-container">
+  <div class="ocDialog-header-fixed sch_dialog_header">...</div>
+  <div class="ocDialog-content-grow">...</div>
+  <div class="ocDialog-footer-fixed">...</div>
+</div>
+
+Note sch_dialog_close where no dragging!
+ */
+/* Base resizable dialog container */
+.ocDialog-resizable-container {
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    overflow: hidden; /* content will scroll! */
+    min-width: 280px;
+    min-height: 150px;
+    max-width: 95vw;  /* Prevent dialog from exceeding viewport */
+    max-height: 95vh; /* Prevent dialog from exceeding viewport */
+    margin:0;padding:0;
+}
+
+/* Fixed header - doesn't grow during resize */
+.ocDialog-header-fixed {
+    flex-shrink: 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+.ocDialog-header {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3em 0.5em;
+    margin:0;
+    background-color: cornsilk;
+}
+/* Growable content area - expands during resize */
+.ocDialog-content-grow {
+    flex: 1;
+    overflow: auto; /* Both horizontal AND vertical scrolling */
+    min-height: 0; /* Critical for proper flex behavior */
+    word-wrap: break-word; /* Prevent long words from forcing horizontal scroll */
+    overflow-wrap: break-word; /* Modern browsers */
+}
+
+/* Fixed footer - doesn't grow during resize */
+.ocDialog-footer-fixed {
+    flex-shrink: 0;
+    border-top: 1px solid #e5e5e5;
+    /* Ensure footer buttons wrap if dialog is too narrow */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0.5em 1em;
+}
+
+/* Header should indicate it's draggable */
+.sch_dialog_header {
+    cursor: grab;
+}
+
+/* During drag state */
+.sch_dialog_dragging {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.sch_dialog_header.sch_dialog_dragging {
+    cursor: grabbing !important;
+}
+
+/* ===================================================================
+   REUSABLE RESIZABLE DIALOG PATTERN END
+   ================================================================ */
+
+/* The wrapper is now <dialog class="ocCatego-overlay"> */
+.ocCatego-overlay {
+    /* Remove default dialog chrome; the inner .ocCatego-dialog keeps the visuals */
+    padding: 0;
+    border: none;
+    background: transparent;
+    /* Dialogs ignore z-index in favor of the top layer, so no need to force it */
+}
+
+/* Backdrop must allow clearly reading the page below */
+.ocCatego-overlay::backdrop {
+    /* very light dim; adjust alpha to taste, keep it readable */
+    background: rgba(0, 0, 0, 0.12);
+    /* no blur, no heavy tint, per your request */
+}
+
+/* Dialog Container */
+.ocCatego-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 500px;
+    max-width: 90vw;
+    min-height: 400px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    overflow: hidden;
+    z-index: 1001;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.5;
+}
+
+/* Dialog Header */
+.ocCatego-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f8f9fa;
+    cursor: move;
+    flex-shrink: 0;
+}
+
+.ocCatego-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.ocCatego-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ocCatego-action-button {
+    background: none;
+    border: 1px solid #ddd;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.ocCatego-action-button:hover {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.ocCatego-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    margin-left: 8px;
+}
+
+.ocCatego-close:hover,
+.ocCatego-close:focus {
+    background: #e5e5e5;
+    outline: none;
+}
+
+/* Search Section */
+.ocCatego-search-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    flex-shrink: 0;
+}
+
+.ocCatego-search-container {
+    position: relative;
+    display: flex;
+    gap: 8px;
+}
+
+.ocCatego-search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.ocCatego-search-input {
+    width: 100%;
+    padding: 10px 40px 10px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.ocCatego-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.ocCatego-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+}
+
+.ocCatego-search-clear.ocCatego-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ocCatego-search-clear:hover {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.ocCatego-add-button {
+    padding: 10px 16px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.ocCatego-add-button:hover {
+    background: #218838;
+}
+
+.ocCatego-add-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Categories List */
+.ocCatego-categories-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important: allows flex child to shrink */
+}
+
+.ocCatego-categories-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    min-height: 0; /* Important: allows flex child to shrink */
+}
+
+.ocCatego-category-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+    min-height: 52px;
+}
+
+.ocCatego-category-item:hover {
+    background: #f8f9fa;
+}
+
+.ocCatego-category-item.ocCatego-editing {
+    background: #fff3cd;
+}
+
+.ocCatego-category-input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 8px;
+    box-sizing: border-box;
+}
+
+.ocCatego-category-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.ocCatego-category-input.ocCatego-error {
+    border-color: #dc3545;
+}
+
+.ocCatego-category-input.ocCatego-modified {
+    background: #fff9c4;
+    border-color: #ffc107;
+}
+
+.ocCatego-category-name {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+    margin-right: 8px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.ocCatego-category-name:hover {
+    background: #e9ecef;
+}
+
+.ocCatego-category-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.ocCatego-action-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    min-width: 60px;
+}
+
+.ocCatego-save-button {
+    background: #28a745;
+    color: white;
+}
+
+.ocCatego-save-button:hover {
+    background: #218838;
+}
+
+.ocCatego-cancel-button {
+    background: #6c757d;
+    color: white;
+}
+
+.ocCatego-cancel-button:hover {
+    background: #545b62;
+}
+
+.ocCatego-edit-button {
+    background: #007bff;
+    color: white;
+}
+
+.ocCatego-edit-button:hover {
+    background: #0056b3;
+}
+
+.ocCatego-delete-button {
+    background: #dc3545;
+    color: white;
+}
+
+.ocCatego-delete-button:hover {
+    background: #c82333;
+}
+
+/* Error Messages */
+.ocCatego-error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 8px 12px;
+    margin: 8px 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ocCatego-success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 8px 12px;
+    margin: 8px 20px;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ocCatego-error-icon {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.ocCatego-success-icon {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Loading State */
+.ocCatego-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+}
+
+.ocCatego-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: ocCatego-spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes ocCatego-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.ocCatego-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #666;
+    text-align: center;
+}
+
+.ocCatego-empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.ocCatego-empty-state-text {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.ocCatego-empty-state-subtext {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Confirmation Dialog */
+.ocCatego-confirm-dialog {
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+.ocCatego-confirm-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.ocCatego-confirm-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 0 1em;
+    min-width: 250px;
+    min-height: 150px;
+
+    max-width: 90vw;
+    max-width: 90vh;
+    resize: both;
+    overflow: auto;
+}
+
+
+
+
+
+
+
+.ocCatego-confirm-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ocCatego-confirm-message {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.ocCatego-confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.ocCatego-confirm-button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.ocCatego-confirm-yes {
+    background: #dc3545;
+    color: white;
+}
+
+.ocCatego-confirm-yes:hover {
+    background: #c82333;
+}
+
+.ocCatego-confirm-no {
+    background: #6c757d;
+    color: white;
+}
+
+.ocCatego-confirm-no:hover {
+    background: #545b62;
+}
+
+
+.ocCatego-confirm-no:hover {
+    background: #545b62;
+}
+
+/* Media Queries for Pointer Types */
+@media (pointer: coarse) {
+    .ocCatego-action-btn {
+        padding: 8px 12px;
+        min-width: 70px;
+        font-size: 14px;
+    }
+    
+    .ocCatego-category-item {
+        min-height: 56px;
+        padding: 14px 20px;
+    }
+    
+    .ocCatego-close {
+        width: 40px;
+        height: 40px;
+        font-size: 28px;
+    }
+
+    .ocCatego-search-clear {
+        width: 28px;
+        height: 28px;
+        font-size: 20px;
+    }
+}
+
+/* Focus Styles */
+.ocCatego-action-btn:focus,
+.ocCatego-add-button:focus,
+.ocCatego-action-button:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.ocCatego-delete-button:focus {
+    outline: 2px solid #dc3545;
+    outline-offset: 2px;
+}
+
+.ocCatego-search-clear:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Compact layout for precise pointers (mouse/trackpad) */
+@media (pointer: fine) {
+    .ocCatego-category-item {
+        padding: 4px 10px;   /* down from 12px 20px */
+        min-height: 34px;    /* down from 52px */
+    }
+    .ocCatego-category-name {
+        padding: 2px 4px;    /* down from 6px 8px */
+        cursor: default;     /* avoids accidental edits by tap/click */
+    }
+    .ocCatego-category-input {
+        padding: 3px 6px;    /* down from 6px 8px */
+    }
+    .ocCatego-action-btn {
+        padding: 2px 6px;    /* down from 6px 10px */
+        min-width: 44px;     /* slimmer buttons still readable */
+    }
+    .ocCatego-search-section {
+        padding: 8px 12px;   /* down from 16px 20px */
+    }
+    .ocCatego-header {
+        padding: 10px 14px;  /* down from 16px 20px */
+    }
+}
+
+
+/* Print styles */
+@media print {
+    .ocCatego-overlay {
+        position: static !important;
+        background: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .ocCatego-dialog {
+        position: static !important;
+        transform: none !important;
+        box-shadow: none !important;
+        max-width: none !important;
+        max-height: none !important;
+        border: 1px solid #333;
+        min-width: auto !important;
+    }
+
+    .ocCatego-header-actions,
+    .ocCatego-category-actions,
+    .ocCatego-search-section {
+        display: none !important;
+    }
+
+    .ocCatego-categories-list {
+        overflow: visible !important;
+    }
+
+    .ocCatego-category-item {
+        border-bottom: 1px solid #ddd !important;
+        background: white !important;
+    }
+
+    .ocCatego-category-name {
+        color: #000 !important;
+    }
+}

@@ -1,0 +1,118 @@
+# 🏷️ Advanced Category Management Dialog System
+
+Please create a sophisticated, production-ready category management dialog system with the following specifications:
+
+## 📋 Core Requirements
+
+- **Database Integration**: MySQL table `categoria` with fields: `categoria_id`, `de` (classification type), `categoria` (name)
+- **AJAX Operations**: Support for `accion=list/add/edit/delete` with `de` parameter for classification filtering
+- **HTML SELECT (multiple)**: Seamlessly update select tag while preserving current selections
+- trap all errors and report them to the console do not throw errors through a central function so we can add centralized logging later
+
+## 🎨 User Experience Design
+
+- **Inline Editing**: Direct text editing within the category list (no popup-within-popup)
+- **Real-time Validation**: Instant feedback as users type, with visual error indicators
+- **Visual State Management**: Color-coded borders for modified (yellow), new (blue), and error (red) states
+- **Unsaved Changes Protection**: Warning system before closing with pending modifications
+- do not change the select until the server answers ok
+
+## 🔧 Advanced Features
+
+- **Smart Text Sanitization**: Auto-trim, normalize spaces, remove line breaks/tabs
+- **Duplicate Prevention**: Case and accent-insensitive duplicate detection using Unicode normalization
+- **Memory Management**: Proper event listener cleanup to prevent memory leaks
+- **Batch Operations**: Allow multiple edits before saving, with individual save buttons per item
+- **Trigger**: category-modified on  add,edit,delete and category-close on dialog close so any function listening may do what ever it wishes
+
+## ⚡ Technical Implementation
+
+- **Framework**: Vanilla JavaScript with jQuery, jQuery UI, no other javascript frameworks
+- **CSS Integration**: jQuery UI .css, no other javascript frameworks
+- **State Management**: Maintain separate arrays for current vs. original data
+- **Error Handling**: Graceful server error display with user-friendly messages
+
+## 🧪 Development Features
+
+- **Mock Data System**: Include test data and simulated network delays for development
+- **Console Logging**: Track all Select operations and server calls for debugging
+- **Preview Page**: Create complete HTML demo with testing instructions
+- **Production Comments**: Clear separation between mock and real implementation code
+
+## 🎯 Validation Rules
+
+1. **Text Normalization**: Convert multiple spaces to single, remove `\r\n\t` characters
+2. **Duplicate Detection**: Prevent duplicate category names (accent/case insensitive)
+3. **Empty Validation**: Require at least one non-blank character
+
+## 🔄  Select Behavior
+
+- **Selection Preservation**: Keep currently selected categories when editing names
+- **Deletion Handling**: Remove deleted categories from selection automatically
+- **Option Updates**: Refresh dropdown options after each save/delete operation
+
+## 💫 Polish Requirements
+
+- **Loading States**: Visual feedback during save operations
+- **Success Indicators**: Brief confirmation messages after successful operations
+- **Keyboard Support**: Enter to save, Escape handling, proper focus management
+
+## 📝 Database Schema
+
+```sql
+CREATE TABLE categoria(
+    categoria_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    de VARCHAR(32) NOT NULL COMMENT 'que clasifica: color,producto,cliente...',
+    categoria VARCHAR(191) NOT NULL,
+    UNIQUE KEY categoria_unica_de(de, categoria)
+)
+```
+
+## 🔌 Function Signature
+
+```javascript
+/**
+ * Category Management Dialog
+ * @param {HTMLElement} select_element - The Select element to update
+ * @param {string} de - Classification type (e.g., 'color', 'producto', 'cliente')
+ * @param {number} record_id - ID of the current record
+ */
+async function category(select_element, de, record_id)
+```
+
+## 🌐 Server API Endpoints
+
+- **List**: `accion=list&de=color` → Returns `{data: [{categoria_id, categoria}, ...]}`
+- **Add**: `accion=add&de=color&categoria=Red` → Returns `{categoria_id: 123}`
+- **Edit**: `accion=edit&de=color&categoria_id=123&categoria=Dark Red` → Returns success on error the message to show the user
+- **Delete**: `accion=delete&categoria_id=123&de=color` → Returns success on error the message to show the user
+
+## 🧪 Testing Scenarios
+
+1. **Edit existing category** → Type duplicate name → See real-time validation
+2. **Add new category** → Clear field → See empty validation error
+3. **Make changes** → Try to close → See unsaved changes warning
+4. **Save changes** → Watch console for Select updates
+5. **Delete category** → Confirm deletion →
+
+## 🎁 Deliverables
+
+Please build this as a complete, copy-paste ready solution with:
+
+1. **Main JavaScript Function**: Complete `category()` function with all features
+1. **Main css**: Complete css excluding all demo related css classes
+2. **HTML Preview Page**: Beautiful demo page with testing instructions
+3. **Production Comments**: Clear separation between mock and real code
+4. **Testing Framework**: Mock data and console logging for development
+5. **Documentation**: Detailed comments explaining architecture
+
+## 🚀 Production Deployment
+
+Include clear instructions for:
+- Replacing mock functions with real AJAX calls
+- Removing test/demo code
+- Error handling best practices
+
+---
+
+*This prompt will recreate the entire sophisticated category management system with all its advanced features, polish, and production-ready architecture!*

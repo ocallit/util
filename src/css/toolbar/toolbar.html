@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Toolbar example</title>
+    <link rel="stylesheet" href="toolbar.css">
+    <style>
+        BODY {margin:0;padding: 0;}
+    </style>
+</head>
+<body>
+
+<link rel="stylesheet" href="base.css">
+
+<nav class="octoolbar octoolbar--scroll" style="width:fit-content" aria-label="Acciones de filtros">
+    <div class="octoolbar_title">Filtros</div>
+    <ul class="octoolbar_items">
+        <li class="octoolbar_item">
+            <a class="octoolbar_btn" href="/" aria-label="Inicio">
+                <span class="octoolbar_icon" aria-hidden="true">⌂</span>
+                <span class="octoolbar_key">home</span>
+            </a>
+        </li>
+        <li class="octoolbar_item   ">
+            <select>
+                <option>Si</option>
+                <option>No</option>
+                <option>Talvez</option>
+            </select>
+            <br><span class="octoolbar_key">Vez</span>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Guardar filtro como plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">💾</span>
+                <span class="octoolbar_key">save tpl</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Aplicar plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">🎛️</span>
+                <span class="octoolbar_key">apply</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Limpiar filtro">
+                <span class="octoolbar_icon" aria-hidden="true">🧹</span>
+                <span class="octoolbar_key">limpiar</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Mostrar datos">
+                <span class="octoolbar_icon" aria-hidden="true">☰</span>
+                <span class="octoolbar_key">datos</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a Excel">
+                <span class="octoolbar_icon" aria-hidden="true">Ⓔ</span>
+                <span class="octoolbar_key">excel</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a PDF">
+                <span class="octoolbar_icon" aria-hidden="true">⒫</span>
+                <span class="octoolbar_key">pdf</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Imprimir">
+                <span class="octoolbar_icon" aria-hidden="true">🖨️</span>
+                <span class="octoolbar_key">print</span>
+            </button>
+        </li>
+
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Gráfica">
+                <span class="octoolbar_icon" aria-hidden="true">📈</span>
+                <span class="octoolbar_key">Grafica este rollote</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Guardar filtro como plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">💾</span>
+                <span class="octoolbar_key">save tpl</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Aplicar plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">🎛️</span>
+                <span class="octoolbar_key">apply</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Limpiar filtro">
+                <span class="octoolbar_icon" aria-hidden="true">🧹</span>
+                <span class="octoolbar_key">limpiar</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Mostrar datos">
+                <span class="octoolbar_icon" aria-hidden="true">☰</span>
+                <span class="octoolbar_key">datos</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a Excel">
+                <span class="octoolbar_icon" aria-hidden="true">Ⓔ</span>
+                <span class="octoolbar_key">excel</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a PDF">
+                <span class="octoolbar_icon" aria-hidden="true">⒫</span>
+                <span class="octoolbar_key">pdf</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Imprimir">
+                <span class="octoolbar_icon" aria-hidden="true">🖨️</span>
+                <span class="octoolbar_key">print</span>
+            </button>
+        </li>
+
+
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Gráfica">
+                <span class="octoolbar_icon" aria-hidden="true">📈</span>
+                <span class="octoolbar_key">Grafica este rollote</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Guardar filtro como plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">💾</span>
+                <span class="octoolbar_key">save tpl</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Aplicar plantilla">
+                <span class="octoolbar_icon" aria-hidden="true">🎛️</span>
+                <span class="octoolbar_key">apply</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Limpiar filtro">
+                <span class="octoolbar_icon" aria-hidden="true">🧹</span>
+                <span class="octoolbar_key">limpiar</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Mostrar datos">
+                <span class="octoolbar_icon" aria-hidden="true">☰</span>
+                <span class="octoolbar_key">datos</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a Excel">
+                <span class="octoolbar_icon" aria-hidden="true">Ⓔ</span>
+                <span class="octoolbar_key">excel</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Exportar a PDF">
+                <span class="octoolbar_icon" aria-hidden="true">⒫</span>
+                <span class="octoolbar_key">pdf</span>
+            </button>
+        </li>
+        <li class="octoolbar_item">
+            <button type="button" class="octoolbar_btn" aria-label="Imprimir">
+                <span class="octoolbar_icon" aria-hidden="true">🖨️</span>
+                <span class="octoolbar_key">print</span>
+            </button>
+        </li>
+    </ul>
+</nav>
+
+<hr>
+<pre>
+    Larger
+    &lt;nav class="octoolbar" style="--octoolbar-scale:1.2">...&lt;/nav>
+
+    Tiny variant (scale=0.9)
+    &lt;nav class="octoolbar" style="--octoolbar-scale:0.9">...&lt;/nav>
+</pre>
+
+</body>
+</html>

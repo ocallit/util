@@ -1,0 +1,74 @@
+classDiagram
+    direction TB
+    
+    %% Main Classes
+    class BaseClass {
+        +publicProp/Constant
+        #protectedProp/Constant
+        -privateProp/Constant
+        +publicMethod()
+        #protectedMethod()
+        -privateMethod()
+    }
+    
+    class AbstractClass {
+	Prop/Constant
+        abstractMethod()*
+        sharedMethod()
+    }
+    
+    class Interface {
+	 requiredConstants
+        +requiredPublicMethod()*
+    }
+    
+class trait {
+
+        +publicProp
+        #protectedProp
+        -privateProp
+        +publicMethod()
+        #protectedMethod()
+        -privateMethod()
+}
+
+    class ConcreteClass {
+        +childProp
+        +accessParent()
+        +abstractMethod()
+        +requiredMethod()
+    }
+    
+    %% Relationships
+    BaseClass <|-- ConcreteClass : extends
+    AbstractClass <|-- ConcreteClass : extends
+    Interface <|.. ConcreteClass : implements
+    
+	BaseClass <|-- trait : use
+AbstractClass <|-- trait : use
+	trait <|-- trait : use
+ConcreteClass <|-- trait : use
+
+    %% Notes
+    note for BaseClass "Public (+): Anywhere\nProtected (#): Child classes\nPrivate (-): Class only"
+    note for AbstractClass "Must be extended\nCan contain implementation\nForces method overrides"
+    note for Interface "Pure abstract\nAll methods public\nMultiple allowed"
+    
+    %% Visual Legend
+    class Legend {
+        <<legend>>
+        PHP 8.x OOP Cheatsheet
+        ---
+        + Public
+        # Protected
+        - Private
+        * Abstract
+        ---
+        Solid: extends
+        Dashed: implements
+    }
+    
+    %% Access Examples
+    ConcreteClass --> BaseClass.publicProp : OK
+    ConcreteClass --> BaseClass.protectedProp : OK
+    ConcreteClass --> BaseClass.privateProp : X

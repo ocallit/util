@@ -1,0 +1,265 @@
+/* ==========================================================
+   OCToolbar —
+   - Class-only selectors (plus :root variables)
+   - Compact + flush by default
+   - Pointer-aware density via variable overrides
+   - Single scale knob: --octoolbar-scale
+   - No layout shift on hover/click
+   ========================================================== */
+:root {
+    /* Palette (inherits from base.css when present) */
+    --octoolbar-bg: var(--color-surface, #fff);
+    --octoolbar-fg: var(--color-text, #222);
+    --octoolbar-muted: var(--color-text-light, #6c757d);
+    --octoolbar-accent: var(--color-primary, #0d6efd);
+    --octoolbar-accent-weak: var(--color-secondary, #6c9ff6);
+    --octoolbar-border: var(--color-border, #dee2e6);
+    --octoolbar-radius: 10px;
+
+    /* Global density knob */
+    --octoolbar-scale: 1;
+
+    /* Container spacing (flush, compact) */
+    --octoolbar-pad-x: calc(.25rem * var(--octoolbar-scale));
+    --octoolbar-pad-y: calc(.40rem * var(--octoolbar-scale));
+
+    /* Button sizing (compact) */
+    --octoolbar-btn-pad-x: calc(.40rem * var(--octoolbar-scale));
+    --octoolbar-btn-pad-y: calc(.28rem * var(--octoolbar-scale));
+    --octoolbar-btn-minw:  calc(50px * var(--octoolbar-scale));
+    --octoolbar-btn-minh:  auto; /* overridden on touch to enforce ~48px */
+
+    /* Layout + typography */
+    --octoolbar-gap:       calc(.08rem * var(--octoolbar-scale));
+    --octoolbar-icon-size: calc(1.10rem * var(--octoolbar-scale));
+    --octoolbar-key-size:  calc(10.5px * var(--octoolbar-scale));
+
+    --octoolbar-shadow-1: 0 1px 2px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.06);
+    --octoolbar-shadow-2: 0 3px 6px rgba(0,0,0,.16), 0 1px 2px rgba(0,0,0,.10);
+}
+
+/* Container */
+.octoolbar {
+    box-sizing: border-box;
+    display: block;
+    background: var(--octoolbar-bg);
+    color: var(--octoolbar-fg);
+    border: 1px solid var(--octoolbar-border);
+    border-radius: var(--octoolbar-radius);
+    padding: var(--octoolbar-pad-y) var(--octoolbar-pad-x);
+    max-width: 100%;
+}
+
+/* Optional title */
+.octoolbar_title {
+    margin: 0 0 .25rem 0;
+    font-weight: 600;
+    line-height: 1.1;
+    font-size: .9rem;
+    color: var(--octoolbar-accent);
+}
+
+/* Items row (grid) */
+.octoolbar_items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(var(--octoolbar-btn-minw), auto);
+    gap: var(--octoolbar-gap);
+}
+
+/* Item holder */
+.octoolbar_item { margin: 0; padding: 0; }
+
+/* Button / link */
+.octoolbar_btn {
+    display: inline-grid;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: .12rem;
+
+    width: 100%;
+    min-width: var(--octoolbar-btn-minw);
+    min-height: var(--octoolbar-btn-minh);
+    padding: var(--octoolbar-btn-pad-y) var(--octoolbar-btn-pad-x);
+
+    text-decoration: none;
+    color: inherit;
+    background: transparent;
+
+    /* Reserve border space to prevent movement on hover/active */
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    transition: background-color .12s ease-in-out, box-shadow .12s ease-in-out, border-color .12s ease-in-out;
+}
+
+/* Icon + keyword label */
+.octoolbar_icon {
+    font-size: var(--octoolbar-icon-size);
+    line-height: 1;
+    text-rendering: optimizeLegibility;
+    font-family: system-ui, "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+}
+.octoolbar_key {
+    font-size: var(--octoolbar-key-size);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    letter-spacing: .02em;
+    color: var(--octoolbar-muted);
+}
+
+/* Interaction (no geometry changes => no shift) */
+.octoolbar_btn:hover {
+    background: color-mix(in srgb, var(--octoolbar-accent-weak) 12%, transparent);
+}
+.octoolbar_btn:active {
+    background: color-mix(in srgb, var(--octoolbar-accent) 16%, transparent);
+}
+/* Focus only for keyboard users so clicks don’t leave it “on” */
+.octoolbar_btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--octoolbar-accent) 50%, transparent);
+    outline-offset: 2px;
+}
+
+/* Fallback when color-mix unsupported */
+@supports not (color-mix(in srgb, #000 10%, #fff)) {
+    .octoolbar_btn:hover  { background: rgba(0,0,0,.04); }
+    .octoolbar_btn:active { background: rgba(0,0,0,.08); }
+}
+
+/* Multiple toolbars stack nicely */
+.octoolbar + .octoolbar { margin-top: .5rem; }
+
+/* ==========================================================
+   Pointer-aware density (override VARIABLES, not properties)
+   ========================================================== */
+
+/* Fine pointer (mouse/trackpad) → denser but still accessible */
+@media (pointer: fine) {
+    .octoolbar {
+        --octoolbar-btn-minw:  calc(42px * var(--octoolbar-scale));
+        --octoolbar-btn-minh:  auto; /* no hard floor on desktop */
+        --octoolbar-btn-pad-x: calc(.25rem * var(--octoolbar-scale));
+        --octoolbar-btn-pad-y: calc(.18rem * var(--octoolbar-scale));
+        --octoolbar-icon-size: calc(1.00rem * var(--octoolbar-scale));
+        --octoolbar-key-size:  calc(9.5px  * var(--octoolbar-scale));
+    }
+}
+
+/* Coarse pointer (touch) → larger targets (~48×48px) */
+@media (pointer: coarse) {
+    .octoolbar {
+        --octoolbar-btn-minw:  calc(56px * var(--octoolbar-scale));
+        --octoolbar-btn-minh:  calc(48px * var(--octoolbar-scale)); /* touch target */
+        --octoolbar-btn-pad-x: calc(.50rem * var(--octoolbar-scale));
+        --octoolbar-btn-pad-y: calc(.38rem * var(--octoolbar-scale));
+        --octoolbar-icon-size: calc(1.25rem * var(--octoolbar-scale));
+        --octoolbar-key-size:  calc(11px   * var(--octoolbar-scale));
+    }
+}
+
+
+/* ================
+   WRAP variant
+   ================ */
+.octoolbar--wrap .octoolbar_items {
+    /* switch grid → flex so items can wrap */
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--octoolbar-gap);
+}
+
+.octoolbar--wrap .octoolbar_item {
+    flex: 0 0 auto; /* keep each button at its min width */
+}
+
+.octoolbar--wrap .octoolbar_btn {
+    min-width: var(--octoolbar-btn-minw);
+    min-height: var(--octoolbar-btn-minh);
+}
+
+/* ================
+   SCROLL variant
+   ================ */
+.octoolbar--scroll .octoolbar_items {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--octoolbar-gap);
+
+    overflow-x: auto;
+    /* overflow-y: hidden; */
+    -webkit-overflow-scrolling: touch;        /* smooth on iOS */
+    scrollbar-width: thin;                     /* Firefox */
+    scrollbar-gutter: stable both-edges;       /* reserve space to avoid layout jump */
+    overscroll-behavior-inline: contain;       /* stop page from snagging horizontal scroll */
+    scroll-snap-type: inline proximity;        /* nice snapping between buttons */
+}
+
+.octoolbar--scroll .octoolbar_item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.octoolbar--scroll .octoolbar_btn {
+    min-width: var(--octoolbar-btn-minw);
+    min-height: var(--octoolbar-btn-minh);
+}
+
+/* Optional: subtle cue that more items exist (fade edges). Pure CSS, no clicks blocked. */
+.octoolbar--scroll {
+    position: relative;
+}
+.octoolbar--scroll::before,
+.octoolbar--scroll::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 12px;
+    pointer-events: none;
+    z-index: 1;
+    /* uses the toolbar bg to “fade” */
+    background: linear-gradient(to right, var(--octoolbar-bg), transparent);
+}
+.octoolbar--scroll::after {
+    right: 0;
+    transform: scaleX(-1); /* mirror the left fade */
+}
+.octoolbar--scroll::before { left: 0; }
+
+/* That tells touch UAs “only horizontal panning here*/
+.octoolbar--scroll .octoolbar_items { touch-action: pan-x; }
+
+
+.octoolbar--raised-surface {
+    box-shadow: var(--octoolbar-shadow-1);
+    /* keep the border so size never changes; you can mute it */
+    border-color: color-mix(in srgb, var(--octoolbar-border) 60%, transparent);
+}
+
+/* Only apply hover visuals on devices that actually have hover */
+@media (hover: hover) {
+    .octoolbar_btn:hover {
+        background: color-mix(in srgb, var(--octoolbar-accent-weak) 12%, transparent);
+    }
+    .octoolbar--raised-buttons .octoolbar_btn:hover {
+        box-shadow: var(--octoolbar-shadow-2);
+        background: color-mix(in srgb, var(--octoolbar-accent-weak) 16%, var(--octoolbar-bg) 84%);
+    }
+}
+
+/* Keep press + keyboard states everywhere (no layout changes) */
+.octoolbar_btn:active {
+    background: color-mix(in srgb, var(--octoolbar-accent) 16%, transparent);
+}
+.octoolbar_btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--octoolbar-accent) 50%, transparent);
+    outline-offset: 2px;
+}
