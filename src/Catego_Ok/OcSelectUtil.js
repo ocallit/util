@@ -3,7 +3,6 @@ class OcSelectUtil {
     constructor(selectElement) {
         this.selectElement = selectElement;
     }
-    
 
     /**
      * Add a new option to a <select>
@@ -11,7 +10,7 @@ class OcSelectUtil {
      * @param {string} optionText
      * @param {boolean} [selected=false]
      */
-    selectAdd(optionValue, optionText, selected = false) {
+    optionAdd(optionValue, optionText, selected = false) {
         const newOption = new Option(optionText, optionValue, selected, selected);
         this.selectElement.add(newOption);
     }
@@ -21,7 +20,7 @@ class OcSelectUtil {
      * @param {string} optionValue
      * @param {string} newOptionText
      */
-    selectEdit(optionValue, newOptionText) {
+    optionEdit(optionValue, newOptionText) {
         for (let i = 0; i < this.selectElement.options.length; i++) {
             if (this.selectElement.options[i].value === optionValue) {
                 this.selectElement.options[i].text = newOptionText;
@@ -62,7 +61,7 @@ class OcSelectUtil {
 
             if (inTheSelect.hasOwnProperty(serverValue)) {
                 // Value exists in select
-                if (normalizeString(inTheSelect[serverValue]) !== normalizeString(serverText)) {
+                if (this.normalize(inTheSelect[serverValue]) !== this.normalize(serverText)) {
                     // Case 2: same value, different text -> change only the text
                     optionElements[serverValue].textContent = serverText;
                 }
@@ -72,7 +71,7 @@ class OcSelectUtil {
                 const newOption = document.createElement('option');
                 newOption.value = serverValue;
                 newOption.textContent = serverText;
-                this.select.appendChild(newOption);
+                this.selectElement.appendChild(newOption);
             }
         }
 
@@ -84,8 +83,8 @@ class OcSelectUtil {
         }
     }
     
-    _normalize(text) {
-        return text
+    normalize(text) {
+        return String(text ?? '')
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
@@ -93,31 +92,23 @@ class OcSelectUtil {
             .trim();
     }
 
-    _is_unique(text, excludeValue = null) {
-        if (!text) {
-            return { isValid: false, message: 'Nombre es un dato requerido' };
-        }
-        const normalizedName = this._normalize(text);
-        if (!normalizedName || normalizedName.length === 0) {
-            return { isValid: false, message: 'Nombre es un dato requerido' };
-        }
-        let opciones = this._selectToObjects();
-
-        const diplicado = opciones.find(cat =>
-            cat.value !== excludeValue &&
-            this._normalize(cat.label) === normalizedName
-        );
-        if (diplicado) {
-            return { isValid: false, message: 'Ya existe: ' + text };
-        }
-        return { isValid: true };
+    optionIsUnique(text, excludeValue = null) {
+        const normalized = this.normalize(String(text ?? ''));
+        const exclude = excludeValue == null ? null : String(excludeValue);
+        // .find() short-circuits on first match
+        const dup = this.optionsToObjects().find(opt => {
+            const val = String(opt.value);
+            if (exclude !== null && val === exclude) return false;
+            return this.normalize(String(opt.label ?? '')) === normalized;
+        });
+        return !dup; // true => unique, false => duplicate exists
     }
 
     /**
      * Convert a <select> element's options into an array of {value, label, selected}
      * @returns {{value:string, label:string, selected:boolean}[]}
      */
-    _selectToObjects() {
+    optionsToObjects() {
         return Array.from(this.selectElement.options).map(opt => ({
             value: opt.value,           // falls back to text if no value attribute
             label: opt.text.trim(),     // visible text
@@ -125,4 +116,9 @@ class OcSelectUtil {
         }));
     }
 
+}
+
+// Export for use in other modules
+if(typeof module !== 'undefined' && module.exports) {
+    module.exports = OcSelectUtil;
 }

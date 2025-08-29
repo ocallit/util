@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OcSelectUtil QUnit Tests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qunit/2.19.4/qunit.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qunit/2.19.4/qunit.min.js"></script>
+    <script src="../OcSelectUtil.js"></script>
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <!-- Test fixtures will be added here during tests -->
+    </div>
+
+    <script>
+
+        // Helper function to create a fresh select element for each test
+        function createSelectElement() {
+            const select = document.createElement('select');
+            select.id = 'test-select';
+            return select;
+        }
+
+        // Helper function to create a select with predefined options
+        function createSelectWithOptions() {
+            const select = createSelectElement();
+            select.innerHTML = `
+                <option value="">Select an option</option>
+                <option value="1">Option One</option>
+                <option value="2">Option Two</option>
+                <option value="3">Option Three</option>
+            `;
+            return select;
+        }
+
+        // Helper function to create a multi-select element
+        function createMultiSelectElement() {
+            const select = document.createElement('select');
+            select.multiple = true;
+            select.id = 'test-multiselect';
+            return select;
+        }
+
+        // Helper function to create a multi-select with predefined options
+        function createMultiSelectWithOptions() {
+            const select = createMultiSelectElement();
+            select.innerHTML = `
+                <option value="1">Option One</option>
+                <option value="2" selected>Option Two</option>
+                <option value="3" selected>Option Three</option>
+                <option value="4">Option Four</option>
+            `;
+            return select;
+        }
+
+        QUnit.module('OcSelectUtil Constructor', function() {
+            QUnit.test('should initialize with select element', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                assert.strictEqual(util.selectElement, select, 'Constructor should store the select element');
+            });
+        });
+
+        QUnit.module('optionAdd Method', function() {
+            QUnit.test('should add option with value and text', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('ntemepty', 'Not Empty');
+                util.optionAdd('test-value', 'Test Option');
+
+                assert.strictEqual(select.options.length, 2, 'Should have 2 option');
+                assert.strictEqual(select.options[1].value, 'test-value', 'Option should have correct value');
+                assert.strictEqual(select.options[1].text, 'Test Option', 'Option should have correct text');
+                assert.strictEqual(select.options[1].selected, false, 'Option should not be selected by default');
+            });
+
+            QUnit.test('should add selected option when specified', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('selected-value', 'Selected Option', true);
+                
+                assert.strictEqual(select.options[0].selected, true, 'Option should be selected');
+                assert.strictEqual(select.selectedIndex, 0, 'Select should have this option selected');
+            });
+
+            QUnit.test('should add multiple options', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('1', 'First');
+                util.optionAdd('2', 'Second');
+                util.optionAdd('3', 'Third');
+                
+                assert.strictEqual(select.options.length, 3, 'Should have three options');
+                assert.strictEqual(select.options[1].value, '2', 'Second option should have correct value');
+            });
+
+            QUnit.test('should handle empty strings and special characters', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('', 'Empty Value');
+                util.optionAdd('special-chars', 'Special <>&"\'');
+                
+                assert.strictEqual(select.options[0].value, '', 'Should handle empty value');
+                assert.strictEqual(select.options[1].text, 'Special <>&"\'', 'Should handle special characters');
+            });
+        });
+
+        QUnit.module('optionEdit Method', function() {
+            QUnit.test('should edit existing option text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionEdit('2', 'Modified Option Two');
+                
+                assert.strictEqual(result, true, 'Should return true for successful edit');
+                assert.strictEqual(select.options[2].text, 'Modified Option Two', 'Option text should be updated');
+                assert.strictEqual(select.options[2].value, '2', 'Option value should remain unchanged');
+            });
+
+            QUnit.test('should return false for non-existent option', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionEdit('non-existent', 'New Text');
+                
+                assert.strictEqual(result, false, 'Should return false for non-existent option');
+            });
+
+            QUnit.test('should edit first matching option when duplicates exist', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `
+                    <option value="duplicate">First Duplicate</option>
+                    <option value="duplicate">Second Duplicate</option>
+                `;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionEdit('duplicate', 'Updated First');
+                
+                assert.strictEqual(result, true, 'Should return true');
+                assert.strictEqual(select.options[0].text, 'Updated First', 'First option should be updated');
+                assert.strictEqual(select.options[1].text, 'Second Duplicate', 'Second option should remain unchanged');
+            });
+
+            QUnit.test('should handle empty option value', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="">Empty Value Option</option>`;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionEdit('', 'Updated Empty');
+                
+                assert.strictEqual(result, true, 'Should successfully edit empty value option');
+                assert.strictEqual(select.options[0].text, 'Updated Empty', 'Text should be updated');
+            });
+        });
+
+        QUnit.module('optionDelete Method', function() {
+            QUnit.test('should delete existing option', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                const initialLength = select.options.length;
+                
+                const result = util.optionDelete('2');
+                
+                assert.strictEqual(result, true, 'Should return true for successful deletion');
+                assert.strictEqual(select.options.length, initialLength - 1, 'Options count should decrease by 1');
+                
+                // Verify the option is actually gone
+                let found = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === '2') {
+                        found = true;
+                        break;
+                    }
+                }
+                assert.strictEqual(found, false, 'Deleted option should not be found');
+            });
+
+            QUnit.test('should return false for non-existent option', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                const initialLength = select.options.length;
+                
+                const result = util.optionDelete('non-existent');
+                
+                assert.strictEqual(result, false, 'Should return false for non-existent option');
+                assert.strictEqual(select.options.length, initialLength, 'Options count should remain unchanged');
+            });
+
+            QUnit.test('should delete first matching option when duplicates exist', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `
+                    <option value="duplicate">First Duplicate</option>
+                    <option value="duplicate">Second Duplicate</option>
+                    <option value="other">Other Option</option>
+                `;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionDelete('duplicate');
+                
+                assert.strictEqual(result, true, 'Should return true');
+                assert.strictEqual(select.options.length, 2, 'Should have 2 options remaining');
+                assert.strictEqual(select.options[0].text, 'Second Duplicate', 'Second duplicate should remain');
+                assert.strictEqual(select.options[1].value, 'other', 'Other option should remain');
+            });
+
+            QUnit.test('should handle empty select element', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionDelete('any-value');
+                
+                assert.strictEqual(result, false, 'Should return false for empty select');
+                assert.strictEqual(select.options.length, 0, 'Select should remain empty');
+            });
+        });
+
+        QUnit.module('updateSelect Method', function() {
+            QUnit.test('should add new options', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="">Select...</option>`;
+                const util = new OcSelectUtil(select);
+                
+                util.updateSelect({
+                    '1': 'New Option One',
+                    '2': 'New Option Two'
+                });
+                
+                assert.strictEqual(select.options.length, 3, 'Should have 3 options (including empty)');
+                assert.strictEqual(select.options[1].value, '1', 'First new option should have correct value');
+                assert.strictEqual(select.options[1].text, 'New Option One', 'First new option should have correct text');
+            });
+
+            QUnit.test('should update existing option text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                util.updateSelect({
+                    '1': 'Updated Option One',
+                    '2': 'Option Two', // unchanged
+                    '3': 'Updated Option Three'
+                });
+                
+                assert.strictEqual(select.options[1].text, 'Updated Option One', 'Should update changed text');
+                assert.strictEqual(select.options[2].text, 'Option Two', 'Should keep unchanged text');
+                assert.strictEqual(select.options[3].text, 'Updated Option Three', 'Should update changed text');
+            });
+
+            QUnit.test('should remove options not in new data', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                util.updateSelect({
+                    '1': 'Option One'
+                    // '2' and '3' should be removed
+                });
+                
+                assert.strictEqual(select.options.length, 2, 'Should have 2 options (empty + 1)');
+                assert.strictEqual(select.options[1].value, '1', 'Remaining option should be correct');
+                
+                // Verify removed options are gone
+                let foundTwo = false, foundThree = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === '2') foundTwo = true;
+                    if (select.options[i].value === '3') foundThree = true;
+                }
+                assert.strictEqual(foundTwo, false, 'Option 2 should be removed');
+                assert.strictEqual(foundThree, false, 'Option 3 should be removed');
+            });
+
+            QUnit.test('should preserve empty value option', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                util.updateSelect({
+                    'new': 'New Option'
+                });
+                
+                assert.strictEqual(select.options[0].value, '', 'Empty option should be preserved');
+                assert.strictEqual(select.options[0].text, 'Select an option', 'Empty option text should be preserved');
+            });
+
+            QUnit.test('should handle empty update object', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                const initialEmptyOption = select.options[0];
+                
+                util.updateSelect({});
+                
+                assert.strictEqual(select.options.length, 1, 'Should only have empty option left');
+                assert.strictEqual(select.options[0], initialEmptyOption, 'Empty option should be preserved');
+            });
+
+            QUnit.test('should handle mixed operations (add, update, remove)', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                util.updateSelect({
+                    '1': 'Updated Option One', // update
+                    '4': 'New Option Four',    // add
+                    // '2' and '3' will be removed
+                });
+                
+                assert.strictEqual(select.options.length, 3, 'Should have 3 options total');
+                assert.strictEqual(select.options[1].text, 'Updated Option One', 'Should update existing');
+                assert.strictEqual(select.options[2].text, 'New Option Four', 'Should add new option');
+            });
+        });
+
+        QUnit.module('normalize Method', function() {
+            QUnit.test('should normalize text correctly', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                assert.strictEqual(util.normalize('Hello World'), 'hello world', 'Should lowercase and trim');
+                assert.strictEqual(util.normalize('  Multiple   Spaces  '), 'multiple spaces', 'Should normalize spaces');
+                assert.strictEqual(util.normalize('Café'), 'cafe', 'Should remove accents');
+                assert.strictEqual(util.normalize('UPPERCASE'), 'uppercase', 'Should convert to lowercase');
+                assert.strictEqual(util.normalize(''), '', 'Should handle empty string');
+            });
+
+            QUnit.test('should handle special characters and diacritics', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                assert.strictEqual(util.normalize('José María'), 'jose maria', 'Should remove diacritics');
+                assert.strictEqual(util.normalize('naïve résumé'), 'naive resume', 'Should handle various accents');
+                assert.strictEqual(util.normalize('Ñoño'), 'nono', 'Should handle ñ character');
+            });
+        });
+
+        QUnit.module('optionIsUnique Method', function() {
+            QUnit.test('should return false for empty text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('');
+                
+                assert.strictEqual(result, false, 'Should be invalid for empty text');
+            });
+
+            QUnit.test('should return false for null/undefined text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const resultNull = util.optionIsUnique(null);
+                const resultUndefined = util.optionIsUnique(undefined);
+                
+                assert.strictEqual(resultNull, false, 'Should be invalid for null');
+                assert.strictEqual(resultUndefined, false, 'Should be invalid for undefined');
+            });
+
+            QUnit.test('should return false for whitespace-only text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('   ');
+                
+                assert.strictEqual(result, false, 'Should be invalid for whitespace-only');
+            });
+
+            QUnit.test('should return true for unique text', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('Unique Option');
+                
+                assert.strictEqual(result, true, 'Should be valid for unique text');
+
+            });
+
+            QUnit.test('should return false for duplicate text (case insensitive)', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('OPTION ONE'); // matches "Option One"
+                
+                assert.strictEqual(result, false, 'Should be invalid for duplicate (case insensitive)');
+
+            });
+
+            QUnit.test('should handle diacritics in duplicate detection', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="1">José</option>`;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('Jose'); // should match José
+                
+                assert.strictEqual(result, false, 'Should detect diacritic duplicates');
+            });
+
+            QUnit.test('should exclude specified value from uniqueness check', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('Option One', '1'); // exclude value '1'
+                
+                assert.strictEqual(result, true, 'Should be valid when excluding the matching value');
+            });
+
+            QUnit.test('should handle whitespace differences', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="1">  Option   One  </option>`;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionIsUnique('Option One');
+                
+                assert.strictEqual(result, false, 'Should normalize whitespace in comparison');
+            });
+        });
+
+        QUnit.module('optionsToObjects Method', function() {
+            QUnit.test('should convert options to object array', function(assert) {
+                const select = createSelectWithOptions();
+                select.options[2].selected = true; // select "Option Two"
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionsToObjects();
+                
+                assert.strictEqual(result.length, 4, 'Should return all options');
+                assert.deepEqual(result[0], {
+                    value: '',
+                    label: 'Select an option',
+                    selected: false
+                }, 'First option should be correctly converted');
+                assert.deepEqual(result[2], {
+                    value: '2',
+                    label: 'Option Two',
+                    selected: true
+                }, 'Selected option should have selected: true');
+            });
+
+            QUnit.test('should handle empty select', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionsToObjects();
+                
+                assert.strictEqual(result.length, 0, 'Should return empty array for empty select');
+            });
+
+            QUnit.test('should trim option text', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="1">  Padded Text  </option>`;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionsToObjects();
+                
+                assert.strictEqual(result[0].label, 'Padded Text', 'Should trim whitespace from text');
+            });
+
+            QUnit.test('should handle options without values', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option>No Value Option</option>`;
+                const util = new OcSelectUtil(select);
+                
+                const result = util.optionsToObjects();
+                
+                assert.strictEqual(result[0].value, 'No Value Option', 'Options without value attribute should have label as value');
+                assert.strictEqual(result[0].label, 'No Value Option', 'Should have correct label');
+            });
+        });
+
+        QUnit.module('Integration Tests', function() {
+            QUnit.test('should maintain consistency after multiple operations', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                // Add some options
+                util.optionAdd('1', 'First');
+                util.optionAdd('2', 'Second');
+                util.optionAdd('3', 'Third');
+                
+                // Edit one
+                util.optionEdit('2', 'Modified Second');
+                
+                // Delete one
+                util.optionDelete('3');
+                
+                // Add another
+                util.optionAdd('4', 'Fourth');
+                
+                const options = util.optionsToObjects();
+                
+                assert.strictEqual(options.length, 3, 'Should have correct final count');
+                assert.strictEqual(options[0].label, 'First', 'First option should be unchanged');
+                assert.strictEqual(options[1].label, 'Modified Second', 'Second option should be modified');
+                assert.strictEqual(options[2].label, 'Fourth', 'Fourth option should be added');
+            });
+
+            QUnit.test('should handle complex updateSelect scenario', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Complex update: add new, update existing, remove some
+                util.updateSelect({
+                    '1': 'Updated First',     // update existing
+                    '4': 'New Fourth',       // add new
+                    '5': 'New Fifth'         // add new
+                    // '2' and '3' will be removed
+                });
+                
+                const options = util.optionsToObjects();
+                const nonEmptyOptions = options.filter(opt => opt.value !== '');
+                
+                assert.strictEqual(nonEmptyOptions.length, 3, 'Should have 3 non-empty options');
+                assert.strictEqual(nonEmptyOptions[0].label, 'Updated First', 'Should update existing');
+                assert.strictEqual(nonEmptyOptions[1].label, 'New Fourth', 'Should add new option');
+                assert.strictEqual(nonEmptyOptions[2].label, 'New Fifth', 'Should add another new option');
+            });
+
+            QUnit.test('should validate uniqueness after operations', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('1', 'Test Option');
+                
+                const resultDuplicate = util.optionIsUnique('TEST OPTION'); // case insensitive
+                const resultUnique = util.optionIsUnique('Different Option');
+                const resultExcluded = util.optionIsUnique('Test Option', '1'); // exclude self
+                
+                assert.strictEqual(resultDuplicate, false, 'Should detect duplicate');
+                assert.strictEqual(resultUnique, true, 'Should allow unique');
+                assert.strictEqual(resultExcluded, true, 'Should allow when excluding self');
+            });
+        });
+
+        QUnit.module('Edge Cases and Error Handling', function() {
+            QUnit.test('should handle select with only empty option', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="">Select...</option>`;
+                const util = new OcSelectUtil(select);
+                
+                // Test all methods with empty-only select
+                util.optionAdd('1', 'First Option');
+                assert.strictEqual(select.options.length, 2, 'Should add to empty select');
+                
+                const editResult = util.optionEdit('non-existent', 'New Text');
+                assert.strictEqual(editResult, false, 'Should handle edit on non-existent');
+                
+                const deleteResult = util.optionDelete('non-existent');
+                assert.strictEqual(deleteResult, false, 'Should handle delete on non-existent');
+            });
+
+            QUnit.test('should handle options with complex text content', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('complex', 'Option with "quotes" & <tags> and');
+                
+                const options = util.optionsToObjects();
+                assert.strictEqual(options[0].label, 'Option with "quotes" & <tags> and',
+                    'Should preserve complex text content');
+            });
+
+            QUnit.test('should handle numeric values correctly', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('0', 'Zero Value');
+                util.optionAdd('123', 'Numeric Value');
+                
+                const deleteZero = util.optionDelete('0');
+                const deleteNumeric = util.optionDelete('123');
+                
+                assert.strictEqual(deleteZero, true, 'Should handle zero value correctly');
+                assert.strictEqual(deleteNumeric, true, 'Should handle numeric string values correctly');
+            });
+
+            QUnit.test('should handle selected state preservation', function(assert) {
+                const select = createSelectWithOptions();
+                select.options[2].selected = true; // select "Option Two"
+                const util = new OcSelectUtil(select);
+                
+                util.optionEdit('2', 'Modified Option Two');
+                
+                assert.strictEqual(select.options[2].selected, true, 'Should preserve selected state after edit');
+                assert.strictEqual(select.selectedIndex, 2, 'Selected index should remain correct');
+            });
+
+            QUnit.test('should handle very long option text', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                const longText = 'This is a very long option text that might cause issues in some implementations but should be handled gracefully by our utility class';
+                
+                util.optionAdd('long', longText);
+                const uniqueCheck = util.optionIsUnique(longText);
+                
+                assert.strictEqual(select.options[0].text, longText, 'Should handle long text');
+                assert.strictEqual(uniqueCheck, false, 'Should detect long text duplicates');
+            });
+        });
+
+        QUnit.module('Performance and Memory Tests', function() {
+            QUnit.test('should handle large number of options', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                // Add 100 options
+                for (let i = 0; i < 100; i++) {
+                    util.optionAdd(i.toString(), `Option ${i}`);
+                }
+                
+                assert.strictEqual(select.options.length, 100, 'Should handle 100 options');
+                
+                // Test operations on large select
+                const editResult = util.optionEdit('50', 'Modified Option 50');
+                const deleteResult = util.optionDelete('99');
+                
+                assert.strictEqual(editResult, true, 'Should edit in large select');
+                assert.strictEqual(deleteResult, true, 'Should delete from large select');
+                assert.strictEqual(select.options.length, 99, 'Should have correct count after delete');
+            });
+
+            QUnit.test('should not retain references after operations', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const initialOptions = util.optionsToObjects();
+                util.optionDelete('2');
+                const afterDelete = util.optionsToObjects();
+                
+                assert.notDeepEqual(initialOptions, afterDelete, 'Options array should reflect changes');
+                assert.strictEqual(initialOptions.length, 4, 'Initial should have 4 options');
+                assert.strictEqual(afterDelete.length, 3, 'After delete should have 3 options');
+            });
+        });
+
+        QUnit.module('Bug Detection Tests', function() {
+            QUnit.test('updateSelect method bug: should use this.selectElement not this.select', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="">Select...</option>`;
+                const util = new OcSelectUtil(select);
+                
+                // This test would fail with the original buggy code
+                try {
+                    util.updateSelect({ '1': 'Test Option' });
+                    assert.ok(true, 'updateSelect should work without throwing error');
+                    assert.strictEqual(select.options.length, 2, 'Should have added the option');
+                } catch (error) {
+                    assert.ok(false, 'updateSelect should not throw error: ' + error.message);
+                }
+            });
+
+            QUnit.test('should handle type coercion in optionDelete', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `
+                    <option value="0">Zero</option>
+                    <option value="false">False</option>
+                    <option value="">Empty</option>
+                `;
+                const util = new OcSelectUtil(select);
+                
+                // Test that == comparison works as expected
+                const deleteZero = util.optionDelete('0');
+                const deleteFalse = util.optionDelete('false');
+                const deleteEmpty = util.optionDelete('');
+                
+                assert.strictEqual(deleteZero, true, 'Should delete "0" value');
+                assert.strictEqual(deleteFalse, true, 'Should delete "false" value'); 
+                assert.strictEqual(deleteEmpty, true, 'Should delete empty value');
+                assert.strictEqual(select.options.length, 0, 'All options should be deleted');
+            });
+        });
+
+        QUnit.module('Cross-Browser Compatibility Tests', function() {
+            QUnit.test('should work with different option creation methods', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                // Test Option constructor (used by optionAdd)
+                util.optionAdd('constructor', 'Via Constructor');
+                
+                // Test createElement (used by updateSelect)
+                const manualOption = document.createElement('option');
+                manualOption.value = 'manual';
+                manualOption.textContent = 'Manual Creation';
+                select.appendChild(manualOption);
+                
+                const options = util.optionsToObjects();
+                
+                assert.strictEqual(options.length, 2, 'Should handle both creation methods');
+                assert.strictEqual(options[0].label, 'Via Constructor', 'Constructor method should work');
+                assert.strictEqual(options[1].label, 'Manual Creation', 'Manual method should work');
+            });
+
+            QUnit.test('should handle DOM manipulation edge cases', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Manually remove an option from DOM
+                select.options[1].remove();
+                
+                // Methods should still work
+                const options = util.optionsToObjects();
+                const uniqueCheck = util('New Option');
+                
+                assert.strictEqual(options.length, 3, 'Should reflect DOM changes');
+                assert.strictEqual(uniqueCheck, true, 'Should work after DOM manipulation');
+            });
+        });
+
+        QUnit.module('Stress Tests', function() {
+            QUnit.test('should handle rapid successive operations', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                // Rapid operations
+                for (let i = 0; i < 50; i++) {
+                    util.optionAdd(i.toString(), `Option ${i}`);
+                }
+                
+                for (let i = 0; i < 25; i++) {
+                    util.optionEdit(i.toString(), `Modified ${i}`);
+                }
+                
+                for (let i = 40; i < 50; i++) {
+                    util.optionDelete(i.toString());
+                }
+                
+                assert.strictEqual(select.options.length, 40, 'Should have correct final count');
+                assert.strictEqual(select.options[0].text, 'Modified 0', 'First option should be modified');
+                assert.strictEqual(select.options[24].text, 'Modified 24', 'Last modified should be correct');
+                assert.strictEqual(select.options[39].text, 'Option 39', 'Last remaining should be unmodified');
+            });
+
+            QUnit.test('should handle updateSelect with large data sets', function(assert) {
+                const select = createSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                // Create large update object
+                const largeUpdate = {};
+                for (let i = 0; i < 200; i++) {
+                    largeUpdate[i.toString()] = `Large Option ${i}`;
+                }
+                
+                util.updateSelect(largeUpdate);
+                
+                assert.strictEqual(select.options.length, 200, 'Should handle large update');
+                assert.strictEqual(select.options[0].text, 'Large Option 0', 'First option should be correct');
+                assert.strictEqual(select.options[199].text, 'Large Option 199', 'Last option should be correct');
+            });
+        });
+
+        QUnit.module('Multi-Select Support', function() {
+            QUnit.test('should work with multi-select elements', function(assert) {
+                const select = createMultiSelectElement();
+                const util = new OcSelectUtil(select);
+                
+                util.optionAdd('1', 'First Option', true);
+                util.optionAdd('2', 'Second Option', true);
+                util.optionAdd('3', 'Third Option', false);
+                
+                assert.strictEqual(select.options.length, 3, 'Should add all options to multi-select');
+                assert.strictEqual(select.options[0].selected, true, 'First option should be selected');
+                assert.strictEqual(select.options[1].selected, true, 'Second option should be selected');
+                assert.strictEqual(select.options[2].selected, false, 'Third option should not be selected');
+            });
+
+            QUnit.test('should preserve multiple selections during edit operations', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Verify initial state
+                assert.strictEqual(select.options[1].selected, true, 'Option Two should be selected initially');
+                assert.strictEqual(select.options[2].selected, true, 'Option Three should be selected initially');
+                
+                // Edit an option
+                util.optionEdit('2', 'Modified Option Two');
+                
+                assert.strictEqual(select.options[1].selected, true, 'Option Two should remain selected after edit');
+                assert.strictEqual(select.options[1].text, 'Modified Option Two', 'Option text should be updated');
+                assert.strictEqual(select.options[2].selected, true, 'Other selections should be preserved');
+            });
+
+            QUnit.test('should handle multi-select in optionsToObjects', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const options = util.optionsToObjects();
+                
+                assert.strictEqual(options.length, 4, 'Should return all options');
+                assert.strictEqual(options[0].selected, false, 'Option One should not be selected');
+                assert.strictEqual(options[1].selected, true, 'Option Two should be selected');
+                assert.strictEqual(options[2].selected, true, 'Option Three should be selected');
+                assert.strictEqual(options[3].selected, false, 'Option Four should not be selected');
+            });
+
+            QUnit.test('should handle deleting selected options in multi-select', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Delete a selected option
+                const result = util.optionDelete('2');
+                
+                assert.strictEqual(result, true, 'Should successfully delete selected option');
+                assert.strictEqual(select.options.length, 3, 'Should have one less option');
+                
+                // Verify remaining selections
+                const remainingOptions = util.optionsToObjects();
+                const selectedOptions = remainingOptions.filter(opt => opt.selected);
+                
+                assert.strictEqual(selectedOptions.length, 1, 'Should have one selected option remaining');
+                assert.strictEqual(selectedOptions[0].value, '3', 'Option Three should still be selected');
+            });
+
+            QUnit.test('should handle updateSelect with multi-select', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Update with new data
+                util.updateSelect({
+                    '1': 'Updated One',
+                    '5': 'New Option Five',
+                    '6': 'New Option Six'
+                    // '2', '3', '4' should be removed
+                });
+                
+                assert.strictEqual(select.options.length, 3, 'Should have correct option count');
+                
+                const options = util.optionsToObjects();
+                assert.strictEqual(options[0].label, 'Updated One', 'Should update existing option');
+                assert.strictEqual(options[1].label, 'New Option Five', 'Should add new option');
+                assert.strictEqual(options[2].label, 'New Option Six', 'Should add another new option');
+                
+                // All selections should be lost since the selected options were removed
+                const selectedCount = options.filter(opt => opt.selected).length;
+                assert.strictEqual(selectedCount, 0, 'Selections should be cleared when options are removed');
+            });
+
+            QUnit.test('should handle uniqueness validation with multi-select', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                const duplicateResult = util.optionIsUnique('Option Two');
+                const uniqueResult = util.optionIsUnique('New Unique Option');
+                const excludeSelfResult = util.optionIsUnique('Option Two', '2');
+                
+                assert.strictEqual(duplicateResult, false, 'Should detect duplicates in multi-select');
+                assert.strictEqual(uniqueResult, true, 'Should allow unique options in multi-select');
+                assert.strictEqual(excludeSelfResult, true, 'Should exclude self in multi-select');
+            });
+
+            QUnit.test('should handle adding options to multi-select with existing selections', function(assert) {
+                const select = createMultiSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Add new options
+                util.optionAdd('5', 'Option Five', true);
+                util.optionAdd('6', 'Option Six', false);
+                
+                const options = util.optionsToObjects();
+                const selectedOptions = options.filter(opt => opt.selected);
+                
+                assert.strictEqual(selectedOptions.length, 3, 'Should have 3 selected options total');
+                assert.strictEqual(selectedOptions[2].value, '5', 'New selected option should be included');
+                
+                const unselectedOptions = options.filter(opt => !opt.selected);
+                assert.strictEqual(unselectedOptions.length, 3, 'Should have 3 unselected options');
+            });
+
+            QUnit.test('should handle multi-select with no initial selections', function(assert) {
+                const select = createMultiSelectElement();
+                select.innerHTML = `
+                    <option value="1">Option One</option>
+                    <option value="2">Option Two</option>
+                `;
+                const util = new OcSelectUtil(select);
+                
+                const options = util.optionsToObjects();
+                const selectedCount = options.filter(opt => opt.selected).length;
+                
+                assert.strictEqual(selectedCount, 0, 'Multi-select with no selections should work');
+                assert.strictEqual(options.length, 2, 'Should have all options');
+            });
+
+            QUnit.test('should handle multi-select edge case: all options selected', function(assert) {
+                const select = createMultiSelectElement();
+                select.innerHTML = `
+                    <option value="1" selected>Option One</option>
+                    <option value="2" selected>Option Two</option>
+                    <option value="3" selected>Option Three</option>
+                `;
+                const util = new OcSelectUtil(select);
+                
+                const options = util.optionsToObjects();
+                const selectedCount = options.filter(opt => opt.selected).length;
+                
+                assert.strictEqual(selectedCount, 3, 'All options should be selected');
+                
+                // Delete one selected option
+                util.optionDelete('2');
+                
+                const afterDelete = util.optionsToObjects();
+                const selectedAfterDelete = afterDelete.filter(opt => opt.selected).length;
+                
+                assert.strictEqual(selectedAfterDelete, 2, 'Should have 2 selected options after delete');
+                assert.strictEqual(afterDelete.length, 2, 'Should have 2 total options after delete');
+            });
+        });
+
+        QUnit.module('Single vs Multi-Select Compatibility', function() {
+            QUnit.test('optionsToObjects should work identically for both types', function(assert) {
+                // Single select
+                const singleSelect = createSelectWithOptions();
+                singleSelect.options[1].selected = true;
+                const singleUtil = new OcSelectUtil(singleSelect);
+                
+                // Multi select with same options
+                const multiSelect = createMultiSelectElement();
+                multiSelect.innerHTML = singleSelect.innerHTML;
+                multiSelect.options[1].selected = true;
+                const multiUtil = new OcSelectUtil(multiSelect);
+                
+                const singleResult = singleUtil.optionsToObjects();
+                const multiResult = multiUtil.optionsToObjects();
+                
+                assert.deepEqual(singleResult, multiResult, 'Results should be identical for same data');
+            });
+
+            QUnit.test('optionAdd should work identically for both types', function(assert) {
+                const singleSelect = createSelectElement();
+                const multiSelect = createMultiSelectElement();
+                const singleUtil = new OcSelectUtil(singleSelect);
+                const multiUtil = new OcSelectUtil(multiSelect);
+                
+                singleUtil.optionAdd('test', 'Test Option', true);
+                multiUtil.optionAdd('test', 'Test Option', true);
+                
+                assert.strictEqual(singleSelect.options[0].value, multiSelect.options[0].value, 'Values should match');
+                assert.strictEqual(singleSelect.options[0].text, multiSelect.options[0].text, 'Text should match');
+                assert.strictEqual(singleSelect.options[0].selected, multiSelect.options[0].selected, 'Selection should match');
+            });
+
+            QUnit.test('Normalize case, accent insensitive, trim and double space to single spaces', function(assert) {
+                const singleSelect = createSelectWithOptions();
+                const multiSelect = createMultiSelectElement();
+                multiSelect.innerHTML = singleSelect.innerHTML;
+                
+                const singleUtil = new OcSelectUtil(singleSelect);
+                const multiUtil = new OcSelectUtil(multiSelect);
+                
+                const singleNormalize = singleUtil.normalize('  ¡Test   TextaÑa   ');
+                const multiNormalize = multiUtil.normalize('¡TÉst Téxtañá ');
+                assert.strictEqual(singleNormalize, multiNormalize, 'Normalize should work identically');
+
+            });
+        });
+
+        QUnit.module('Real-World Usage Scenarios', function() {
+            QUnit.test('should handle typical CRUD operations', function(assert) {
+                const select = createSelectElement();
+                select.innerHTML = `<option value="">Choose category...</option>`;
+                const util = new OcSelectUtil(select);
+                
+                // Simulate adding categories
+                util.optionAdd('electronics', 'Electronics');
+                util.optionAdd('books', 'Books');
+                util.optionAdd('clothing', 'Clothing');
+                
+                // Simulate editing a category name
+                util.optionEdit('books', 'Books & Media');
+                
+                // Simulate checking for duplicates before adding
+                const duplicateCheck = util.optionIsUnique('electronics');
+                const uniqueCheck = util.optionIsUnique('Sports');
+                
+                assert.strictEqual(duplicateCheck, false, 'Should prevent duplicate categories');
+                assert.strictEqual(uniqueCheck, true, 'Should allow unique categories');
+                
+                // Simulate removing a category
+                util.optionDelete('clothing');
+                
+                const finalOptions = util.optionsToObjects().filter(opt => opt.value !== '');
+                assert.strictEqual(finalOptions.length, 2, 'Should have 2 categories after delete');
+                assert.strictEqual(finalOptions[1].label, 'Books & Media', 'Should have updated name');
+            });
+
+            QUnit.test('should handle server sync scenario', function(assert) {
+                const select = createSelectWithOptions();
+                const util = new OcSelectUtil(select);
+                
+                // Simulate server response with some changes
+                const serverData = {
+                    '1': 'Option One',        // unchanged
+                    '2': 'Updated Option Two', // changed
+                    '4': 'New Option Four',   // new
+                    '5': 'New Option Five'    // new
+                    // '3' missing - should be removed
+                };
+                
+                util.updateSelect(serverData);
+                
+                const options = util.optionsToObjects().filter(opt => opt.value !== '');
+                assert.strictEqual(options.length, 4, 'Should match server data count');
+                
+                const optionTwo = options.find(opt => opt.value === '2');
+                assert.strictEqual(optionTwo.label, 'Updated Option Two', 'Should update from server');
+                
+                const optionThree = options.find(opt => opt.value === '3');
+                assert.strictEqual(optionThree, undefined, 'Should remove options not in server data');
+            });
+        });
+
+        // Run all tests
+        QUnit.start();
+    </script>
+</body>
+</html>

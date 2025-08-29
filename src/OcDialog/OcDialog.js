@@ -111,8 +111,8 @@ var OcDialog = {
                     button.removeEventListener('click', handler);
                 });
                 // Handle content preservation
-                if(typeof keepContent === 'undefined') keepContent = false;
-                if (keepContent && typeof html !== 'string') {
+                if(typeof keepHtml === 'undefined') keepHtml = false;
+                if (keepHtml && typeof html !== 'string') {
                     // Move content back to body with display:none before removing dialog
                     html.style.display = 'none';
                     document.body.appendChild(html);
@@ -263,8 +263,8 @@ var OcDialog = {
                     button.removeEventListener('click', handler);
                 });
                 // Handle content preservation
-                if(typeof keepContent === 'undefined') keepContent = false;
-                if (keepContent && typeof html !== 'string') {
+                if(typeof keepHtml === 'undefined') keepHtml = false;
+                if (keepHtml && typeof html !== 'string') {
                     // Move content back to body with display:none before removing dialog
                     html.style.display = 'none';
                     document.body.appendChild(html);

@@ -90,7 +90,22 @@ class OcFormReadOnly {
     }
 
     /**
-     * Fills form with values (corrected implementation)
+     * Closes the current dialog if open - CORRECTED VERSION
+     */
+    close() {
+        this.dialogElement.close();
+    }
+
+    /**
+     * Checks if a dialog is currently open
+     * @returns {boolean}
+     */
+    isOpen() {
+        return this.currentDialog !== null;
+    }
+
+    /**
+     * Fills form with values
      * @private
      */
     _fill(form, values) {
@@ -268,7 +283,7 @@ class OcFormReadOnly {
      * @private
      */
     _showError(message) {
-        alert(message); return;
+
         console.log("this.currentDialog", this.currentForm);
         const errorContainer = this.currentForm.querySelector('.sch_dialog .sch_errors');
         if(errorContainer) {
@@ -291,68 +306,20 @@ class OcFormReadOnly {
     }
 
     /**
-     * Properly closes the current dialog instance
-     * @private
-     */
-    _closeDialog() {
-        if(this.currentDialog && this.currentDialog.dialogElement) {
-            this.currentDialog.dialogElement.close();
-        }
-    }
-
-    /**
      * Cleans up references and restores form to original location
      * @private
      */
     _cleanup() {
 
         // Clear references
-        this.currentDialog = null;
-        this.currentForm = null;
-        this.currentValues = null;
-        this.navigationCallback = null;
+        // this.currentDialog = null;
         this.isNavigating = false;
     }
 
-    /**
-     * Checks if a dialog is currently open
-     * @returns {boolean}
-     */
-    isOpen() {
-        return this.currentDialog !== null;
-    }
-
-    /**
-     * Closes the current dialog if open - CORRECTED VERSION
-     */
-    close() {
-        if(this.currentDialog) {
-            this._closeDialog();
-        }
-    }
 }
 
-// Export the class - NO singleton
-// Users can create multiple instances as needed
-// window.OcFormReadOnly = OcFormReadOnly;
+// Export for use in other modules
+if(typeof module !== 'undefined' && module.exports) {
+    module.exports = OcFormReadOnly;
+}
 
-// Usage examples:
-/*
-// Create instance per form/feature
-const invoiceFormReader = new OcFormReadOnly();
-const customerFormReader = new OcFormReadOnly();
-
-// Show invoice details
-await invoiceFormReader.show("Invoice #123", invoiceForm, invoiceData, async (direction, current) => {
-    const newInvoiceId = direction === 'next' ? current.id + 1 : current.id - 1;
-    const response = await fetch(`./api/invoice.php?action=get&id=${newInvoiceId}`);
-    const data = await response.json();
-    return {
-        title: `Invoice #${data.invoice_number}`,
-        values: data
-    };
-});
-
-// While invoice dialog is open, can still open customer details
-await customerFormReader.show("Customer Details", customerForm, customerData);
-*/

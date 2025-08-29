@@ -1,23 +1,22 @@
-// File: OcCatego.js
-// Path: /OcCatego.js
-// Version: 2.0.0
-// OcCatego.js - CRUD Categoria with dynamic dialog creation (no HTML IDs needed)
+// noinspection EqualityComparisonWithCoercionJS
+
+// OcCatego.js - CRUD Categoria with dynamic dialog creation
 
 class OcCatego {
-    static instanceCounter = 0;
+    version = '2.0.0';
 
-    constructor(selectElement, categoriaDe, recordId, title="Categoría", apiUrl = "./api/catego.php", modo="Add/Edit/Delete") {
+    constructor(selectElement, categoriaDe, recordId, title = "Categoría", apiUrl = "./api/catego.php", modo = "Add/Edit/Delete") {
         this.selectElement = selectElement;
+        if(selectElement)
+            this.ocSelectUtil = new OcSelectUtil(selectElement);
         this.categoriaDe = categoriaDe;
         this.recordId = recordId;
+
         this.title = title;
         this.apiUrl = apiUrl;
         this.canAdd = modo.toLowerCase().includes("add");
         this.canEdit = modo.toLowerCase().includes("edit");
         this.canDelete = modo.toLowerCase().includes("delete");
-
-        // No need for unique ID anymore since we create/destroy dynamically
-        this.instanceId = ++OcCatego.instanceCounter;
 
         this.categories = [];
         this.editingId = null;
@@ -34,7 +33,7 @@ class OcCatego {
     }
 
     async open() {
-        if (this.dialog && this.dialog.open) {
+        if(this.dialog && this.dialog.open) {
             // Dialog already open
             return;
         }
@@ -44,11 +43,11 @@ class OcCatego {
 
         // Clear search box and messages before opening
         this.searchInput.value = '';
-        this.clearError();
+        this._clearError();
         this._updateSearchClear();
         this._updateAddButton();
 
-        if (typeof this.dialog.showModal === 'function') {
+        if(typeof this.dialog.showModal === 'function') {
             this.dialog.showModal();
         } else {
             // Very old browsers fallback
@@ -60,19 +59,19 @@ class OcCatego {
     }
 
     async close() {
-        if (this.editingId && this.hasChanges()) {
-            if (!await this.confirmChanges('Hay cambios los guardo?')) return;
+        if(this.editingId && this._hasChanges()) {
+            if(!await this._confirmChanges('Hay cambios los guardo?')) return;
         }
 
-        if (this.dialog && this.dialog.open) {
-            if (typeof this.dialog.close === 'function') {
+        if(this.dialog && this.dialog.open) {
+            if(typeof this.dialog.close === 'function') {
                 this.dialog.close();
             } else {
                 this.dialog.removeAttribute('open');
             }
         }
 
-        this.clearEdit();
+        this._clearEdit();
         this._destroyDialog();
     }
 
@@ -136,8 +135,8 @@ class OcCatego {
         document.body.appendChild(this.dialog);
         document.body.appendChild(this.confirmDialog);
 
-        OcDialogDrag.initialize(this.dialog);
-        OcDialogDrag.initialize(this.confirmDialog);
+        // OcDialogDrag.initialize(this.dialog);
+        // OcDialogDrag.initialize(this.confirmDialog);
 
         // Get element references (no IDs needed!)
         this.searchInput = this.dialog.querySelector('.ocCatego-search-input');
@@ -152,11 +151,11 @@ class OcCatego {
         this._unbindEvents();
 
         // Remove from DOM
-        if (this.dialog) {
+        if(this.dialog) {
             this.dialog.remove();
             this.dialog = null;
         }
-        if (this.confirmDialog) {
+        if(this.confirmDialog) {
             this.confirmDialog.remove();
             this.confirmDialog = null;
         }
@@ -179,9 +178,9 @@ class OcCatego {
 
         // escape key handler
         this._escapeHandler = (e) => {
-            if (e.key === 'Escape' && this.dialog && this.dialog.open) {
-                if (this.confirmDialog && this.confirmDialog.open) {
-                     e.stopPropagation();
+            if(e.key === 'Escape' && this.dialog && this.dialog.open) {
+                if(this.confirmDialog && this.confirmDialog.open) {
+                    e.stopPropagation();
                     return;
                 }
                 // Check if we're in an input field - if so, let _handleKeyDown handle it
@@ -191,7 +190,7 @@ class OcCatego {
                         activeElement.classList.contains('ocCatego-search-input'));
 
                 // Only close dialog if NOT in an input field
-                if (!isInInput) {
+                if(!isInInput) {
                     e.stopPropagation();
                     e.preventDefault();
                     this.close();
@@ -202,32 +201,32 @@ class OcCatego {
     }
 
     _unbindEvents() {
-        if (this._escapeHandler) {
+        if(this._escapeHandler) {
             document.removeEventListener('keydown', this._escapeHandler);
             this._escapeHandler = null;
         }
     }
 
     _handleInput(e) {
-        if (e.target.classList.contains('ocCatego-search-input')) {
+        if(e.target.classList.contains('ocCatego-search-input')) {
             this.filter();
-        } else if (e.target.classList.contains('ocCatego-category-input')) {
+        } else if(e.target.classList.contains('ocCatego-category-input')) {
             const id = this._getEditingIdFromInput(e.target);
-            if (id) this.markModified(id);
+            if(id) this._markModified();
         }
     }
 
     _handleClick(e) {
         // Handle backdrop clicks
-        if (e.target === this.dialog) {
+        if(e.target === this.dialog) {
             e.stopPropagation();
             return;
         }
 
         const action = e.target.dataset.action;
-        if (!action) return;
+        if(!action) return;
 
-        switch (action) {
+        switch(action) {
             case 'close':
                 this.close();
                 break;
@@ -238,49 +237,49 @@ class OcCatego {
                 this.exportCSV();
                 break;
             case 'clear-search':
-                this.clearSearch();
+                this._clearSearch();
                 break;
             case 'add':
-                this.add();
+                this._add();
                 break;
             case 'edit':
-                this.edit(parseInt(e.target.dataset.id));
+                this._edit(parseInt(e.target.dataset.id));
                 break;
             case 'delete':
-                this.confirmDelete(parseInt(e.target.dataset.id));
+                this._confirmDelete(parseInt(e.target.dataset.id));
                 break;
             case 'save':
-                this.save(parseInt(e.target.dataset.id));
+                this._save(parseInt(e.target.dataset.id));
                 break;
             case 'cancel':
-                this.cancelEdit(false);
+                this._cancelEdit(false);
                 break;
         }
     }
 
     _handleConfirmClick(e) {
         const action = e.target.dataset.action;
-        if (action === 'confirm-cancel' || action === 'confirm-close') {
+        if(action === 'confirm-cancel' || action === 'confirm-close') {
             this.confirmDialog.close();
-             this.confirmDialog.classList.remove('ocCatego-active');
+            this.confirmDialog.classList.remove('ocCatego-active');
         }
     }
 
     _handleKeyDown(e) {
-        if (e.target.classList.contains('ocCatego-category-input')) {
-            if (e.key === 'Enter') {
+        if(e.target.classList.contains('ocCatego-category-input')) {
+            if(e.key === 'Enter') {
                 const id = this._getEditingIdFromInput(e.target);
-                if (id) this.save(id);
-            } else if (e.key === 'Escape') {
+                if(id) this._save(id);
+            } else if(e.key === 'Escape') {
                 e.stopPropagation();
                 e.preventDefault();
-                this.cancelEdit(false);
+                this._cancelEdit(false);
             }
-        } else if (e.target.classList.contains('ocCatego-search-input')) {
-            if (e.key === 'Escape') {
+        } else if(e.target.classList.contains('ocCatego-search-input')) {
+            if(e.key === 'Escape') {
                 e.stopPropagation();
                 e.preventDefault();
-                this.clearSearch();
+                this._clearSearch();
             }
         }
     }
@@ -296,9 +295,9 @@ class OcCatego {
         try {
             this.categories = this._selectToObjects();
             this.filter();
-        } catch (error) {
+        } catch(error) {
             console.error(error);
-            this.showError('Failed to load: ' + error.message);
+            this._showError('Failed to load: ' + error.message);
         }
     }
 
@@ -322,7 +321,7 @@ class OcCatego {
     }
 
     _renderCategoryList(categories) {
-        if (categories.length === 0) {
+        if(categories.length === 0) {
             this.list.innerHTML = `
                 <li class="ocCatego-empty-state">
                     <div class="ocCatego-empty-state-icon">${this.searchInput.value ? '🔍' : '📂'}</div>
@@ -364,16 +363,16 @@ class OcCatego {
         `;
     }
 
-    async edit(id) {
+    async _edit(id) {
         if(!this.canEdit) return;
-        if (this.editingId && this.editingId != id && this.hasChanges()) {
-            if (!await this.confirmChanges('Hay cambios sin guardar. ¿Desea descartarlos?')) {
+        if(this.editingId && this.editingId != id && this._hasChanges()) {
+            if(!await this._confirmChanges('Hay cambios sin guardar. ¿Desea descartarlos?')) {
                 return;
             }
         }
 
         const cat = this.categories.find(c => c.id == id);
-        if (!cat) return;
+        if(!cat) return;
 
         this.editingId = id;
         this.originalValue = cat.name;
@@ -381,104 +380,210 @@ class OcCatego {
 
         setTimeout(() => {
             const input = this.dialog.querySelector('.ocCatego-category-input');
-            if (input) {
+            if(input) {
                 input.focus();
                 input.select();
             }
         }, 0);
     }
 
-    async cancelEdit(check) {
+    async _cancelEdit(check) {
         if(check) {
-            if (this.hasChanges()) {
-                if (!await this.confirmChanges('Perder los cambios?')) return;
+            if(this._hasChanges()) {
+                if(!await this._confirmChanges('Perder los cambios?')) return;
             }
         }
-        this.clearEdit();
+        this._clearEdit();
     }
 
-    clearEdit() {
+    _clearEdit() {
         this.editingId = null;
         this.originalValue = '';
-        this.clearError();
+        this._clearError();
         this.filter();
     }
 
-    markModified(id) {
+    _markModified() {
         const input = this.dialog.querySelector('.ocCatego-category-input');
-        if (input) {
+        if(input) {
             input.classList.toggle('ocCatego-modified',
                 this._normalizeString(input.value) !== this._normalizeString(this.originalValue));
         }
     }
 
-    hasChanges() {
-        if (!this.editingId) return false;
+    _hasChanges() {
+        if(!this.editingId) return false;
         const input = this.dialog.querySelector('.ocCatego-category-input');
         return input && this._normalizeString(input.value) !== this._normalizeString(this.originalValue);
     }
 
-    async save(id) {
+    async _save(id) {
         if(!this.canEdit) return;
-        const input = this.dialog.querySelector('.ocCatego-category-input');
-        const name = input.value.trim().replace(/\s+/g, ' ');
 
-        if (!name) {
-            this.showError('Name required');
-            input.focus();
+        const hasApi = this.apiUrl.length > 0;
+        const hasSelect = !!this.selectElement;
+        if(!hasApi && !hasSelect) {
+            const msg = 'selectElement o apiUrl deben ser definidos';
+            this._showError(msg);
+            console.log(msg);
             return;
         }
 
-        try {
-            const api = this.getAPI();
-            const updated = await api.updateCategory(id, name);
-            const index = this.categories.findIndex(c => c.id == id);
-            this.categories[index] = updated;
-            this.clearEdit();
-            this._updateSelect();
-            this.showSuccess('Updated!');
-        } catch (error) {
-            this.showError(error.message);
+        const input = this.dialog ? this.dialog.querySelector('.ocCatego-category-input') : null;
+        const raw = input ? input.value : '';
+        const label = raw.trim().replace(/\s+/g, ' ');
+        if(!label) {
+            const msg = 'La etiqueta es requerida.';
+            this._showError(msg);
+            console.log(msg);
+            input && input.focus && input.focus();
+            return;
+        }
+
+        const normalize= this._normalizeString(label);
+        // Duplicate check only when we have a select to compare against
+        if(hasSelect &&  !this.ocSelectUtil.optionIsUnique(normalize, id)) {
+            const msg = 'Ya existe otra opción con la misma etiqueta.';
+            this._showError(msg);
+            console.log(msg, {label});
+            return;
+        }
+
+        if(hasApi) {
+            const res = await this._rpc('edit', {id, label});
+            if(res && res.ok === true) {
+                const idx = this.categories.findIndex(c => String(c.id) == id);
+                if(idx >= 0) this.categories[idx] = {id: this.categories[idx].id, name: label};
+            }
+            if(hasSelect) {
+                try {
+                    this.ocSelectUtil.optionEdit(id, label);
+                } catch(err) {
+                    const msg = 'La operación se realizó en el servidor, pero no se pudo actualizar el select.';
+                    this._showError(msg);
+                    console.log(msg, {accion: 'edit', id, label, res}, err);
+                }
+            }
+            return;
+        }
+        if(hasSelect) {
+            this.ocSelectUtil.optionEdit(label, label);
         }
     }
 
-    async add() {
+    async _add() {
         if(!this.canAdd) return;
-        const name = this.searchInput.value.trim().replace(/\s+/g, ' ');
-        if (!name) return;
 
-        try {
-            const api = this.getAPI();
-            const newCat = await api.addCategory(name);
-            this.categories.unshift(newCat);
-            this.searchInput.value = '';
+        const hasApi = this.apiUrl.length > 0;
+        const hasSelect = !!this.selectElement;
+        if(!hasApi && !hasSelect) {
+            const msg = 'selectElement o apiUrl deben ser definidos';
+            this._showError(msg);
+            console.log(msg);
+            return;
+        }
+
+        const label = (this.searchInput ? this.searchInput.value : '').trim().replace(/\s+/g, ' ');
+        if(!label) {
+            const msg = 'La etiqueta es requerida.';
+            this._showError(msg);
+            console.log(msg);
+            return;
+        }
+
+        const normalize= this.ocSelectUtil.normalize(label);
+        // Duplicate check only when we have a select to compare against
+        if(hasSelect &&  !this.ocSelectUtil.optionIsUnique(normalize, "\t")) {
+            const msg = 'Ya existe otra opción con la misma etiqueta.';
+            this._showError(msg);
+            console.log(msg, {label});
+            return;
+        }
+
+        if(hasApi) {
+            const res = await this._rpc('add', {label});
+            if(res && res.ok === true) {
+                if(hasSelect) {
+                    this.ocSelectUtil.optionAdd(res.id, label, false);
+                }
+                this.categories.push({id: res.id, name: label});
+                this.filter();
+                this._showSuccess('Added!');
+            }
+            return;
+        }
+        if(hasSelect) {
+            this.ocSelectUtil.optionAdd(label, label, false);
+            this.categories.push({id:label, name: label});
             this.filter();
-            this._updateSelect();
-            this.showSuccess('Added!');
-        } catch (error) {
-            this.showError(error.message);
+            this._showSuccess('Added!');
         }
     }
 
-    confirmDelete(id) {
-        const cat = this.categories.find(c => c.id == id);
-        this.confirm('Borrar', `Borrar "${cat.name}"?`, "Si Borrar")
-            .then(() => this.delete(id))
-            .catch(() => { /* Cancelled */ });
+    async _delete(id) {
+        if(!this.canDelete) return;
+
+        const hasApi = this.apiUrl.length > 0;
+        const hasSelect = !!this.selectElement;
+
+        if(!hasApi && !hasSelect) {
+            const msg = 'selectElement o apiUrl deben ser definidos';
+            this._showError(msg);
+            console.log(msg);
+            return;
+        }
+
+        if(hasApi) {
+            const res = await this._rpc('delete', {id});
+            if(res && res.ok === true) {
+                if(hasSelect)
+                    try {
+                        this.ocSelectUtil.optionDelete(String(id));
+                    } catch(err) {
+                        const msg = 'La operación se realizó en el servidor, pero no se pudo actualizar el select.';
+                        this._showError(msg);
+                        console.log(msg, {accion: 'delete', id, res}, err);
+                    }
+                this._deleteCategory(id);
+                this._showSuccess('Deleted!');
+            }
+            return;
+        }
+
+        if(hasSelect) {
+            try {
+                this.ocSelectUtil.optionDelete(String(id));
+                this._deleteCategory(id);
+                this._showSuccess('Deleted!');
+            } catch(err) {
+                console.log("_delete error", err);
+                const msg = 'Error al quitarla del select.';
+                console.log(msg, {accion: 'delete', id}, err);
+                this._showError(msg);
+            }
+        }
     }
 
-    async delete(id) {
-        if(!this.canDelete) return;
-        try {
-            const api = this.getAPI();
-            await api.deleteCategory(id);
-            this.categories = this.categories.filter(c => c.id !== id);
-            if (this.editingId == id) this.clearEdit();
-            this.filter();
-            this._updateSelect();
-            this.showSuccess('Deleted!');
-        } catch (error) {
-            this.showError(error.message);
+    _confirmDelete(id) {
+        const cat = this.categories.find(c => c.id == id);
+        this._confirm('Borrar', `Borrar "${cat.name}"?`, "Si Borrar")
+            .then(() => this._delete(id))
+            .catch(() => { /* Cancelled */
+            });
+    }
+
+    _deleteCategory(id) {
+        // Find the index of the category to remove
+        const indexToRemove = this.categories.findIndex(c => String(c.id) === String(id));
+        // If the category is found (index is not -1), remove it
+        if(indexToRemove > -1) {
+            this.categories.splice(indexToRemove, 1);
+        }
+        const elementToRemove = this.dialog.querySelector(`LI.ocCatego-category-item[data-category-id="${id}"]`);
+        console.log("elementToRemove", id)
+        console.log("elementToRemove", elementToRemove)
+        if(elementToRemove) {
+            elementToRemove.remove();
         }
     }
 
@@ -489,63 +594,49 @@ class OcCatego {
     _updateAddButton() {
         if(!this.canAdd) return;
         const name = this._normalizeString(this.searchInput.value.trim());
-        if (!name) {
+        if(!name) {
             this.addButton.disabled = true;
             return;
         }
-        const exists = this.categories.some(c => this._normalizeString(c.name) === name);
-        this.addButton.disabled = exists;
+        this.addButton.disabled = this.categories.some(c => this._normalizeString(c.name) === name);
     }
 
-    clearSearch() {
+    _clearSearch() {
         this.searchInput.value = '';
         this.filter();
         this.searchInput.focus();
     }
 
-    _updateSelect() {
-        const current = this.selectElement.value;
-        // Clear existing options except first one
-        while (this.selectElement.options.length > 1) {
-            this.selectElement.removeChild(this.selectElement.lastChild);
-        }
-
-        this.categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = cat.name;
-            if (option.value == current) option.selected = true;
-            this.selectElement.appendChild(option);
-        });
-    }
-
     copy() {
         const text = this.categories.map(c => c.name).join('\n');
-        navigator.clipboard?.writeText(text).then(() => this.showSuccess('Copied!'));
+        navigator.clipboard?.writeText(text).then(() => this._showSuccess('Copied!'));
     }
 
     exportCSV() {
         const csv = 'Category\n' + this.categories.map(c => `"${c.name}"`).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
+        const blob = new Blob([csv], {type: 'text/csv'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'categories.csv';
         a.click();
         URL.revokeObjectURL(url);
-        this.showSuccess('Exported!');
+        this._showSuccess('Exported!');
     }
 
-    showError(msg) {
+    _showError(msg) {
         this.errorDiv.innerHTML = `<div class="ocCatego-error-message"><span class="ocCatego-error-icon">⚠ </span>${msg}</div>`;
     }
 
-    showSuccess(msg) {
+    _showSuccess(msg) {
         this.errorDiv.innerHTML = `<div class="ocCatego-success-message"><span class="ocCatego-success-icon">✓</span>${msg}</div>`;
-        setTimeout(() => this.errorDiv.innerHTML = '', 2000);
+        setTimeout(() => {
+            if(this.errorDiv)
+                this.errorDiv.innerHTML = '';
+        }, 2000);
     }
 
-    clearError() {
+    _clearError() {
         this.errorDiv.innerHTML = '';
     }
 
@@ -557,7 +648,7 @@ class OcCatego {
      * @param {string} secondaryLabel - Secondary button label (default: "Cancelar")
      * @returns {Promise<boolean>} - Resolves to true if primary button clicked, rejects if cancelled
      */
-    async confirm(message, title = "Confirmar", primaryLabel = "Aceptar", secondaryLabel = "Cancelar") {
+    async _confirm(message, title = "Confirmar", primaryLabel = "Aceptar", secondaryLabel = "Cancelar") {
         return new Promise((resolve, reject) => {
             // Update dialog content
             this.confirmDialog.querySelector('.title-text').textContent = title;
@@ -601,8 +692,8 @@ class OcCatego {
             this.confirmDialog.addEventListener('close', handleDialogClose);
 
             // Show the confirmation dialog
-            // this.confirmDialog.classList.add('ocCatego-active');
-            if (typeof this.confirmDialog.showModal === 'function') {
+            // this.confirmDialog.classList._add('ocCatego-active');
+            if(typeof this.confirmDialog.showModal === 'function') {
                 this.confirmDialog.showModal();
             } else {
                 this.confirmDialog.setAttribute('open', '');
@@ -613,9 +704,9 @@ class OcCatego {
         });
     }
 
-    async confirmChanges(message) {
+    async _confirmChanges(message) {
         try {
-            await this.confirm(message, 'Cambios sin Guardar', 'Descartar', 'Continuar Editando');
+            await this._confirm(message, 'Cambios sin Guardar', 'Descartar', 'Continuar Editando');
             return true; // User chose to discard changes
         } catch {
             return false; // User chose to continue editing
@@ -627,20 +718,21 @@ class OcCatego {
      * Llama al servidor con el formato RPC esperado (async/await).
      * Nunca lanza; siempre devuelve { ok, message?, id?, data? }.
      */
-    async rpc(accion, payload = {}) {
-        if (!this.apiUrl) {
+    async _rpc(accion, payload = {}) {
+        if(!this.apiUrl) {
             const msg = 'apiUrl no está definido';
-            showError(msg);
+            this._showError(msg);
             console.log(msg, accion, payload);
-            return { ok: false, message: msg };
+            return {ok: false, message: msg};
         }
-
+        payload.categoriaDe = this.categoriaDe;
+        payload.recordId = this.recordId;
         try {
             const res = await fetch(this.apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'same-origin',
-                body: JSON.stringify({ accion, ...payload })
+                body: JSON.stringify({accion, ...payload})
             });
 
             // Si el servidor responde con 4xx/5xx, intenta leer JSON igual,
@@ -648,62 +740,41 @@ class OcCatego {
             let json = null;
             try {
                 json = await res.json();
-            } catch (e) {
+            } catch(e) {
                 // sin JSON válido
             }
 
-            if (!res.ok) {
+            if(!res.ok) {
                 const msg = (json && json.message) ? json.message : 'Error de red al llamar al servidor';
-                showError(msg);
+                this._showError(msg);
                 console.log('HTTP error', res.status, accion, payload, json);
-                return { ok: false, message: msg };
+                return {ok: false, message: msg};
             }
 
-            if (!json || json.ok !== true) {
+            if(!json || json.ok !== true) {
                 const msg = (json && json.message) ? json.message : 'Error desconocido del servidor';
-                showError(msg);
+                this._showError(msg);
                 console.log('RPC error', accion, payload, json);
-                return { ok: false, message: msg };
+                return {ok: false, message: msg};
             }
 
             return json; // { ok:true, ... }
-        } catch (err) {
+        } catch(err) {
             const msg = 'Error de red al llamar al servidor';
-            showError(msg);
+            this._showError(msg);
             console.log(msg, accion, payload, err);
-            return { ok: false, message: msg };
+            return {ok: false, message: msg};
         }
     }
-
 
     destroy() {
         this._destroyDialog();
     }
 
-
-    // Mock API for testing
-    getAPI() {
-        return {
-            getCategories: () => Promise.resolve([
-                { id: 1, name: 'Electronics' },
-                { id: 2, name: 'Books' },
-                { id: 3, name: 'Clothing' }
-            ]),
-            addCategory: (name) => {
-                const normalized = this._normalizeString(name);
-                if (this.categories.some(c => this._normalizeString(c.name) === normalized)) {
-                    return Promise.reject(new Error('Already exists API SAYS add'));
-                }
-                return Promise.resolve({ id: Date.now(), name });
-            },
-            updateCategory: (id, name) => {
-                const normalized = this._normalizeString(name);
-                if (this.categories.some(c => c.id !== id && this._normalizeString(c.name) === normalized)) {
-                    return Promise.reject(new Error('Already exists API SAYS update'));
-                }
-                return Promise.resolve({ id, name });
-            },
-            deleteCategory: () => Promise.resolve()
-        };
-    }
 }
+
+// Export for use in other modules
+if(typeof module !== 'undefined' && module.exports) {
+    module.exports = OcCatego;
+}
+
