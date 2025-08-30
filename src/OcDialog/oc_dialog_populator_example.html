@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OcDialog with OcPopulator Example</title>
+    
+    <!-- Include CSS files -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="OcDialog.css">
+    
+    <!-- Custom styles for this demo -->
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--elevation-2);
+        }
+        
+        .demo-button {
+            background: var(--color-primary);
+            color: var(--color-primary-bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            box-shadow: var(--elevation-1);
+            transition: all 0.2s;
+        }
+        
+        .demo-button:hover {
+            background: var(--color-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--elevation-2);
+        }
+        
+        .content-display {
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--color-neutral-bg);
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+        }
+        
+        .example-image {
+            max-width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .example-list {
+            background: var(--color-surface);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .form-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section.full-width {
+            grid-template-columns: 1fr;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="sch_heading--primary">OcDialog with OcPopulator Example</h1>
+        
+        <div class="content-display">
+            <h2>Content Display (populated from JavaScript)</h2>
+            
+            <div class="sch_form_group">
+                <h3>Title Display:</h3>
+                <div id="titleDisplay">Title will be populated here...</div>
+            </div>
+            
+            <div class="sch_form_group">
+                <h3>Featured Image:</h3>
+                <img id="featuredImage" class="example-image" src="https://picsum.photos/200/150?random=1" alt="Featured Image">
+            </div>
+            
+            <div class="sch_form_group">
+                <h3>Features List:</h3>
+                <ul id="featuresList" class="example-list">
+                    <li>Loading features...</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div>
+            <button class="demo-button" onclick="showEditDialog()">Show User Edit Dialog</button>
+            <button class="demo-button" onclick="showSettingsDialog()">Show Settings Dialog</button>
+            <button class="demo-button" onclick="populateMainContent()">Populate Main Content</button>
+            <button class="demo-button" onclick="showComplexFormDialog()">Show Complex Form Dialog</button>
+        </div>
+    </div>
+
+    <!-- Include JavaScript files -->
+    <script src="OcPopulator.js"></script>
+    <script src="OcDialog.js"></script>
+    <script src="OcDialogDrag.js"></script>
+
+    <!-- Demo Script -->
+    <script>
+        // Sample data for populating the dialog and content
+        const sampleUserData = {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@example.com',
+            phone: '555-0123',
+            department: 'engineering',
+            position: 'Senior Developer',
+            bio: 'Experienced full-stack developer with expertise in web technologies and database design.',
+            active: 'yes',
+            notifications: 'email',
+            skills: ['JavaScript', 'Python', 'React']
+        };
+
+        const sampleContent = {
+            titleDisplay: 'Welcome to Our Advanced Web Application',
+            featuredImage: 'https://picsum.photos/200/150?random=2',
+            featuresList: [
+                'Advanced Dialog System with OcDialog',
+                'Dynamic Form Population with OcPopulator',
+                'Responsive Design with SCH Color Scheme',
+                'Modern JavaScript ES6+ Features',
+                'Cross-browser Compatibility'
+            ]
+        };
+
+        const appSettings = {
+            theme: 'dark',
+            language: 'en',
+            autoSave: 'true',
+            notifications: 'email',
+            privacyLevel: 'medium'
+        };
+
+        // Function to show user edit dialog with populated form
+        function showEditDialog() {
+            const formContent = `
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">First Name:
+                            <input type="text" id="firstName" class="sch_form_input" required>
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Last Name:
+                            <input type="text" id="lastName" class="sch_form_input" required>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Email:
+                            <input type="email" id="email" class="sch_form_input" required>
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Phone:
+                            <input type="tel" id="phone" class="sch_form_input">
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Department:
+                            <select id="department" class="sch_form_input">
+                                <option value="">Select Department</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="sales">Sales</option>
+                                <option value="hr">Human Resources</option>
+                            </select>
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Position:
+                            <input type="text" id="position" class="sch_form_input">
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Bio:
+                            <textarea id="bio" class="sch_form_input sch_form_textarea" rows="4"></textarea>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Status:</label>
+                        <div>
+                            <input type="radio" name="active" value="yes" id="activeYes"> <label for="activeYes">Active</label><br>
+                            <input type="radio" name="active" value="no" id="activeNo"> <label for="activeNo">Inactive</label>
+                        </div>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Notifications:
+                            <select id="notifications" class="sch_form_input">
+                                <option value="email">Email</option>
+                                <option value="sms">SMS</option>
+                                <option value="both">Both</option>
+                                <option value="none">None</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            const { promise, dialog } = OcDialog.dialog({
+                title: '✏️ Edit User Profile',
+                html: formContent,
+                buttons: [
+                    {
+                        label: '💾 Save Changes',
+                        class: 'sch_dialog_button--primary',
+                        callback: function(e) {
+                            // Get the dialog element from the button's closest dialog
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            
+                            // Extract form data using OcPopulator
+                            const formKeys = ['firstName', 'lastName', 'email', 'phone', 'department', 'position', 'bio', 'active', 'notifications'];
+                            const formData = OcPopulator.getValuesByKey(dialogEl, formKeys);
+                            
+                            console.log('Form data extracted:', formData);
+                            OcDialog.info(`Form data saved:\n${JSON.stringify(formData, null, 2)}`, 'Data Saved');
+                            
+                            dialogEl.close();
+                        }
+                    },
+                    {
+                        label: '❌ Cancel',
+                        class: 'sch_dialog_button--secondary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            dialogEl.close();
+                        }
+                    }
+                ]
+            });
+
+            // Populate the form with sample data after the dialog is shown
+            setTimeout(() => {
+                OcPopulator.populate(dialog, sampleUserData);
+            }, 100);
+        }
+
+        // Function to show settings dialog
+        function showSettingsDialog() {
+            const settingsForm = `
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Theme:
+                            <select id="theme" class="sch_form_input">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="auto">Auto</option>
+                            </select>
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Language:
+                            <select id="language" class="sch_form_input">
+                                <option value="ca">cat</option>
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Privacy Level:
+                            <input type="radio" name="privacyLevel" value="low" id="privacyLow"> <label for="privacyLow">Low</label><br>
+                            <input type="radio" name="privacyLevel" value="medium" id="privacyMed"> <label for="privacyMed">Medium</label><br>
+                            <input type="radio" name="privacyLevel" value="high" id="privacyHigh"> <label for="privacyHigh">High</label>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label>
+                            <input type="checkbox" id="autoSave" value="true"> Enable Auto-save
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            const { promise, dialog } = OcDialog.dialog({
+                title: '⚙️ Application Settings',
+                html: settingsForm,
+                buttons: [
+                    {
+                        label: '✅ Apply Settings',
+                        class: 'sch_dialog_button--primary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            const settingsKeys = ['theme', 'language', 'privacyLevel', 'autoSave'];
+                            const settings = OcPopulator.getValuesByKey(dialogEl, settingsKeys);
+                            
+                            console.log('Settings saved:', settings);
+                            OcDialog.info('Settings have been applied successfully!', 'Settings Applied');
+                            dialogEl.close();
+                        }
+                    },
+                    {
+                        label: '🔄 Reset to Defaults',
+                        class: 'sch_dialog_button--secondary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            const defaults = {
+                                theme: 'light',
+                                language: 'en',
+                                privacyLevel: 'medium',
+                                autoSave: 'false'
+                            };
+                            OcPopulator.populate(dialogEl, defaults);
+                        }
+                    },
+                    {
+                        label: '❌ Cancel',
+                        class: 'sch_dialog_button--secondary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            dialogEl.close();
+                        }
+                    }
+                ]
+            });
+
+            // Populate with current settings
+            setTimeout(() => {
+                OcPopulator.populate(dialog, appSettings);
+            }, 100);
+        }
+
+        // Function to populate main page content
+        function populateMainContent() {
+            OcPopulator.populate(document, sampleContent);
+            OcDialog.info('Main page content has been updated with sample data!', 'Content Updated');
+        }
+
+        // Function to show complex form with multiple element types
+        function showComplexFormDialog() {
+            const complexForm = `
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Project Name:
+                            <input type="text" id="projectName" class="sch_form_input" placeholder="Enter project name">
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Due Date:
+                            <input type="date" id="dueDate" class="sch_form_input">
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Team Members:
+                            <select id="teamMembers" class="sch_form_input" multiple size="4">
+                                <option value="john">John Doe</option>
+                                <option value="jane">Jane Smith</option>
+                                <option value="bob">Bob Johnson</option>
+                                <option value="alice">Alice Brown</option>
+                                <option value="charlie">Charlie Wilson</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Priority Level:</label>
+                        <div>
+                            <input type="radio" name="priority" value="low" id="priorityLow"> <label for="priorityLow">Low</label>
+                            <input type="radio" name="priority" value="medium" id="priorityMed"> <label for="priorityMed">Medium</label>
+                            <input type="radio" name="priority" value="high" id="priorityHigh"> <label for="priorityHigh">High</label>
+                            <input type="radio" name="priority" value="urgent" id="priorityUrgent"> <label for="priorityUrgent">Urgent</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Budget:
+                            <input type="number" id="budget" class="sch_form_input" min="0" step="100" placeholder="0">
+                        </label>
+                    </div>
+                    
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Completion %:
+                            <input type="range" id="completion" class="sch_form_input" min="0" max="100" value="0">
+                            <span id="completionValue">0%</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label class="sch_form_label">Project Description:
+                            <textarea id="description" class="sch_form_input sch_form_textarea" rows="4"></textarea>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-section full-width">
+                    <div class="sch_form_group">
+                        <label>
+                            <input type="checkbox" id="confidential" value="cHacHa"> Mark as Confidential
+                        </label>
+                        <label>
+                            <input type="checkbox" id="archived" value="true"> Archive when complete
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            const { promise, dialog } = OcDialog.dialog({
+                title: '📋 Create New Project',
+                html: complexForm,
+                buttons: [
+                    {
+                        label: '🚀 Create Project',
+                        class: 'sch_dialog_button--primary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            const formKeys = ['projectName', 'dueDate', 'teamMembers', 'priority', 'budget', 
+                                            'completion', 'description', 'confidential', 'archived'];
+                            const projectData = OcPopulator.getValuesByKey(dialogEl, formKeys);
+                            
+                            console.log('Project created:', projectData);
+                            OcDialog.info(`Project "${projectData.projectName || 'Unnamed'}" has been created!`, 'Project Created');
+                            dialogEl.close();
+                        }
+                    },
+                    {
+                        label: '📄 Load Template',
+                        class: 'sch_dialog_button--secondary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            const template = {
+                                projectName: 'Website Redesign',
+                                dueDate: '2024-12-31',
+                                teamMembers: ['bab', 'john', 'jane', 'alice', 'mark'],
+                                priority: 'high',
+                                budget: 50000,
+                                completion: 25,
+                                description: 'Complete redesign of the company website with modern UI/UX principles.',
+                                confidential: 'cHacHa',
+                                archived: ''
+                            };
+                            OcPopulator.populate(dialogEl, template);
+                            
+                            // Update the completion percentage display
+                            const completionSpan = dialogEl.querySelector('#completionValue');
+                            if (completionSpan) {
+                                completionSpan.textContent = '25%';
+                            }
+                        }
+                    },
+                    {
+                        label: '❌ Cancel',
+                        class: 'sch_dialog_button--secondary',
+                        callback: function(e) {
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            dialogEl.close();
+                        }
+                    }
+                ]
+            });
+
+            // Add event listener for range slider
+            setTimeout(() => {
+                const rangeInput = dialog.querySelector('#completion');
+                const rangeValue = dialog.querySelector('#completionValue');
+                
+                if (rangeInput && rangeValue) {
+                    rangeInput.addEventListener('input', function() {
+                        rangeValue.textContent = this.value + '%';
+                    });
+                }
+            }, 100);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('OcDialog and OcPopulator example page loaded');
+            console.log('Available functions: showEditDialog(), showSettingsDialog(), populateMainContent(), showComplexFormDialog()');
+        });
+    </script>
+</body>
+</html>
