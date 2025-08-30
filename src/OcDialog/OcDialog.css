@@ -1,23 +1,23 @@
 
 .ocdialog_form {display:none}
-.sch_dialog .ocdialog_form {display: block !important;}
+.ocdialog .ocdialog_form {display: block !important;}
 
 
 
 /** region: Dialog backdrop */
-        dialog.sch_dialog::backdrop {
+        dialog.ocdialog::backdrop {
             background-color: transparent;
             backdrop-filter: none;
         }
 
     /** endregion: Dialog backdrop */
-        dialog.sch_dialog:not([open]) {
+        dialog.ocdialog:not([open]) {
             display: none!important;
         }
 
 /** region: Base dialog styling */
 
-        .sch_dialog {
+        .ocdialog {
             border: none;
             border-radius: 12px;
             padding: 0;
@@ -38,7 +38,7 @@
             transition: box-shadow 0.2s ease;
         }
 
-        .sch_dialog.sch_dialog_dragging {
+        .ocdialog.ocdialog_dragging {
             box-shadow:
                     0 40px 80px rgba(0, 0, 0, 0.45),
                     0 20px 40px rgba(0, 0, 0, 0.3),
@@ -47,7 +47,7 @@
             transition: none; /* Disable transitions during drag for performance */
         }
 
-        .sch_dialog_grow_content {
+        .ocdialog_grow_content {
             padding:0  1.2em 0 0;
             display: grid;
             grid-template-rows: auto 1fr auto; /* header, content (flexible), footer */
@@ -59,9 +59,9 @@
             overflow: hidden;
 
         }
-        .sch_dialog_grow_content > .sch_dialog_header {width: 100%}
-        .sch_dialog_grow_content > .sch_dialog_content,
-        .sch_dialog_grow_content > .sch_dialog_footer {
+        .ocdialog_grow_content > .ocdialog_header {width: 100%}
+        .ocdialog_grow_content > .ocdialog_content,
+        .ocdialog_grow_content > .ocdialog_footer {
             width: 95%;
         }
 
@@ -79,7 +79,7 @@
 /** endregion: Base dialog styling */
 
 /** region: Title bar */
-        .sch_dialog_header {
+        .ocdialog_header {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
             color: var(--color-primary-bg);
             padding: 4px 20px;
@@ -98,16 +98,16 @@
             -webkit-user-drag: none;
             transition: background 0.2s ease;
         }
-        .sch_dialog_header:hover {
+        .ocdialog_header:hover {
             background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
         }
 
-        .sch_dialog_header.sch_dialog_dragging {
+        .ocdialog_header.ocdialog_dragging {
             background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
             cursor: grabbing;
         }
 
-        .sch_dialog_title {
+        .ocdialog_title {
             font-size: 18px;
             font-weight: 600;
             margin: 0;
@@ -116,7 +116,7 @@
             pointer-events: none; /* Allows drag through title text */
         }
 
-        .sch_dialog_close {
+        .ocdialog_close {
             background: none;
             border: none;
             color: var(--color-primary-bg);
@@ -129,14 +129,14 @@
             margin-left: 16px;
         }
 
-        .sch_dialog_close:hover {
+        .ocdialog_close:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.1);
         }
 /** endregion: Title bar */
 
 /** region:Dialog content */
-    .sch_dialog_content {
+    .ocdialog_content {
         padding: 24px;
         overflow-y: auto;
         flex-grow: 1; /* Allows content to grow and fill available space IMPORTANT or scroll*/
@@ -165,7 +165,7 @@
 /** endregion:Dialog content */
 
 /** region:Dialog footer */
-    .sch_dialog_footer {
+    .ocdialog_footer {
         background: var(--color-neutral-bg);
         border-top: 1px solid var(--color-border);
         padding: 4px 20px;
@@ -181,7 +181,7 @@
     .sch_hidden {display:none;pointer-events:none}
 /** endregion: Dialog helpers */
 
-    .sch_dialog_button {
+    .ocdialog_button {
         padding: 4px 20px;
         border: none;
         border-radius: 6px;
@@ -193,46 +193,46 @@
         box-shadow: var(--elevation-glass-1);
     }
 
-    .sch_dialog_button:hover {
+    .ocdialog_button:hover {
         transform: translateY(-1px);
         box-shadow: var(--elevation-glass-2);
     }
 
-    .sch_dialog_button--primary {
+    .ocdialog_button--primary {
         background: var(--color-primary);
         color: var(--color-primary-bg);
     }
 
-    .sch_dialog_button--primary:hover {
+    .ocdialog_button--primary:hover {
         background: var(--color-secondary);
         box-shadow: var(--elevation-glass-2-primary);
     }
 
-    .sch_dialog_button--success {
+    .ocdialog_button--success {
         background: var(--color-success);
         color: var(--color-success-bg);
     }
 
-    .sch_dialog_button--success:hover {
+    .ocdialog_button--success:hover {
         background: #218838;
     }
 
-    .sch_dialog_button--secondary {
+    .ocdialog_button--secondary {
         background: var(--color-tertiary);
         color: var(--color-tertiary-bg);
     }
 
-    .sch_dialog_button--secondary:hover {
+    .ocdialog_button--secondary:hover {
         background: #5a6268;
     }
 
-    .sch_dialog_button--outline {
+    .ocdialog_button--outline {
         background: transparent;
         color: var(--color-text);
         border: 2px solid var(--color-border-dark);
     }
 
-    .sch_dialog_button--outline:hover {
+    .ocdialog_button--outline:hover {
         background: var(--color-neutral-bg);
         border-color: var(--color-primary);
         color: var(--color-primary);
@@ -241,7 +241,7 @@
 
 
     /* Toolbar */
-        .sch_dialog_toolbar {
+        .ocdialog_toolbar {
             background: var(--color-neutral-bg);
             border-bottom: 1px solid var(--color-border);
             padding: 12px 20px;
@@ -329,6 +329,7 @@
             margin-bottom: 6px;
             font-weight: 500;
             color: var(--color-text);
+            cursor: pointer;
         }
 
         .sch_form_input {

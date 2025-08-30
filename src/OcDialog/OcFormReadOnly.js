@@ -40,14 +40,14 @@ class OcFormReadOnly {
             buttons = [
                 {
                     label: '⬅️ Anterior',
-                    class: 'sch_dialog_button--secondary',
+                    class: 'ocdialog_button--secondary',
                     callback: async(e) => {
                         await this._handleNavigation('prev', e.target);
                     }
                 },
                 {
                     label: '➡️ Siguiente', 
-                    class: 'sch_dialog_button--primary',
+                    class: 'ocdialog_button--primary',
                     callback: async(e) => {
                         await this._handleNavigation('next', e.target);
                     }
@@ -250,7 +250,7 @@ class OcFormReadOnly {
 
                 if(newTitle && typeof newTitle === 'string') {
                      // Update dialog title
-                     // const titleElement = this.currentForm.querySelector('.sch_dialog_title');
+                     // const titleElement = this.currentForm.querySelector('.ocdialog_title');
                     // if(titleElement) titleElement.innerHTML = newTitle;
 
                 }
@@ -285,7 +285,7 @@ class OcFormReadOnly {
     _showError(message) {
 
         console.log("this.currentDialog", this.currentForm);
-        const errorContainer = this.currentForm.querySelector('.sch_dialog .sch_errors');
+        const errorContainer = this.currentForm.querySelector('.ocdialog .sch_errors');
         if(errorContainer) {
             errorContainer.innerHTML = `
                 <button type="button" class="sch_errors_close" onclick="this.parentElement.classList.add('sch_hidden')">&times;</button>

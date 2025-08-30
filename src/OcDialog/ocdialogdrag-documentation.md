@@ -14,12 +14,12 @@ A lightweight, memory-leak-free JavaScript library for adding drag & drop behavi
 ## Quick Start
 
 ### HTML Structure
-Your dialog must have a header with the class `sch_dialog_header` or similar:
+Your dialog must have a header with the class `ocdialog_header` or similar:
 
 ```html
 <dialog class="my-dialog">
     <div class="my-dialog-content">
-        <div class="my-header sch_dialog_header">
+        <div class="my-header ocdialog_header">
             <h2>Dialog Title</h2>
             <button class="close-btn">×</button>
         </div>
@@ -90,11 +90,11 @@ OcDialogDrag.centerDialog(dialog);
 The drag system looks for specific CSS class patterns:
 
 ### Required Classes
-- **`.sch_dialog_header`** - The draggable header element
-- **`.sch_dialog_close`** - Close button (drag is disabled on these)
+- **`.ocdialog_header`** - The draggable header element
+- **`.ocdialog_close`** - Close button (drag is disabled on these)
 
 ### Applied Classes During Drag
-- **`.sch_dialog_dragging`** - Applied to both dialog and header during drag
+- **`.ocdialog_dragging`** - Applied to both dialog and header during drag
 
 ### Example CSS
 ```css
@@ -107,19 +107,19 @@ The drag system looks for specific CSS class patterns:
 }
 
 /* Header should indicate it's draggable */
-.sch_dialog_header {
+.ocdialog_header {
     cursor: grab;
     padding: 16px;
     border-bottom: 1px solid #eee;
 }
 
 /* During drag state */
-.sch_dialog_dragging {
+.ocdialog_dragging {
     user-select: none;
     -webkit-user-select: none;
 }
 
-.sch_dialog_header.sch_dialog_dragging {
+.ocdialog_header.ocdialog_dragging {
     cursor: grabbing !important;
 }
 ```
@@ -137,9 +137,9 @@ class MyDialog {
         this.dialog = document.createElement('dialog');
         this.dialog.innerHTML = `
             <div class="dialog-content">
-                <div class="dialog-header sch_dialog_header">
+                <div class="dialog-header ocdialog_header">
                     <h2>My Dialog</h2>
-                    <button class="sch_dialog_close">×</button>
+                    <button class="ocdialog_close">×</button>
                 </div>
                 <div class="dialog-body">
                     Content goes here
@@ -196,10 +196,10 @@ function DraggableDialog({ isOpen, onClose, children }) {
     return (
         <dialog ref={dialogRef} open>
             <div ref={contentRef} className="dialog-content">
-                <div className="dialog-header sch_dialog_header">
+                <div className="dialog-header ocdialog_header">
                     <h2>Draggable Dialog</h2>
                     <button 
-                        className="sch_dialog_close" 
+                        className="ocdialog_close" 
                         onClick={onClose}
                     >
                         ×
@@ -249,7 +249,7 @@ class DialogManager {
 
 ### Drag Constraints
 - **Viewport Boundaries:** Dialogs cannot be dragged outside viewport (20px padding)
-- **Header Only:** Only elements with `sch_dialog_header` class act as drag handles
+- **Header Only:** Only elements with `ocdialog_header` class act as drag handles
 - **Button Protection:** Clicks on buttons, inputs, selects, textareas, and links don't trigger drag
 
 ### Touch Support
@@ -275,9 +275,9 @@ class DialogManager {
 #### Drag Not Working
 ```javascript
 // Check if header class is correct
-const header = dialog.querySelector('.sch_dialog_header');
+const header = dialog.querySelector('.ocdialog_header');
 if (!header) {
-    console.error('No .sch_dialog_header found');
+    console.error('No .ocdialog_header found');
 }
 
 // Ensure dialog is initialized
@@ -296,11 +296,11 @@ function removeDialog(dialog) {
 
 #### Drag Handle Not Visible
 ```css
-.sch_dialog_header {
+.ocdialog_header {
     cursor: grab; /* Show grab cursor */
 }
 
-.sch_dialog_header.sch_dialog_dragging {
+.ocdialog_header.ocdialog_dragging {
     cursor: grabbing !important; /* Show grabbing cursor */
 }
 ```

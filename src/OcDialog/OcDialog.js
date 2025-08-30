@@ -23,32 +23,32 @@ var OcDialog = {
         const dialog = document.createElement('dialog');
         const promise = new Promise((resolve, reject) => {
 
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
             dialog.innerHTML = `
-                <div class="sch_dialog_header">
-                    <div class="sch_dialog_title"></div>
-                    <button class="sch_dialog_close" type="button">&times;</button>
+                <div class="ocdialog_header">
+                    <div class="ocdialog_title"></div>
+                    <button class="ocdialog_close" type="button">&times;</button>
                 </div>
-                <div class="sch_dialog_content">
+                <div class="ocdialog_content">
                     <div class="sch_errors sch_hidden"><button type="button" class="sch_errors_close">&times;</button></div>
                     <form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form>
                 </div>
-                <div class="sch_dialog_footer"></div>`;
+                <div class="ocdialog_footer"></div>`;
             // Set title
             if(typeof title === 'string')
-                dialog.querySelector('.sch_dialog_title').innerHTML = title;
+                dialog.querySelector('.ocdialog_title').innerHTML = title;
             else
-                dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+                dialog.querySelector('.ocdialog_title').replaceChildren(title);
 
             // Set content
             if(typeof html === 'string')
-                dialog.querySelector('.sch_dialog_content').innerHTML = html;
+                dialog.querySelector('.ocdialog_content').innerHTML = html;
             else
-                dialog.querySelector('.sch_dialog_content').replaceChildren(html);
+                dialog.querySelector('.ocdialog_content').replaceChildren(html);
 
 
             // Handle buttons
-            const footer = dialog.querySelector('.sch_dialog_footer');
+            const footer = dialog.querySelector('.ocdialog_footer');
             const buttonHandlers = []; // Store handlers for cleanup
 
             if(buttons.length) {
@@ -57,11 +57,11 @@ var OcDialog = {
                     button.type = 'button';
 
                     // Set button class - first button gets primary if no class specified
-                    let buttonClass = 'sch_dialog_button';
+                    let buttonClass = 'ocdialog_button';
                     if (buttonConfig.class) {
                         buttonClass += ` ${buttonConfig.class}`;
                     } else if (index === 0) {
-                        buttonClass += ' sch_dialog_button--primary';
+                        buttonClass += ' ocdialog_button--primary';
                     }
                     button.className = buttonClass;
 
@@ -135,7 +135,7 @@ var OcDialog = {
 
             document.body.appendChild(dialog);
 
-            const closeButton = dialog.querySelector('.sch_dialog_close');
+            const closeButton = dialog.querySelector('.ocdialog_close');
             closeButton.addEventListener('click', handleClose);
             dialog.addEventListener('keydown', handleKeydown);
             dialog.addEventListener('close', handleDialogClose);
@@ -161,32 +161,32 @@ var OcDialog = {
     dialogAuto({title = "", html, buttons = [], keepHtml = false}) {
         return new Promise((resolve, reject) => {
             const dialog = document.createElement('dialog');
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
             dialog.innerHTML = `
-                <div class="sch_dialog_header">
-                    <div class="sch_dialog_title"></div>
-                    <button class="sch_dialog_close" type="button">&times;</button>
+                <div class="ocdialog_header">
+                    <div class="ocdialog_title"></div>
+                    <button class="ocdialog_close" type="button">&times;</button>
                 </div>
-                <div class="sch_dialog_content">
+                <div class="ocdialog_content">
                     <div class="sch_errors sch_hidden"><button type="button" class="sch_errors_close">&times;</button></div>
                     <form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form>
                 </div>
-                <div class="sch_dialog_footer"></div>`;
+                <div class="ocdialog_footer"></div>`;
 
             // Set title
             if(typeof title === 'string')
-                dialog.querySelector('.sch_dialog_title').innerHTML = title;
+                dialog.querySelector('.ocdialog_title').innerHTML = title;
             else
-                dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+                dialog.querySelector('.ocdialog_title').replaceChildren(title);
 
             // Set content
             if(typeof html === 'string')
-                dialog.querySelector('.sch_dialog_content').innerHTML = html;
+                dialog.querySelector('.ocdialog_content').innerHTML = html;
             else
-                dialog.querySelector('.sch_dialog_content').replaceChildren(html);
+                dialog.querySelector('.ocdialog_content').replaceChildren(html);
 
             // Handle buttons
-            const footer = dialog.querySelector('.sch_dialog_footer');
+            const footer = dialog.querySelector('.ocdialog_footer');
             const buttonHandlers = []; // Store handlers for cleanup
 
             if(buttons.length) {
@@ -195,11 +195,11 @@ var OcDialog = {
                     button.type = 'button';
 
                     // Set button class - first button gets primary if no class specified
-                    let buttonClass = 'sch_dialog_button';
+                    let buttonClass = 'ocdialog_button';
                     if (buttonConfig.class) {
                         buttonClass += ` ${buttonConfig.class}`;
                     } else if (index === 0) {
-                        buttonClass += ' sch_dialog_button--primary';
+                        buttonClass += ' ocdialog_button--primary';
                     }
                     button.className = buttonClass;
 
@@ -287,7 +287,7 @@ var OcDialog = {
 
             document.body.appendChild(dialog);
 
-            const closeButton = dialog.querySelector('.sch_dialog_close');
+            const closeButton = dialog.querySelector('.ocdialog_close');
             closeButton.addEventListener('click', handleClose);
             dialog.addEventListener('keydown', handleKeydown);
             dialog.addEventListener('close', handleDialogClose);
@@ -311,21 +311,21 @@ var OcDialog = {
     alert(message, title = "Aviso", icon = "⚠️", buttonLabel = "Ok", buttonIcon = "✓") {
         return new Promise((resolve) => {
             const dialog = document.createElement('dialog');
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
             dialog.innerHTML = `
-                <div class="sch_dialog_header">
-                    <h2 class="sch_dialog_title">
+                <div class="ocdialog_header">
+                    <h2 class="ocdialog_title">
                         ${icon ? `<span style="margin-right: 8px;">${icon}</span>` : ''}${title}
                     </h2>
-                    <button class="sch_dialog_close" type="button">&times;</button>
+                    <button class="ocdialog_close" type="button">&times;</button>
                 </div>
-                <div class="sch_dialog_content">
+                <div class="ocdialog_content">
                     <p style="margin: 0; font-size: 16px; line-height: 1.5; color: var(--color-text);">
                         ${message}
                     </p>
                 </div>
-                <div class="sch_dialog_footer">
-                    <button class="sch_dialog_button sch_dialog_button--primary" type="button">
+                <div class="ocdialog_footer">
+                    <button class="ocdialog_button ocdialog_button--primary" type="button">
                         ${buttonIcon ? `<span style="margin-right: 6px;">${buttonIcon}</span>` : ''}${buttonLabel}
                     </button>
                 </div>
@@ -344,8 +344,8 @@ var OcDialog = {
 
             function handleButtonClose() {dialog.close();}
 
-            const closeButton = dialog.querySelector('.sch_dialog_close');
-            const okButton = dialog.querySelector('.sch_dialog_button--primary');
+            const closeButton = dialog.querySelector('.ocdialog_close');
+            const okButton = dialog.querySelector('.ocdialog_button--primary');
 
             closeButton.addEventListener('click', handleButtonClose);
             okButton.addEventListener('click', handleButtonClose);
@@ -410,25 +410,25 @@ var OcDialog = {
     confirm(message, title = "Confirme", icon = "❓", okLabel = "Si", okIcon = "✓", cancelLabel = "No", cancelIcon = "✗") {
         return new Promise((resolve, reject) => {
             const dialog = document.createElement('dialog');
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
 
             dialog.innerHTML = `
-                <div class="sch_dialog_header">
-                    <h2 class="sch_dialog_title">
+                <div class="ocdialog_header">
+                    <h2 class="ocdialog_title">
                         ${icon ? `<span style="margin-right: 8px;">${icon}</span>` : ''}${title}
                     </h2>
-                    <button class="sch_dialog_close" type="button">&times;</button>
+                    <button class="ocdialog_close" type="button">&times;</button>
                 </div>
-                <div class="sch_dialog_content">
+                <div class="ocdialog_content">
                     <p style="margin: 0; font-size: 16px; line-height: 1.5; color: var(--color-text);">
                         ${message}
                     </p>
                 </div>
-                <div class="sch_dialog_footer">
-                    <button class="sch_dialog_button sch_dialog_button--secondary" type="button" data-action="cancel">
+                <div class="ocdialog_footer">
+                    <button class="ocdialog_button ocdialog_button--secondary" type="button" data-action="cancel">
                         ${cancelIcon ? `<span style="margin-right: 6px;">${cancelIcon}</span>` : ''}${cancelLabel}
                     </button>
-                    <button class="sch_dialog_button sch_dialog_button--primary" type="button" data-action="ok">
+                    <button class="ocdialog_button ocdialog_button--primary" type="button" data-action="ok">
                         ${okIcon ? `<span style="margin-right: 6px;">${okIcon}</span>` : ''}${okLabel}
                     </button>
                 </div>
@@ -461,7 +461,7 @@ var OcDialog = {
                 cleanup(false);
             }
 
-            const closeButton = dialog.querySelector('.sch_dialog_close');
+            const closeButton = dialog.querySelector('.ocdialog_close');
             const okButton = dialog.querySelector('[data-action="ok"]');
             const cancelButton = dialog.querySelector('[data-action="cancel"]');
 
@@ -520,15 +520,15 @@ var OcDialog = {
             };
 
             const dialog = document.createElement('dialog');
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
             dialog.innerHTML = `
-                <div class="sch_dialog_header">
-                    <h2 class="sch_dialog_title">
+                <div class="ocdialog_header">
+                    <h2 class="ocdialog_title">
                         ${icon ? `<span style="margin-right: 8px;">${icon}</span>` : ''}${title}
                     </h2>
-                    <button class="sch_dialog_close" type="button">&times;</button>
+                    <button class="ocdialog_close" type="button">&times;</button>
                 </div>
-                <div class="sch_dialog_content">
+                <div class="ocdialog_content">
                     <div class="sch_form_group">
                         <label class="sch_form_label">${label}<br>
                         <input class="sch_form_input"> 
@@ -540,11 +540,11 @@ var OcDialog = {
                         </label>
                     </div>
                 </div>
-                <div class="sch_dialog_footer">
-                    <button class="sch_dialog_button sch_dialog_button--secondary" type="button" data-action="cancel">
+                <div class="ocdialog_footer">
+                    <button class="ocdialog_button ocdialog_button--secondary" type="button" data-action="cancel">
                         ${cancelIcon ? `<span style="margin-right: 6px;">${cancelIcon}</span>` : ''}${cancelLabel}
                     </button>
-                    <button class="sch_dialog_button sch_dialog_button--primary" type="button" data-action="save">
+                    <button class="ocdialog_button ocdialog_button--primary" type="button" data-action="save">
                         ${saveIcon ? `<span style="margin-right: 6px;">${saveIcon}</span>` : ''}${saveLabel}
                     </button>
                 </div>
@@ -609,7 +609,7 @@ var OcDialog = {
                 }
             }
 
-            const closeButton = dialog.querySelector('.sch_dialog_close');
+            const closeButton = dialog.querySelector('.ocdialog_close');
             const saveButton = dialog.querySelector('[data-action="save"]');
             const cancelButton = dialog.querySelector('[data-action="cancel"]');
 
@@ -643,22 +643,22 @@ var OcDialog = {
 
         return new Promise((resolve, reject) => {
             const dialog = document.createElement('dialog');
-            dialog.className = 'sch_dialog sch_dialog_grow_content';
+            dialog.className = 'ocdialog ocdialog_grow_content';
             dialog.innerHTML = `
-            <div class="sch_dialog_header">
-                <div class="sch_dialog_title"></div>
-                <button class="sch_dialog_close" type="button">&times;</button>
+            <div class="ocdialog_header">
+                <div class="ocdialog_title"></div>
+                <button class="ocdialog_close" type="button">&times;</button>
             </div>
-            <div class="sch_dialog_content"><div class="sch_errors sch_hidden"></div><form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form></div>
-            <div class="sch_dialog_footer">
-                <button class="sch_dialog_button sch_dialog_button--primary" type="button">${saveLabel}</button>
-                <button class="sch_dialog_button sch_dialog_button--secondary" type="button">${cancelLabel}</button>
+            <div class="ocdialog_content"><div class="sch_errors sch_hidden"></div><form class="sch_form_tag" enctype="multipart/form-data" method="DIALOG"></form></div>
+            <div class="ocdialog_footer">
+                <button class="ocdialog_button ocdialog_button--primary" type="button">${saveLabel}</button>
+                <button class="ocdialog_button ocdialog_button--secondary" type="button">${cancelLabel}</button>
             </div>`;
 
             if(typeof title === 'string')
-                dialog.querySelector('.sch_dialog_title').innerHTML = title;
+                dialog.querySelector('.ocdialog_title').innerHTML = title;
             else
-                dialog.querySelector('.sch_dialog_title').replaceChildren(title);
+                dialog.querySelector('.ocdialog_title').replaceChildren(title);
 
             if(typeof formContent === 'string')
                 dialog.querySelector('.sch_form_tag').innerHTML = formContent;
@@ -667,9 +667,9 @@ var OcDialog = {
 
             document.body.appendChild(dialog);
             const form = dialog.querySelector('.sch_form_tag');
-            const saveBtn = dialog.querySelector('.sch_dialog_button--primary');
-            const cancelBtn = dialog.querySelector('.sch_dialog_button--secondary');
-            const closeBtn = dialog.querySelector('.sch_dialog_close');
+            const saveBtn = dialog.querySelector('.ocdialog_button--primary');
+            const cancelBtn = dialog.querySelector('.ocdialog_button--secondary');
+            const closeBtn = dialog.querySelector('.ocdialog_close');
             const serverErrors = dialog.querySelector('.sch_errors');
 
             function cleanup() {

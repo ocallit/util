@@ -33,14 +33,14 @@ var OcDialogDrag = {
     },
 
     startDrag(e, clientX, clientY) {
-        const header = e.target.closest('.sch_dialog_header');
+        const header = e.target.closest('.ocdialog_header');
         if (!header) return;
 
-        if (e.target.closest('.sch_dialog_close, button, input, select, textarea, a')) {
+        if (e.target.closest('.ocdialog_close, button, input, select, textarea, a')) {
             return;
         }
 
-        const dialog = header.closest('.sch_dialog');
+        const dialog = header.closest('.ocdialog');
         if (!dialog) return;
 
         e.preventDefault();
@@ -58,8 +58,8 @@ var OcDialogDrag = {
             header: header
         };
 
-        dialog.classList.add('sch_dialog_dragging');
-        header.classList.add('sch_dialog_dragging');
+        dialog.classList.add('ocdialog_dragging');
+        header.classList.add('ocdialog_dragging');
 
         document.body.style.userSelect = 'none';
         document.body.style.webkitUserSelect = 'none';
@@ -129,8 +129,8 @@ var OcDialogDrag = {
         const dragState = dialog._schDragState;
         if (!dragState?.isDragging) return;
 
-        dialog.classList.remove('sch_dialog_dragging');
-        dragState.header.classList.remove('sch_dialog_dragging');
+        dialog.classList.remove('ocdialog_dragging');
+        dragState.header.classList.remove('ocdialog_dragging');
 
         document.body.style.userSelect = '';
         document.body.style.webkitUserSelect = '';

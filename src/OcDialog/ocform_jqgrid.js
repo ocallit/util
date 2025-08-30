@@ -358,7 +358,7 @@ async function OcFormJqGridExtended(jqGridSelector, htmlFormElement, rowId, opti
                 formReader._fill(htmlFormElement, newValues);
                 
                 // Update dialog title if possible
-                const titleElement = formReader.dialogElement?.querySelector('.sch_dialog_title');
+                const titleElement = formReader.dialogElement?.querySelector('.ocdialog_title');
                 if (titleElement) {
                     titleElement.innerHTML = newTitle;
                 }
@@ -410,22 +410,22 @@ async function OcFormJqGridExtended(jqGridSelector, htmlFormElement, rowId, opti
     const buttons = [
         {
             label: '⏮️ Primero',
-            class: 'sch_dialog_button--secondary',
+            class: 'ocdialog_button--secondary',
             callback: (e) => handleNavigation('first', e.target)
         },
         {
             label: '⬅️ Anterior',
-            class: 'sch_dialog_button--secondary',
+            class: 'ocdialog_button--secondary',
             callback: (e) => handleNavigation('prev', e.target)
         },
         {
             label: '➡️ Siguiente', 
-            class: 'sch_dialog_button--primary',
+            class: 'ocdialog_button--primary',
             callback: (e) => handleNavigation('next', e.target)
         },
         {
             label: '⏭️ Último',
-            class: 'sch_dialog_button--secondary',
+            class: 'ocdialog_button--secondary',
             callback: (e) => handleNavigation('last', e.target)
         }
     ];

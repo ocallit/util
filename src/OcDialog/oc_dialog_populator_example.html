@@ -353,10 +353,10 @@
                 buttons: [
                     {
                         label: '💾 Save Changes',
-                        class: 'sch_dialog_button--primary',
+                        class: 'ocdialog_button--primary',
                         callback: function(e) {
                             // Get the dialog element from the button's closest dialog
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             
                             // Extract form data using OcPopulator
                             const formKeys = ['firstName', 'lastName', 'email', 'phone', 'department', 'position', 'bio', 'active', 'notifications'];
@@ -370,9 +370,9 @@
                     },
                     {
                         label: '❌ Cancel',
-                        class: 'sch_dialog_button--secondary',
+                        class: 'ocdialog_button--secondary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             dialogEl.close();
                         }
                     }
@@ -395,9 +395,9 @@
                 buttons: [
                     {
                         label: '✅ Apply Settings',
-                        class: 'sch_dialog_button--primary',
+                        class: 'ocdialog_button--primary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             const settingsKeys = ['theme', 'language', 'privacyLevel', 'autoSave'];
                             const settings = OcPopulator.getValuesByKey(dialogEl, settingsKeys);
                             
@@ -408,9 +408,9 @@
                     },
                     {
                         label: '🔄 Reset to Defaults',
-                        class: 'sch_dialog_button--secondary',
+                        class: 'ocdialog_button--secondary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             const defaults = {
                                 theme: 'light',
                                 language: 'en',
@@ -422,9 +422,9 @@
                     },
                     {
                         label: '❌ Cancel',
-                        class: 'sch_dialog_button--secondary',
+                        class: 'ocdialog_button--secondary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             dialogEl.close();
                         }
                     }
@@ -453,9 +453,9 @@
                 buttons: [
                     {
                         label: '🚀 Create Project',
-                        class: 'sch_dialog_button--primary',
+                        class: 'ocdialog_button--primary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             const formKeys = ['projectName', 'dueDate', 'teamMembers', 'priority', 'budget', 
                                             'completion', 'description', 'confidential', 'archived'];
                             const projectData = OcPopulator.getValuesByKey(dialogEl, formKeys);
@@ -467,7 +467,7 @@
                     },
                     {
                         label: '📄 Load Template',
-                        class: 'sch_dialog_button--secondary',
+                        class: 'ocdialog_button--secondary',
                         callback: function(e) {
 
                             const template = {
@@ -481,16 +481,16 @@
                                 confidential: 'cHacHa',
                                 archived: ''
                             };
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             console.log("clicked load template", this);
                             OcPopulator.populate(document.getElementById('complexform'), template);
                         }
                     },
                     {
                         label: '❌ Cancel',
-                        class: 'sch_dialog_button--secondary',
+                        class: 'ocdialog_button--secondary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+                            const dialogEl = e.target.closest('.ocdialog');
                             dialogEl.close();
                         }
                     }
