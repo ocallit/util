@@ -167,20 +167,31 @@ const OcPopulator = {
     },
 
     _populateList(element, value) {
-        if(Array.isArray(value)) {
-            element.innerHTML = value.map(item => {
-                if(Array.isArray(item)) {
-                    // Nested list
-                    const tagName = element.tagName.toLowerCase();
-                    const subItems = item.map(subItem => `<li>${this._escapeHtml(String(subItem))}</li>`).join('');
-                    return `<li><${tagName}>${subItems}</${tagName}></li>`;
-                } else {
-                    return `<li>${this._escapeHtml(String(item))}</li>`;
-                }
-            }).join('');
-        } else {
+        if (!Array.isArray(value)) {
             element.innerHTML = this._escapeHtml(String(value));
+            return;
         }
+
+        const tagName = element.tagName.toLowerCase();
+        element.innerHTML = value.map(item => {
+            if (Array.isArray(item)) {
+                const subItems = this._buildNestedListHtml(item, tagName);
+                return `<li><${tagName}>${subItems}</${tagName}></li>`;
+            } else {
+                return `<li>${this._escapeHtml(String(item))}</li>`;
+            }
+        }).join('');
+    },
+
+    _buildNestedListHtml(array, tagName) {
+        return array.map(item => {
+            if (Array.isArray(item)) {
+                const subItems = this._buildNestedListHtml(item, tagName);
+                return `<li><${tagName}>${subItems}</${tagName}></li>`;
+            } else {
+                return `<li>${this._escapeHtml(String(item))}</li>`;
+            }
+        }).join('');
     },
 
     _extractElementValue(element) {

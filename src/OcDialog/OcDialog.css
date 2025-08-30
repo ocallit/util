@@ -1,4 +1,7 @@
 
+.ocdialog_form {display:none}
+.sch_dialog .ocdialog_form {display: block !important;}
+
 
 
 /** region: Dialog backdrop */

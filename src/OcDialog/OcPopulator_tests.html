@@ -36,8 +36,9 @@
             
             <!-- Checkboxes -->
             <input type="checkbox" id="checkbox1" value="option1" />
-            <input type="checkbox" id="checkbox2" value="option2" />
-            
+            <input type="checkbox" id="checkbox2" checked="checked" value="option2" />
+            <input type="checkbox" id="initialyChecked" checked="checked" value="initialy_checked" />
+
             <!-- Radio button groups -->
             <input type="radio" name="radioGroup1" value="radio1" />
             <input type="radio" name="radioGroup1" value="radio2" />
@@ -174,12 +175,12 @@
                 const data = {
                     checkbox1: 'option1',
                     checkbox2: 'different-value'
+
                 };
-
                 OcPopulator.populate(container, data);
-
                 assert.true(container.querySelector('#checkbox1').checked, 'Checkbox1 should be checked when value matches');
                 assert.false(container.querySelector('#checkbox2').checked, 'Checkbox2 should not be checked when value doesn\'t match');
+                assert.true(container.querySelector('#initialyChecked').checked, 'initialyChecked not in data not touched stays checked');
             });
 
             // Radio button tests

@@ -88,7 +88,7 @@
             
             <div class="sch_form_group">
                 <h3>Featured Image:</h3>
-                <img id="featuredImage" class="example-image" src="https://picsum.photos/200/150?random=1" alt="Featured Image">
+                <img id="featuredImage" class="example-image" src="" alt="Featured Image">
             </div>
             
             <div class="sch_form_group">
@@ -107,6 +107,123 @@
         </div>
     </div>
 
+    <div id="demo_settings" class="ocdialog_form">
+
+        <div class="sch_form_group">
+            <label class="sch_form_label">Theme:
+                <select id="theme" class="sch_form_input">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="auto">Auto</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="sch_form_group">
+            <label class="sch_form_label">Language:
+                <select id="language" class="sch_form_input">
+                    <option value="ca">cat</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Privacy Level:
+                    <input type="radio" name="privacyLevel" value="low" id="privacyLow"> <label for="privacyLow">Low</label><br>
+                    <input type="radio" name="privacyLevel" value="medium" id="privacyMed"> <label for="privacyMed">Medium</label><br>
+                    <input type="radio" name="privacyLevel" value="high" id="privacyHigh"> <label for="privacyHigh">High</label>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label>
+                    <input type="checkbox" id="autoSave" value="true"> Enable Auto-save
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="complexform" class="ocdialog_form">
+        <div class="form-section">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Project Name:
+                    <input type="text" id="projectName" class="sch_form_input" placeholder="Enter project name">
+                </label>
+            </div>
+
+            <div class="sch_form_group">
+                <label class="sch_form_label">Due Date:
+                    <input type="date" id="dueDate" class="sch_form_input">
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Team Members:
+                    <select id="teamMembers" class="sch_form_input" multiple size="4">
+                        <option value="john">John Doe</option>
+                        <option value="jane">Jane Smith</option>
+                        <option value="bob">Bob Johnson</option>
+                        <option value="alice">Alice Brown</option>
+                        <option value="charlie">Charlie Wilson</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Priority Level:</label>
+                <div>
+                    <input type="radio" name="priority" value="low" id="priorityLow"> <label for="priorityLow">Low</label>
+                    <input type="radio" name="priority" value="medium" id="priorityMed"> <label for="priorityMed">Medium</label>
+                    <input type="radio" name="priority" value="high" id="priorityHigh"> <label for="priorityHigh">High</label>
+                    <input type="radio" name="priority" value="urgent" id="priorityUrgent"> <label for="priorityUrgent">Urgent</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Budget:
+                    <input type="number" id="budget" class="sch_form_input" min="0" step="100" placeholder="0">
+                </label>
+            </div>
+
+            <div class="sch_form_group">
+                <label class="sch_form_label">Completion %:
+                    <input type="range" id="completion" class="sch_form_input" min="0" max="100" value="0">
+                    <span id="completionValue">0%</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label class="sch_form_label">Project Description:
+                    <textarea id="description" class="sch_form_input sch_form_textarea" rows="4"></textarea>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section full-width">
+            <div class="sch_form_group">
+                <label>
+                    <input type="checkbox" id="confidential" value="cHacHa"> Mark as Confidential
+                </label>
+                <label>
+                    <input type="checkbox" id="archived" value="true"> Archive when complete
+                </label>
+            </div>
+        </div>
+    </div>
     <!-- Include JavaScript files -->
     <script src="OcPopulator.js"></script>
     <script src="OcDialog.js"></script>
@@ -120,11 +237,11 @@
             lastName: 'Doe',
             email: 'john.doe@example.com',
             phone: '555-0123',
-            department: 'engineering',
+            department: ['sales'],
             position: 'Senior Developer',
             bio: 'Experienced full-stack developer with expertise in web technologies and database design.',
-            active: 'yes',
-            notifications: 'email',
+            active: 'no',
+            notifications: 'none',
             skills: ['JavaScript', 'Python', 'React']
         };
 
@@ -134,6 +251,7 @@
             featuresList: [
                 'Advanced Dialog System with OcDialog',
                 'Dynamic Form Population with OcPopulator',
+                ['Keen','Luneta','Toby','Peitos','Samantha','Toshi',"Iris",["Kana","Maika", ['the cats']],"Camila"],
                 'Responsive Design with SCH Color Scheme',
                 'Modern JavaScript ES6+ Features',
                 'Cross-browser Compatibility'
@@ -211,7 +329,7 @@
                     <div class="sch_form_group">
                         <label class="sch_form_label">Status:</label>
                         <div>
-                            <input type="radio" name="active" value="yes" id="activeYes"> <label for="activeYes">Active</label><br>
+                            <input type="radio" name="active" checked="checked" value="yes" id="activeYes"> <label for="activeYes">Active</label><br>
                             <input type="radio" name="active" value="no" id="activeNo"> <label for="activeNo">Inactive</label>
                         </div>
                     </div>
@@ -269,48 +387,7 @@
 
         // Function to show settings dialog
         function showSettingsDialog() {
-            const settingsForm = `
-                <div class="form-section">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Theme:
-                            <select id="theme" class="sch_form_input">
-                                <option value="light">Light</option>
-                                <option value="dark">Dark</option>
-                                <option value="auto">Auto</option>
-                            </select>
-                        </label>
-                    </div>
-                    
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Language:
-                            <select id="language" class="sch_form_input">
-                                <option value="ca">cat</option>
-                                <option value="en">English</option>
-                                <option value="es">Español</option>
-                                <option value="fr">Français</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Privacy Level:
-                            <input type="radio" name="privacyLevel" value="low" id="privacyLow"> <label for="privacyLow">Low</label><br>
-                            <input type="radio" name="privacyLevel" value="medium" id="privacyMed"> <label for="privacyMed">Medium</label><br>
-                            <input type="radio" name="privacyLevel" value="high" id="privacyHigh"> <label for="privacyHigh">High</label>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label>
-                            <input type="checkbox" id="autoSave" value="true"> Enable Auto-save
-                        </label>
-                    </div>
-                </div>
-            `;
+            const settingsForm = document.getElementById("demo_settings");
 
             const { promise, dialog } = OcDialog.dialog({
                 title: '⚙️ Application Settings',
@@ -355,9 +432,9 @@
             });
 
             // Populate with current settings
-            setTimeout(() => {
+            //setTimeout(() => {
                 OcPopulator.populate(dialog, appSettings);
-            }, 100);
+            //}, 100);
         }
 
         // Function to populate main page content
@@ -368,81 +445,7 @@
 
         // Function to show complex form with multiple element types
         function showComplexFormDialog() {
-            const complexForm = `
-                <div class="form-section">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Project Name:
-                            <input type="text" id="projectName" class="sch_form_input" placeholder="Enter project name">
-                        </label>
-                    </div>
-                    
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Due Date:
-                            <input type="date" id="dueDate" class="sch_form_input">
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Team Members:
-                            <select id="teamMembers" class="sch_form_input" multiple size="4">
-                                <option value="john">John Doe</option>
-                                <option value="jane">Jane Smith</option>
-                                <option value="bob">Bob Johnson</option>
-                                <option value="alice">Alice Brown</option>
-                                <option value="charlie">Charlie Wilson</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Priority Level:</label>
-                        <div>
-                            <input type="radio" name="priority" value="low" id="priorityLow"> <label for="priorityLow">Low</label>
-                            <input type="radio" name="priority" value="medium" id="priorityMed"> <label for="priorityMed">Medium</label>
-                            <input type="radio" name="priority" value="high" id="priorityHigh"> <label for="priorityHigh">High</label>
-                            <input type="radio" name="priority" value="urgent" id="priorityUrgent"> <label for="priorityUrgent">Urgent</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Budget:
-                            <input type="number" id="budget" class="sch_form_input" min="0" step="100" placeholder="0">
-                        </label>
-                    </div>
-                    
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Completion %:
-                            <input type="range" id="completion" class="sch_form_input" min="0" max="100" value="0">
-                            <span id="completionValue">0%</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label class="sch_form_label">Project Description:
-                            <textarea id="description" class="sch_form_input sch_form_textarea" rows="4"></textarea>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="form-section full-width">
-                    <div class="sch_form_group">
-                        <label>
-                            <input type="checkbox" id="confidential" value="cHacHa"> Mark as Confidential
-                        </label>
-                        <label>
-                            <input type="checkbox" id="archived" value="true"> Archive when complete
-                        </label>
-                    </div>
-                </div>
-            `;
+            const complexForm =document.getElementById('complexform');
 
             const { promise, dialog } = OcDialog.dialog({
                 title: '📋 Create New Project',
@@ -466,9 +469,9 @@
                         label: '📄 Load Template',
                         class: 'sch_dialog_button--secondary',
                         callback: function(e) {
-                            const dialogEl = e.target.closest('.sch_dialog');
+
                             const template = {
-                                projectName: 'Website Redesign',
+                                projectName: 'Website',
                                 dueDate: '2024-12-31',
                                 teamMembers: ['bab', 'john', 'jane', 'alice', 'mark'],
                                 priority: 'high',
@@ -478,13 +481,9 @@
                                 confidential: 'cHacHa',
                                 archived: ''
                             };
-                            OcPopulator.populate(dialogEl, template);
-                            
-                            // Update the completion percentage display
-                            const completionSpan = dialogEl.querySelector('#completionValue');
-                            if (completionSpan) {
-                                completionSpan.textContent = '25%';
-                            }
+                            const dialogEl = e.target.closest('.sch_dialog');
+                            console.log("clicked load template", this);
+                            OcPopulator.populate(document.getElementById('complexform'), template);
                         }
                     },
                     {
