@@ -45,7 +45,7 @@ const OcPopulator = {
                             radioGroup.forEach(radio => {
                                 radio.checked = radio.value == valueToCheck;
                                 if(hasAttributes)
-                                    this._setElementAttributes(element, attributes[id]);
+                                    this._setElementAttributes(radio, attributes[id]);
                             });
                         }
                     }
@@ -137,7 +137,13 @@ const OcPopulator = {
                 this._populateSelect(element, value);
                 break;
             case 'img':
+            case 'video':
+            case 'audio':
+            case 'iframe':
                 element.src = String(value);
+                break;
+            case 'a':
+                element.href = String(value);
                 break;
             case 'ul':
             case 'ol':
@@ -153,16 +159,29 @@ const OcPopulator = {
     },
 
     _populateSelect(element, value) {
-        element.selectedIndex = -1; // Clear selection
-        if(Array.isArray(value)) {
-            /** @var option @type {HTMLOptionElement} */
-            for(const option of element.options) {
-                if(value.some(val => option.value == val)) {
-                    option.selected = true;
-                }
+        if(element.tomselect) {
+            // Tom Select instance detected - use its setValue method
+            // Tom Select's clear() method handles clearing selections
+            if(Array.isArray(value)) {
+                element.tomselect.setValue(value, true); // true = silent update (no onChange trigger)
+            } else {
+                element.tomselect.setValue([value], true);
             }
+            // Sync the Tom Select instance with the underlying element changes
+            element.tomselect.sync();
         } else {
-            element.value = value;
+            // Regular select element handling
+            element.selectedIndex = -1; // Clear selection
+            if(Array.isArray(value)) {
+                /** @var option @type {HTMLOptionElement} */
+                for(const option of element.options) {
+                    if(value.some(val => option.value == val)) {
+                        option.selected = true;
+                    }
+                }
+            } else {
+                element.value = value;
+            }
         }
     },
 
@@ -203,6 +222,13 @@ const OcPopulator = {
                 return element.value;
             case 'select':
                 return this._extractSelectValue(element);
+            case 'img':
+            case 'video':
+            case 'audio':
+            case 'iframe':
+                return element.src || "";
+            case 'a':
+                return element.href || "";
             default:
                 return element.textContent || element.innerHTML;
         }
@@ -244,7 +270,7 @@ const OcPopulator = {
     },
 
     _toDatasetKey(dataName) {
-        let key = name.toLowerCase();
+        let key = dataName.toLowerCase();
         if (key.startsWith("data-")) {
             key = key.slice(5);
         }
