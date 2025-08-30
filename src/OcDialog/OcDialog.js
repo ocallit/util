@@ -118,7 +118,7 @@ var OcDialog = {
                     document.body.appendChild(html);
                 }
 
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.remove();
 
                 if (shouldResolve) {
@@ -140,7 +140,7 @@ var OcDialog = {
             dialog.addEventListener('keydown', handleKeydown);
             dialog.addEventListener('close', handleDialogClose);
 
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
 
             // Don't focus any button - let dialog remain unfocused
@@ -270,7 +270,7 @@ var OcDialog = {
                     document.body.appendChild(html);
                 }
 
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.remove();
 
                 if (shouldResolve) {
@@ -292,7 +292,7 @@ var OcDialog = {
             dialog.addEventListener('keydown', handleKeydown);
             dialog.addEventListener('close', handleDialogClose);
 
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
 
             // Don't focus any button - let dialog remain unfocused
@@ -337,7 +337,7 @@ var OcDialog = {
                 closeButton.removeEventListener('click', handleButtonClose);
                 okButton.removeEventListener('click', handleButtonClose);
                 dialog.removeEventListener('close', handleButtonClose);
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.remove();
                 resolve(true);
             }
@@ -351,7 +351,7 @@ var OcDialog = {
             okButton.addEventListener('click', handleButtonClose);
             dialog.addEventListener('close', cleanup);
 
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
             okButton.focus();
         });
@@ -441,7 +441,7 @@ var OcDialog = {
                 okButton.removeEventListener('click', handleOk);
                 cancelButton.removeEventListener('click', handleCancel);
                 dialog.removeEventListener('close', handleCancel);
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.remove();
 
                 if (shouldResolve) {
@@ -470,7 +470,7 @@ var OcDialog = {
             cancelButton.addEventListener('click', handleCancel);
             dialog.addEventListener('close', handleCancel);
 
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
             okButton.focus();
         });
@@ -569,7 +569,7 @@ var OcDialog = {
                 inputField.removeEventListener('keydown', handleKeydown);
                 clearButton.removeEventListener('click', handleClearClick);
                 dialog.removeEventListener('close', handleCancel);
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.remove();
 
                 if (shouldResolve) {
@@ -619,7 +619,7 @@ var OcDialog = {
             inputField.addEventListener('keydown', handleKeydown);
             dialog.addEventListener('close', handleCancel);
 
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
             inputField.focus();
             inputField.select();
@@ -676,7 +676,7 @@ var OcDialog = {
                 saveBtn.removeEventListener('click', onSaveClick);
                 cancelBtn.removeEventListener('click', onCancel);
                 closeBtn.removeEventListener('click', onCancel);
-                // OcDialogDrag.cleanup(dialog);
+                OcDialogDrag.cleanup(dialog);
                 dialog.close();
                 dialog.remove();
             }
@@ -716,7 +716,7 @@ var OcDialog = {
             saveBtn.addEventListener('click', onSaveClick);
             cancelBtn.addEventListener('click', onCancel);
             closeBtn.addEventListener('click', onCancel);
-            // OcDialogDrag.initialize(dialog);
+            OcDialogDrag.initialize(dialog);
             dialog.showModal();
         });
     },
