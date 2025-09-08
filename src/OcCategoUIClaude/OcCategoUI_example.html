@@ -100,32 +100,23 @@
             font-size: 13px;
         }
     </style>
-    
-    <!-- Tom Select CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
-    
-    <!-- jQuery UI CSS -->
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css">
-    
-    <!-- OcCategoUI CSS -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+
     <link rel="stylesheet" href="OcCategoUI.css">
+    <script src="OcCategoUI.js"></script>
 </head>
 <body>
     <div class="demo-container">
         <h1>OcCategoUI Widget Demo</h1>
         <p>This demo shows how to use the OcCategoUI widget to add edit functionality to Tom Select dropdowns.</p>
-        
-        <div class="info-box">
-            <h4>Features</h4>
-            <ul>
-                <li>Add, edit, and delete options from Tom Select dropdowns</li>
-                <li>Search existing options in the edit dialog</li>
-                <li>Preserves user selections when options are modified</li>
-                <li>Multiple independent widgets on the same page</li>
-                <li>AJAX communication with backend for persistence</li>
-            </ul>
-        </div>
-        
+
         <div class="demo-section">
             <h3>Example 1: Categories Select</h3>
             <div class="form-group">
@@ -142,15 +133,15 @@
         </div>
         
         <div class="demo-section">
-            <h3>Example 2: Tags Select</h3>
+            <h3>Example mulitple Tags Only local</h3>
             <div class="form-group">
                 <label for="tags">Tags:</label>
                 <select id="tags" multiple>
-                    <option value="web">Web Development</option>
-                    <option value="mobile">Mobile</option>
-                    <option value="design">Design</option>
-                    <option value="backend">Backend</option>
-                    <option value="frontend">Frontend</option>
+                    <option value="wd">Web Development!</option>
+                    <option value="mo">Mobile</option>
+                    <option value="de">Design</option>
+                    <option value="ba">Backend</option>
+                    <option value="fr">Frontend</option>
                 </select>
             </div>
             <p><em>This select gets edit functionality programmatically via JavaScript.</em></p>
@@ -183,17 +174,8 @@
         </div>
     </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
-    <!-- jQuery UI -->
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    
-    <!-- Tom Select JS -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
-    
-    <!-- OcCategoUI JS -->
-    <script src="OcCategoUI.js"></script>
+
+
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -239,11 +221,11 @@
             ];
             
             let mockTags = [
-                {id: 'web', text: 'Web Development'},
-                {id: 'mobile', text: 'Mobile'},
-                {id: 'design', text: 'Design'},
-                {id: 'backend', text: 'Backend'},
-                {id: 'frontend', text: 'Frontend'}
+                {id: 'wd', text: 'Web Development!'},
+                {id: 'mo', text: 'Mobile!'},
+                {id: 'de', text: 'Design'},
+                {id: 'ba', text: 'Backend'},
+                {id: 'fr', text: 'Frontend'}
             ];
             
             let mockPriorities = [
@@ -272,7 +254,9 @@
                     } else if (url.includes('priorities')) {
                         mockData = mockPriorities;
                     }
-                    
+                    console.log("data", data)
+                    console.log("asdf", url)
+                    console.log("mockData", mockData)
                     if (mockData) {
                         switch (data.action) {
                             case 'add':
