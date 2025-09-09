@@ -7,93 +7,16 @@
     
     <!-- SCH Color Scheme Variables -->
     <style>
-        :root {
-            --color-primary: #00008b;
-            --color-primary-bg: #ffffff;
-            --color-secondary: #4682b4;
-            --color-secondary-bg: #f8f9fa;
-            --color-accent: #ff6b35;
-            --color-accent-bg: #fff8f5;
-            --color-success: #28a745;
-            --color-fail: #dc3545;
-            --color-warning: #ffc107;
-            --color-info: #17a2b8;
-            --color-text: #212529;
-            --color-text-light: #6c757d;
-            --color-text-muted: #adb5bd;
-            --color-border: #dee2e6;
-            --color-surface: #ffffff;
-            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-            --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
-            --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 40px;
-            background: var(--color-secondary-bg);
-            color: var(--color-text);
-        }
-        
-        .demo-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--color-surface);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: var(--elevation-2);
-        }
-        
-        .demo-section {
-            margin-bottom: 40px;
-            padding: 20px;
-            border: 1px solid var(--color-border);
-            border-radius: 6px;
-            background: var(--color-surface);
-        }
-        
-        .demo-section h3 {
-            margin-top: 0;
-            color: var(--color-primary);
-            border-bottom: 2px solid var(--color-border);
-            padding-bottom: 10px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--color-text);
-        }
         
         select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            background: var(--color-surface);
-            font-size: 14px;
+            background-color: white;
         }
         
-        .info-box {
-            background: var(--color-accent-bg);
-            border: 1px solid var(--color-accent);
-            border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .info-box h4 {
-            margin: 0 0 10px 0;
-            color: var(--color-accent);
-        }
+
         
         code {
-            background: var(--color-secondary-bg);
+            border: 1px silver solid;
+            width: fit-content;
             padding: 2px 6px;
             border-radius: 3px;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -114,45 +37,43 @@
 </head>
 <body>
     <div class="demo-container">
-        <h1>OcCategoUI Widget Demo</h1>
-        <p>This demo shows how to use the OcCategoUI widget to add edit functionality to Tom Select dropdowns.</p>
+        <h1>Categorias</h1>
+
 
         <div class="demo-section">
-            <h3>Example 1: Categories Select</h3>
+
             <div class="form-group">
-                <label for="categories">Product Categories:</label>
+                <label for="categories">Categorías</label>
                 <select id="categories" multiple data-occategoui data-occategoui-title="Edit Categories" data-occategoui-apiurl="./api/categories.php">
-                    <option value="1">Electronics</option>
-                    <option value="2">Clothing</option>
-                    <option value="3">Books</option>
-                    <option value="4">Home & Garden</option>
-                    <option value="5">Sports</option>
+                    <option value="1">Deportes</option>
+                    <option value="2">Escolar</option>
+                    <option value="3">Nuevo</option>
+                    <option value="4">Primavera</option>
+                    <option value="5">Invierno</option>
                 </select>
             </div>
             <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
         </div>
         
         <div class="demo-section">
-            <h3>Example mulitple Tags Only local</h3>
             <div class="form-group">
-                <label for="tags">Tags:</label>
+                <label for="tags">Colores:</label>
                 <select id="tags" multiple>
-                    <option value="wd">Web Development!</option>
-                    <option value="mo">Mobile</option>
-                    <option value="de">Design</option>
-                    <option value="ba">Backend</option>
-                    <option value="fr">Frontend</option>
+                    <option value="wd">Experimento</option>
+                    <option value="mo">Franelas</option>
+                    <option value="de">Elegante</option>
+                    <option value="ba">Verano</option>
+                    <option value="fr">Otoño</option>
                 </select>
             </div>
             <p><em>This select gets edit functionality programmatically via JavaScript.</em></p>
         </div>
         
         <div class="demo-section">
-            <h3>Example 3: Single Select</h3>
             <div class="form-group">
-                <label for="priority">Priority Level:</label>
+                <label for="priority">Una</label>
                 <select id="priority">
-                    <option value="">Select priority...</option>
+                    <option value="">Categoría...</option>
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
@@ -163,7 +84,7 @@
         </div>
         
         <div class="info-box">
-            <h4>Backend API Requirements</h4>
+            <h4>Verano API Requirements</h4>
             <p>The widget expects your API endpoint to handle three actions:</p>
             <ul>
                 <li><strong>add</strong>: Creates a new option (receives <code>value</code> and <code>text</code>)</li>
@@ -213,19 +134,19 @@
         (function() {
             // Mock data storage
             let mockCategories = [
-                {id: '1', text: 'Electronics'},
-                {id: '2', text: 'Clothing'},
-                {id: '3', text: 'Books'},
-                {id: '4', text: 'Home & Garden'},
-                {id: '5', text: 'Sports'}
+                {id: '1', text: 'Deportes'},
+                {id: '2', text: 'Escolar'},
+                {id: '3', text: 'Nuevo'},
+                {id: '4', text: 'Primavera'},
+                {id: '5', text: 'Invierno'}
             ];
             
             let mockTags = [
-                {id: 'wd', text: 'Web Development!'},
-                {id: 'mo', text: 'Mobile!'},
-                {id: 'de', text: 'Design'},
-                {id: 'ba', text: 'Backend'},
-                {id: 'fr', text: 'Frontend'}
+                {id: 'wd', text: 'Experimento!'},
+                {id: 'mo', text: 'Franelas!'},
+                {id: 'de', text: 'Elegante'},
+                {id: 'ba', text: 'Verano'},
+                {id: 'fr', text: 'Otoño'}
             ];
             
             let mockPriorities = [

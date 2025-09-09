@@ -1,12 +1,12 @@
 // File: OcCategoUI.js
 // Path: /src/js/OcCategoUI.js
-// Version: 1.3.0
+// Version: 1.4.0 - jQuery UI Theme Compatible
 
 /**
  * OcCategoUI - A stateless widget for editing Tom Select options
  * Each instance is independent with no central management
  */
-class OcCategoUI_ {
+class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
         this.tomSelectInstance = null;
@@ -65,13 +65,16 @@ class OcCategoUI_ {
         const editButton = document.createElement('button');
         editButton.id = this.editButtonId;
         editButton.type = 'button';
-        editButton.className = 'OcCategoUI_editButton';
+        editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
         editButton.innerHTML = '✏️';
         editButton.title = 'Edit Options';
 
         // Insert button after the Tom Select wrapper
         const wrapper = this.selectElement.closest('.ts-wrapper') || this.selectElement;
         wrapper.parentNode.insertBefore(editButton, wrapper.nextSibling);
+
+        // Apply jQuery UI button styling
+        $(editButton).button();
 
         editButton.addEventListener('click', () => {
             this.openDialog();
@@ -80,30 +83,30 @@ class OcCategoUI_ {
 
     createDialog() {
         const dialogHtml = `
-            <div id="${this.dialogId}" class="OcCategoUI_dialog" title="${this.options.dialogTitle}">
-                <div class="OcCategoUI_dialogContent">
-                    <!-- Simple toolbar with Add button -->
+            <div id="${this.dialogId}" class="OcCategoUI_dialog ui-widget" title="${this.options.dialogTitle}">
+                <div class="OcCategoUI_dialogContent ui-widget-content">
+                    
                     <div class="OcCategoUI_toolbar">
-                        <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton">Nuevo</button>
+                        <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nuevo</button>
                     </div>
                     
-                    <!-- Search toolbar -->
-                    <div class="OcCategoUI_searchToolbar">
-                        <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput" placeholder="🔍 Filter existing options...">
-                        <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear">×</button>
+                    
+                    <div class="OcCategoUI_searchToolbar ui-widget-header ui-corner-all">
+                        <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Filter existing options...">
+                        <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear ui-state-default ui-corner-all">×</button>
                     </div>
                     
-                    <!-- Options list with inline editing -->
-                    <div class="OcCategoUI_optionsList" id="${this.dialogId}_list">
-                        <!-- Options will be populated here -->
+                    
+                    <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list">
+                       
                     </div>
                     
-                    <!-- Compact add form -->
-                    <div class="OcCategoUI_addForm" id="${this.dialogId}_addForm" style="display: none;">
-                        <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput" placeholder="Enter option text...">
+                    
+                    <div class="OcCategoUI_addForm ui-state-highlight ui-corner-all" id="${this.dialogId}_addForm" style="display: none;">
+                        <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Enter option text...">
                         <div class="OcCategoUI_addActions">
-                            <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn">✓</button>
-                            <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn">✗</button>
+                            <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn ui-state-default ui-corner-all">✓</button>
+                            <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all">✗</button>
                         </div>
                     </div>
                 </div>
@@ -125,6 +128,12 @@ class OcCategoUI_ {
                 this.cancelAllEditing();
             }
         });
+
+        // Apply jQuery UI button styling to all buttons
+        $(`#${this.dialogId}_addBtn`).button();
+        $(`#${this.dialogId}_searchClear`).button();
+        $(`#${this.dialogId}_saveNew`).button();
+        $(`#${this.dialogId}_cancelNew`).button();
 
         // Bind events
         this.bindDialogEvents();
@@ -155,6 +164,15 @@ class OcCategoUI_ {
         $(`#${this.dialogId}_cancelNew`).on('click', () => {
             this.hideAllForms();
         });
+
+        // Enter key handling for add form
+        $(`#${this.dialogId}_newText`).on('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.saveNewOption();
+            } else if (e.key === 'Escape') {
+                this.hideAllForms();
+            }
+        });
     }
 
     openDialog() {
@@ -169,21 +187,21 @@ class OcCategoUI_ {
 
         this.currentOptions.forEach((option, index) => {
             html += `
-                <div class="OcCategoUI_optionItem" data-index="${index}">
+                <div class="OcCategoUI_optionItem ui-widget-content ui-corner-all" data-index="${index}">
                     <!-- View mode -->
                     <div class="OcCategoUI_optionDisplay" data-mode="view">
                         <span class="OcCategoUI_optionText">${this.escapeHtml(option.text)}</span>
                         <div class="OcCategoUI_optionActions">
-                            <button type="button" class="OcCategoUI_editBtn" data-index="${index}" title="Edit">✏️</button>
-                            <button type="button" class="OcCategoUI_deleteBtn" data-index="${index}" title="Delete">🗑️</button>
+                            <button type="button" class="OcCategoUI_editBtn ui-state-default ui-corner-all" data-index="${index}" title="Edit">✏️</button>
+                            <button type="button" class="OcCategoUI_deleteBtn ui-state-default ui-corner-all" data-index="${index}" title="Delete">🗑️</button>
                         </div>
                     </div>
                     <!-- Edit mode -->
-                    <div class="OcCategoUI_optionEdit" data-mode="edit" style="display: none;">
-                        <input type="text" class="OcCategoUI_inlineInput" value="${this.escapeHtml(option.text)}" data-original-value="${this.escapeHtml(option.text)}">
+                    <div class="OcCategoUI_optionEdit ui-state-highlight ui-corner-all" data-mode="edit" style="display: none;">
+                        <input type="text" class="OcCategoUI_inlineInput ui-widget-content ui-corner-all" value="${this.escapeHtml(option.text)}" data-original-value="${this.escapeHtml(option.text)}">
                         <div class="OcCategoUI_inlineActions">
-                            <button type="button" class="OcCategoUI_saveBtn" data-index="${index}" title="Save">✓</button>
-                            <button type="button" class="OcCategoUI_cancelBtn" data-index="${index}" title="Cancel">✗</button>
+                            <button type="button" class="OcCategoUI_saveBtn ui-state-default ui-corner-all" data-index="${index}" title="Save">✓</button>
+                            <button type="button" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all" data-index="${index}" title="Cancel">✗</button>
                         </div>
                     </div>
                 </div>
@@ -191,6 +209,9 @@ class OcCategoUI_ {
         });
 
         listContainer.innerHTML = html;
+
+        // Apply jQuery UI button styling to all newly created buttons
+        $(`#${this.dialogId}_list .ui-state-default`).button();
 
         // Bind option actions
         this.bindOptionEvents();
@@ -473,7 +494,7 @@ class OcCategoUI_ {
         const option = this.currentOptions[index];
 
         if (this.options.confirmDelete) {
-            if (!confirm(`Are you sure you want to delete "${option.text}"?`)) {
+            if (!confirm(`Confirme borrar: "${option.text}"?`)) {
                 return;
             }
         }
@@ -491,17 +512,15 @@ class OcCategoUI_ {
                 if (response.success) {
                     // Remove from select element
                     this.removeOptionFromSelect(option.value);
-
                     // Remove from current options
                     this.currentOptions.splice(index, 1);
-
                     this.renderOptionsList();
                 } else {
-                    alert('Error: ' + (response.error || 'Failed to delete option'));
+                    alert('Error: ' + (response.error || 'No se pudo borrar'));
                 }
             },
             error: () => {
-                alert('Network error occurred while deleting option');
+                alert('Error al borrar, intente mas tarde');
             }
         });
     }
@@ -529,11 +548,6 @@ class OcCategoUI_ {
     }
 }
 
-// Convenience function to create widgets
-window.OcCategoUI_createWidget = function(selectElement, options = {}) {
-    return new OcCategoUI_(selectElement, options);
-};
-
 // Auto-initialize for elements with data-occategoui attribute
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('[data-occategoui]');
@@ -548,6 +562,6 @@ document.addEventListener('DOMContentLoaded', function() {
             options.dialogTitle = element.dataset.occategouiTitle;
         }
 
-        new OcCategoUI_(element, options);
+        new OcCategoUI(element, options);
     });
 });
