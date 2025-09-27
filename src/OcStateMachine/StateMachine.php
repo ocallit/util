@@ -1,19 +1,49 @@
 <?php
+/** @noinspection PhpUnused */
+
 declare(strict_types = 1);
 /** @noinspection PhpUnused */
 
+namespace ocallit\Util\OcStateMachine;
+
 /*
+3. change guards to methods and their return type is bool and
+
+see https://mermaid.js.org/config/theming.html
+---
+config:
+  theme: 'base'
+  themeVariables:
+    primaryColor: '#BB2528'
+    primaryTextColor: '#fff'
+    primaryBorderColor: '#7C0000'
+    lineColor: '#F8B229'
+    secondaryColor: '#006100'
+    tertiaryColor: '#fff'
+---
+
  classDiagram
     STATE_A <|-- STATE_B
     STATE_B --> STATE_C
     STATE_C --> STATE_D
     STATE_D --> STATE_A
+    Animal <|--|> Zebra
+    bar ()-- foo
 
         class STATE_A {
         <<Letter A>>
         🛡 ENTER can_enter_A, valid_para_A
         🛡 LEAVE can_exist_A
-        ⚡LEAVE a_left()
+        ⚡  LEAVE a_left()
+    }
+
+
+    class Legend {
+        <<📖 LEGEND>>
+        🛡 Guards return bool
+        🛡 No side effects allowed
+        ⚡ Events ignore return value
+        ⚡ Side effects expected
     }
 
 Inheritance / generalization:
@@ -275,6 +305,12 @@ class StateMachine {
     public function getStates(): array {return $this->states;}
 
     public function getCurrentState(): string {return $this->currentState;}
+
+    public function getMoveToGuard(): array {return $this->moveToGuard;}
+
+    public function getOnBeforeTransition(): array {return $this->onBeforeTransition;}
+
+    public function getOnAfterTransition(): array {return $this->onAfterTransition;}
 
     /**
      * Directly sets the current state without triggering transitions or guards.
