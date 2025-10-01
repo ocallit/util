@@ -1,6 +1,6 @@
 // File: OcCategoUI.js
 // Path: /src/js/OcCategoUI.js
-// Version: 1.4.0 - jQuery UI Theme Compatible
+// Version: 1.7.0 - Using value as sole unique identifier
 
 /**
  * OcCategoUI - A stateless widget for editing Tom Select options
@@ -9,15 +9,15 @@
 class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
-        this.tomSelectInstance = null;
         this.dialogId = null;
-        this.currentOptions = [];
-        this.editingIndex = -1;
+        this.currentOptions = new Map(); // Changed to Map for O(1) lookup by value
+        this.editingValue = null; // Track by value, not index
+        this.wrapperDiv = null;
 
         // Default options
         this.options = {
             apiUrl: './api/categories.php',
-            dialogTitle: 'Edit Options',
+            dialogTitle: 'Editar Categorias',
             confirmDelete: true,
             ...options
         };
@@ -32,30 +32,63 @@ class OcCategoUI {
         this.dialogId = `OcCategoUI_dialog_${timestamp}_${random}`;
         this.editButtonId = `OcCategoUI_editBtn_${timestamp}_${random}`;
 
-        // Get Tom Select instance if it exists
-        this.tomSelectInstance = this.selectElement.tomselect;
+        // Create wrapper FIRST (before Tom Select)
+        this.createWrapperEarly();
+
+        // Initialize Tom Select if not already initialized
+        if (!this.selectElement.tomselect) {
+            const isMultiple = this.selectElement.hasAttribute('multiple');
+
+            const preSelectedValues = Array.from(this.selectElement.querySelectorAll('option[selected]'))
+                .map(opt => opt.value);
+
+            new TomSelect(this.selectElement, {
+                plugins: isMultiple ? ['remove_button'] : [],
+                create: false,
+                sortField: { field: 'text', direction: 'asc' },
+                maxItems: isMultiple ? null : 1,
+                items: preSelectedValues
+            });
+        }
 
         // Read current options from select element
         this.loadOptionsFromSelect();
 
-        // Create edit button
+        // Create edit button inside wrapper
         this.createEditButton();
 
         // Create dialog
         this.createDialog();
     }
 
+    getTomSelectInstance() {
+        return this.selectElement.tomselect || null;
+    }
+
+    createWrapperEarly() {
+        // Create wrapper div
+        this.wrapperDiv = document.createElement('div');
+        this.wrapperDiv.className = 'OcCategoUI_wrapper';
+
+        // Insert wrapper BEFORE the select element
+        this.selectElement.parentNode.insertBefore(this.wrapperDiv, this.selectElement);
+
+        // Move select INTO wrapper
+        this.wrapperDiv.appendChild(this.selectElement);
+    }
+
     loadOptionsFromSelect() {
-        this.currentOptions = [];
+        this.currentOptions.clear();
+
         const options = this.selectElement.querySelectorAll('option');
 
-        options.forEach((option, index) => {
+        options.forEach(option => {
             if (option.value) { // Skip empty options
-                this.currentOptions.push({
+                console.log("option to add", option.value, option.textContent);
+                this.currentOptions.set(option.value, {
                     value: option.value,
                     text: option.textContent,
-                    selected: option.selected,
-                    index: index
+                    selected: option.selected
                 });
             }
         });
@@ -67,11 +100,10 @@ class OcCategoUI {
         editButton.type = 'button';
         editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
         editButton.innerHTML = '✏️';
-        editButton.title = 'Edit Options';
+        editButton.title = 'Editar Categorias';
 
-        // Insert button after the Tom Select wrapper
-        const wrapper = this.selectElement.closest('.ts-wrapper') || this.selectElement;
-        wrapper.parentNode.insertBefore(editButton, wrapper.nextSibling);
+        // Add button to wrapper
+        this.wrapperDiv.appendChild(editButton);
 
         // Apply jQuery UI button styling
         $(editButton).button();
@@ -85,33 +117,23 @@ class OcCategoUI {
         const dialogHtml = `
             <div id="${this.dialogId}" class="OcCategoUI_dialog ui-widget" title="${this.options.dialogTitle}">
                 <div class="OcCategoUI_dialogContent ui-widget-content">
-                    
-                    <div class="OcCategoUI_toolbar">
-                        <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nuevo</button>
-                    </div>
-                    
-                    
                     <div class="OcCategoUI_searchToolbar ui-widget-header ui-corner-all">
-                        <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Filter existing options...">
+                        <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Buscar ...">
                         <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear ui-state-default ui-corner-all">×</button>
                     </div>
-                    
-                    
-                    <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list">
-                       
+                    <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list"></div>
+                    <div class="OcCategoUI_toolbar">
+                        <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nueva Categoría</button>
                     </div>
-                    
-                    
                     <div class="OcCategoUI_addForm ui-state-highlight ui-corner-all" id="${this.dialogId}_addForm" style="display: none;">
-                        <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Enter option text...">
+                        <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Categoría...">
                         <div class="OcCategoUI_addActions">
                             <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn ui-state-default ui-corner-all">✓</button>
                             <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all">✗</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
 
         // Append dialog to body
         document.body.insertAdjacentHTML('beforeend', dialogHtml);
@@ -185,23 +207,27 @@ class OcCategoUI {
         const listContainer = document.getElementById(`${this.dialogId}_list`);
         let html = '';
 
-        this.currentOptions.forEach((option, index) => {
+        this.currentOptions.forEach((option) => {
+            console.log("renderOptionsList:", option.value, option.text);
+            const escapedValue = this.escapeHtml(option.value);
+            const escapedText = this.escapeHtml(option.text);
+
             html += `
-                <div class="OcCategoUI_optionItem ui-widget-content ui-corner-all" data-index="${index}">
+                <div class="OcCategoUI_optionItem ui-widget-content ui-corner-all" data-value="${escapedValue}">
                     <!-- View mode -->
                     <div class="OcCategoUI_optionDisplay" data-mode="view">
-                        <span class="OcCategoUI_optionText">${this.escapeHtml(option.text)}</span>
+                        <span class="OcCategoUI_optionText">${escapedText}</span>
                         <div class="OcCategoUI_optionActions">
-                            <button type="button" class="OcCategoUI_editBtn ui-state-default ui-corner-all" data-index="${index}" title="Edit">✏️</button>
-                            <button type="button" class="OcCategoUI_deleteBtn ui-state-default ui-corner-all" data-index="${index}" title="Delete">🗑️</button>
+                            <button type="button" class="OcCategoUI_editBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
+                            <button type="button" class="OcCategoUI_deleteBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
                         </div>
                     </div>
                     <!-- Edit mode -->
                     <div class="OcCategoUI_optionEdit ui-state-highlight ui-corner-all" data-mode="edit" style="display: none;">
-                        <input type="text" class="OcCategoUI_inlineInput ui-widget-content ui-corner-all" value="${this.escapeHtml(option.text)}" data-original-value="${this.escapeHtml(option.text)}">
+                        <input type="text" class="OcCategoUI_inlineInput ui-widget-content ui-corner-all" value="${escapedText}" data-original-value="${escapedText}">
                         <div class="OcCategoUI_inlineActions">
-                            <button type="button" class="OcCategoUI_saveBtn ui-state-default ui-corner-all" data-index="${index}" title="Save">✓</button>
-                            <button type="button" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all" data-index="${index}" title="Cancel">✗</button>
+                            <button type="button" class="OcCategoUI_saveBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Save">✓</button>
+                            <button type="button" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Cancel">✗</button>
                         </div>
                     </div>
                 </div>
@@ -223,32 +249,32 @@ class OcCategoUI {
         // Edit buttons
         listContainer.querySelectorAll('.OcCategoUI_editBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                this.startInlineEdit(index);
+                const value = e.target.getAttribute('data-value');
+                this.startInlineEdit(value);
             });
         });
 
         // Delete buttons
         listContainer.querySelectorAll('.OcCategoUI_deleteBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                this.deleteOption(index);
+                const value = e.target.getAttribute('data-value');
+                this.deleteOption(value);
             });
         });
 
         // Save buttons (inline edit)
         listContainer.querySelectorAll('.OcCategoUI_saveBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                this.saveInlineEdit(index);
+                const value = e.target.getAttribute('data-value');
+                this.saveInlineEdit(value);
             });
         });
 
         // Cancel buttons (inline edit)
         listContainer.querySelectorAll('.OcCategoUI_cancelBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                this.cancelInlineEdit(index);
+                const value = e.target.getAttribute('data-value');
+                this.cancelInlineEdit(value);
             });
         });
 
@@ -256,21 +282,23 @@ class OcCategoUI {
         listContainer.querySelectorAll('.OcCategoUI_inlineInput').forEach(input => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    const index = parseInt(e.target.closest('.OcCategoUI_optionItem').getAttribute('data-index'));
-                    this.saveInlineEdit(index);
+                    const value = e.target.closest('.OcCategoUI_optionItem').getAttribute('data-value');
+                    this.saveInlineEdit(value);
                 } else if (e.key === 'Escape') {
-                    const index = parseInt(e.target.closest('.OcCategoUI_optionItem').getAttribute('data-index'));
-                    this.cancelInlineEdit(index);
+                    const value = e.target.closest('.OcCategoUI_optionItem').getAttribute('data-value');
+                    this.cancelInlineEdit(value);
                 }
             });
         });
     }
 
-    startInlineEdit(index) {
+    startInlineEdit(value) {
         // Cancel any other editing first
         this.cancelAllEditing();
 
-        const optionItem = document.querySelector(`[data-index="${index}"]`);
+        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
+        if (!optionItem) return;
+
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
         const editMode = optionItem.querySelector('.OcCategoUI_optionEdit');
 
@@ -282,11 +310,13 @@ class OcCategoUI {
         input.focus();
         input.select();
 
-        this.editingIndex = index;
+        this.editingValue = value;
     }
 
-    saveInlineEdit(index) {
-        const optionItem = document.querySelector(`[data-index="${index}"]`);
+    saveInlineEdit(value) {
+        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
+        if (!optionItem) return;
+
         const input = optionItem.querySelector('.OcCategoUI_inlineInput');
         const newText = input.value.trim();
 
@@ -296,7 +326,8 @@ class OcCategoUI {
             return;
         }
 
-        const option = this.currentOptions[index];
+        const option = this.currentOptions.get(value);
+        if (!option) return;
 
         // Send AJAX request
         $.ajax({
@@ -304,21 +335,21 @@ class OcCategoUI {
             method: 'POST',
             data: {
                 action: 'update',
-                id: option.value,
+                id: value,
                 text: newText
             },
             dataType: 'json',
             success: (response) => {
                 if (response.success) {
                     // Update the option in memory
-                    this.currentOptions[index].text = newText;
+                    option.text = newText;
 
-                    // Update the select element option
-                    this.updateOptionInSelect(option.value, newText);
+                    // Update the select element option AND sync Tom Select
+                    this.updateOptionInSelect(value, newText);
 
                     // Update the display and exit edit mode
                     optionItem.querySelector('.OcCategoUI_optionText').textContent = newText;
-                    this.cancelInlineEdit(index);
+                    this.cancelInlineEdit(value);
                 } else {
                     alert('Error: ' + (response.error || 'Failed to update option'));
                 }
@@ -329,8 +360,10 @@ class OcCategoUI {
         });
     }
 
-    cancelInlineEdit(index) {
-        const optionItem = document.querySelector(`[data-index="${index}"]`);
+    cancelInlineEdit(value) {
+        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
+        if (!optionItem) return;
+
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
         const editMode = optionItem.querySelector('.OcCategoUI_optionEdit');
         const input = optionItem.querySelector('.OcCategoUI_inlineInput');
@@ -341,7 +374,7 @@ class OcCategoUI {
         displayMode.style.display = 'flex';
         editMode.style.display = 'none';
 
-        this.editingIndex = -1;
+        this.editingValue = null;
     }
 
     cancelAllEditing() {
@@ -351,7 +384,7 @@ class OcCategoUI {
         editModes.forEach(edit => edit.style.display = 'none');
         displayModes.forEach(display => display.style.display = 'flex');
 
-        this.editingIndex = -1;
+        this.editingValue = null;
     }
 
     filterOptions(searchTerm) {
@@ -385,62 +418,89 @@ class OcCategoUI {
         document.getElementById(`${this.dialogId}_addForm`).style.display = 'none';
     }
 
-    // Non-destructive select element update methods with logging and improved Tom Select sync
     addOptionToSelect(option, markSelected = true) {
-        const optionElement = document.createElement('option');
-        optionElement.value = option.value;
-        optionElement.textContent = option.text;
+        // Check if option already exists in select element
+        let optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(option.value)}"]`);
+
+        if (!optionElement) {
+            // Only create if doesn't exist
+            optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            this.selectElement.appendChild(optionElement);
+        } else {
+            // Update text if it already exists
+            optionElement.textContent = option.text;
+        }
 
         if (markSelected) {
             optionElement.selected = true;
         }
 
-        this.selectElement.appendChild(optionElement);
+        // Step 2: Update Tom Select
+        let tomSelectInstance = this.getTomSelectInstance();
+        if (tomSelectInstance) {
+            // Check if option exists in Tom Select
+            if (!tomSelectInstance.options[option.value]) {
+                tomSelectInstance.addOption({
+                    value: option.value,
+                    text: option.text
+                });
+            }
 
-        if (this.tomSelectInstance) {
-            // Add the new option to Tom Select without destroying it
-            this.tomSelectInstance.addOption({
-                value: option.value,
-                text: option.text
-            });
+            if (markSelected) {
+                tomSelectInstance.addItem(option.value, false);
+            }
         }
     }
 
     removeOptionFromSelect(optionValue) {
-        const optionElement = this.selectElement.querySelector(`option[value="${optionValue}"]`);
+        // Step 1: Update the underlying <select> element
+        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
         if (optionElement) {
             optionElement.remove();
         }
 
-        if (this.tomSelectInstance) {
-            // Remove the option from Tom Select without destroying it
-            this.tomSelectInstance.removeOption(optionValue);
+        // Step 2: Update Tom Select directly
+        let tomSelectInstance = this.getTomSelectInstance();
+        if (tomSelectInstance) {
+            // First remove from selection if selected
+            const currentValues = tomSelectInstance.getValue();
+            if (Array.isArray(currentValues) ? currentValues.includes(optionValue) : currentValues === optionValue) {
+                tomSelectInstance.removeItem(optionValue, true);
+            }
+
+            // Then remove the option itself
+            tomSelectInstance.removeOption(optionValue);
         }
     }
 
     updateOptionInSelect(optionValue, newText) {
-        const optionElement = this.selectElement.querySelector(`option[value="${optionValue}"]`);
-        if (optionElement) {
+        // Step 1: Update the underlying <select> element
+        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
+        if(optionElement) {
             optionElement.textContent = newText;
         }
 
-        if (this.tomSelectInstance) {
-            // Update the option in Tom Select without destroying it
-            this.tomSelectInstance.updateOption(optionValue, {
+        let tomSelectInstance = this.getTomSelectInstance();
+        if(tomSelectInstance) {
+            // Check if this option is currently selected
+            const currentValues = tomSelectInstance.getValue();
+            const isSelected = Array.isArray(currentValues)
+                ? currentValues.includes(optionValue)
+                : currentValues === optionValue;
+
+            // Update the option data in Tom Select
+            tomSelectInstance.updateOption(optionValue, {
                 value: optionValue,
                 text: newText
             });
-        }
-    }
 
-    logSelectOptions(operation) {
-        const options = this.selectElement.querySelectorAll('option');
-        const optionsList = Array.from(options).map(opt => ({
-            value: opt.value,
-            text: opt.textContent,
-            selected: opt.selected
-        }));
-        console.log(`OcCategoUI [${operation}] - Select options:`, optionsList);
+            if(isSelected) {
+                tomSelectInstance.removeItem(optionValue, true);
+                tomSelectInstance.addItem(optionValue, false);
+            }
+        }
     }
 
     saveNewOption() {
@@ -451,7 +511,6 @@ class OcCategoUI {
             return;
         }
 
-        // Send AJAX request - server will assign the value/ID
         $.ajax({
             url: this.options.apiUrl,
             method: 'POST',
@@ -462,22 +521,19 @@ class OcCategoUI {
             dataType: 'json',
             success: (response) => {
                 if (response.success) {
-                    // Server returns the assigned ID/value
                     const newValue = response.data && response.data.id ? response.data.id : Date.now().toString();
 
                     const newOption = {
                         value: newValue,
                         text: text,
-                        selected: true,
-                        index: this.currentOptions.length
+                        selected: true
                     };
 
-                    // Add to current options
-                    this.currentOptions.push(newOption);
-
-                    // Add to select element and mark as selected
+                    // Add to select element (with duplicate check)
                     this.addOptionToSelect(newOption, true);
 
+                    // Reload from select and render
+                    this.loadOptionsFromSelect();
                     this.renderOptionsList();
                     this.hideAllForms();
                 } else {
@@ -490,8 +546,9 @@ class OcCategoUI {
         });
     }
 
-    deleteOption(index) {
-        const option = this.currentOptions[index];
+    deleteOption(value) {
+        const option = this.currentOptions.get(value);
+        if (!option) return;
 
         if (this.options.confirmDelete) {
             if (!confirm(`Confirme borrar: "${option.text}"?`)) {
@@ -505,15 +562,15 @@ class OcCategoUI {
             method: 'POST',
             data: {
                 action: 'delete',
-                id: option.value
+                id: value
             },
             dataType: 'json',
             success: (response) => {
                 if (response.success) {
-                    // Remove from select element
-                    this.removeOptionFromSelect(option.value);
-                    // Remove from current options
-                    this.currentOptions.splice(index, 1);
+                    // Remove from select element and sync Tom Select
+                    this.removeOptionFromSelect(value);
+                    // Remove from current options Map
+                    this.currentOptions.delete(value);
                     this.renderOptionsList();
                 } else {
                     alert('Error: ' + (response.error || 'No se pudo borrar'));
@@ -533,10 +590,14 @@ class OcCategoUI {
 
     // Public method to destroy the widget
     destroy() {
-        // Remove edit button
-        const editButton = document.getElementById(this.editButtonId);
-        if (editButton) {
-            editButton.remove();
+        // Remove wrapper (which contains both Tom Select and edit button)
+        if (this.wrapperDiv && this.wrapperDiv.parentNode) {
+            // Move Tom Select back out before removing wrapper
+            const tsWrapper = this.wrapperDiv.querySelector('.ts-wrapper');
+            if (tsWrapper) {
+                this.wrapperDiv.parentNode.insertBefore(tsWrapper, this.wrapperDiv);
+            }
+            this.wrapperDiv.remove();
         }
 
         // Remove dialog

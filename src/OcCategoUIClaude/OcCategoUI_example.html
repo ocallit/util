@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OcCategoUI Demo</title>
-    
-    <!-- SCH Color Scheme Variables -->
+
     <style>
         
         select {
             background-color: white;
         }
-        
 
-        
         code {
             border: 1px silver solid;
             width: fit-content;
@@ -26,7 +23,7 @@
 
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/redmond/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
@@ -42,14 +39,14 @@
 
         <div class="demo-section">
 
-            <div class="form-group">
+            <div class="form-group" style="width:30em">
                 <label for="categories">Categorías</label>
                 <select id="categories" multiple data-occategoui data-occategoui-title="Edit Categories" data-occategoui-apiurl="./api/categories.php">
-                    <option value="1">Deportes</option>
-                    <option value="2">Escolar</option>
-                    <option value="3">Nuevo</option>
-                    <option value="4">Primavera</option>
-                    <option value="5">Invierno</option>
+                    <option value="a1">Deportes</option>
+                    <option value="b2">Escolar</option>
+                    <option value="c3" selected="selected">Nuevo</option>
+                    <option value="d4" selected="selected">Primavera</option>
+                    <option value="e5">Invierno</option>
                 </select>
             </div>
             <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
@@ -100,34 +97,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Tom Select on all select elements
-            const selects = document.querySelectorAll('select');
-            
-            selects.forEach(select => {
-                const isMultiple = select.hasAttribute('multiple');
-                
-                new TomSelect(select, {
-                    plugins: isMultiple ? ['remove_button'] : [],
-                    create: false,
-                    sortField: { field: 'text', direction: 'asc' },
-                    maxItems: isMultiple ? null : 1
-                });
-            });
-            
-            // Manually create OcCategoUI for the tags select
-            const tagsSelect = document.getElementById('tags');
-            window.OcCategoUI_createWidget(tagsSelect, {
-                apiUrl: './api/tags.php',
-                dialogTitle: 'Edit Tags'
-            });
-            
-            // Manually create OcCategoUI for the priority select
-            const prioritySelect = document.getElementById('priority');
-            window.OcCategoUI_createWidget(prioritySelect, {
-                apiUrl: './api/priorities.php',
-                dialogTitle: 'Edit Priority Levels',
-                confirmDelete: true
-            });
+
         });
         
         // Mock API for demo purposes (override jQuery.ajax)
