@@ -1,72 +1,111 @@
 <?php
-
-/*
-@usage
-require_once 'Session.php';
-$session = new Session();
-if (!$session->isLoggedIn()) {
-    header("Location: login.php"); 
-    exit;
-}
-
-*/
+declare(strict_types=1);
 
 namespace Ocallit\Util;
 
-class Session {
-    protected string $sessionName;
-    public function __construct(string $sessionName = '', int $lifetimeSeconds = 30* 60 * 60) {
-        $this->sessionName = $sessionName;
-        if(session_status() == PHP_SESSION_NONE) {
-            $this->start($lifetimeSeconds);
+final class Session {
+    public function __construct(
+		string $path          = '/',
+        int    $gcMaxLifetime = 28800, // 8h
+        string $sameSite      = 'Strict', // 'Strict' | 'Lax' | 'None'
+        bool   $secure        = true,  // HTTPS only in prod
+        bool   $httpOnly      = true,
+        ?string $domain       = null
+    ) {
+        if (session_status() === PHP_SESSION_NONE) {
+            $this->start(
+				$path,
+				$gcMaxLifetime,
+				$sameSite,
+				$secure,
+				$httpOnly,
+				$domain
+			);
         }
     }
 
-    protected function start(int $lifetimeSeconds): void {
-        ini_set('session.gc_maxlifetime', $lifetimeSeconds);
-        ini_set('session.cookie_lifetime', $lifetimeSeconds);
-        ini_set('session.gc_probability', 1);
-        ini_set('session.gc_divisor', 1000);
-        $session_options = [
-          'cookie_secure' => $this->isHTTPS(), // Send cookie only over HTTPS
-          'cookie_httponly' => TRUE, // Prevent JavaScript access to cookie
-          'use_strict_mode' => TRUE, // Prevent session fixation
-          'cookie_samesite' => 'Strict', // Prevent CSRF attacks
-          'cookie_lifetime' => $lifetimeSeconds,
-        ];
-		if(!empty($this->sessionName))
-			session_name($this->sessionName);
-        session_start($session_options);
-        $_SESSION['_session_name'] = $this->sessionName; // Store the path in session
+    private function start(
+		string $path,
+        int    $gcMaxLifetime,
+        string $sameSite, // 'Strict' | 'Lax' | 'None'
+        bool   $secure,  // HTTPS only in prod
+        bool   $httpOnly,
+        ?string $domain
+	): void {
+        session_start([
+            'use_strict_mode'        => 1,
+            'use_only_cookies'       => 1,
+            'cookie_secure'          => $secure,
+            'cookie_httponly'        => $httpOnly,
+            'cookie_samesite'        => $sameSite,
+            'cookie_path'            => $path,
+            'cookie_domain'          => $domain,
+            'sid_length'             => 64,
+            'sid_bits_per_character' => 6,
+            'gc_maxlifetime'         => $gcMaxLifetime,
+            'cookie_lifetime'        => 0, // session cookie
+        ]);
+        if(!isset($_SESSION['_flash'])) {
+            $_SESSION['_flash'] = [];
+        }
     }
 
-    protected function isHTTPS():bool {
-        return
-          ($_SERVER['HTTPS'] ?? "") === "on" ||
-          ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? "") === 'https' ||
-          ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? "") === 'on' || ($_SERVER['SERVER_PORT'] ?? "") === '443';
+    public function regenerate(): void {
+        if(session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
     }
-    public function isLoggedIn(): bool {return !empty( $_SESSION[$this->sessionName . "\t" . 'loggedin']); }
 
-    public function login(array $sessionVars = []): void {
-        $_SESSION[$this->sessionName . "\t" . 'loggedin'] = TRUE;
-        foreach($sessionVars as $key => $value)
-            $_SESSION[$key] = $value;
-        session_regenerate_id(TRUE); // Regenerate session ID after login
+    public function login(int|string $uid, array $extra = []): void {
+        $_SESSION['uid'] = $uid;
+        foreach($extra as $k => $v) { $_SESSION[$k] = $v; }
+        $this->regenerate(); // prevent fixation
     }
+
+    public function isLoggedIn(): bool { return isset($_SESSION['uid']); }
 
     public function logout(): void {
+        if(session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
         $_SESSION = [];
+
+        // Delete session cookie
+        if(ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'] ?? '', $params['secure'], $params['httponly']);
+        }
+
         session_destroy();
     }
 
-    public function setFlash(string $key, $value): void {$_SESSION['_flash'][$key] = $value; }
+    // ---- Flash API ----
+    public function setFlash(string $key, mixed $value): void { $_SESSION['_flash'][$key] = $value;}
 
-    public function getFlash(string $key, $default = null) {
+    public function getFlash(string $key, mixed $default = null): mixed {
+        if(!isset($_SESSION['_flash']) || !is_array($_SESSION['_flash'])) {
+            return $default;
+        }
         $value = $_SESSION['_flash'][$key] ?? $default;
-        $this->removeFlash($key);
+        unset($_SESSION['_flash'][$key]);
         return $value;
     }
 
-    public function removeFlash(string $key): void {unset($_SESSION['_flash'][$key]); }
+    public function clearFlash(?string $key = null): void {
+        if(!isset($_SESSION['_flash']) || !is_array($_SESSION['_flash'])) {
+            return;
+        }
+        if($key === null) {
+            $_SESSION['_flash'] = [];
+        } else {
+            unset($_SESSION['_flash'][$key]);
+        }
+    }
+
+    // Call when you’re done mutating to release the lock early
+    public function session_write_close(): void {
+        if(session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
 }
