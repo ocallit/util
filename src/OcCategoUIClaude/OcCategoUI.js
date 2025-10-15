@@ -1,6 +1,5 @@
 // File: OcCategoUI.js
-// Path: /src/js/OcCategoUI.js
-// Version: 1.7.0 - Using value as sole unique identifier
+// Version: 1.7.1 - Fixed multi-instance support
 
 /**
  * OcCategoUI - A stateless widget for editing Tom Select options
@@ -10,8 +9,8 @@ class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
         this.dialogId = null;
-        this.currentOptions = new Map(); // Changed to Map for O(1) lookup by value
-        this.editingValue = null; // Track by value, not index
+        this.currentOptions = new Map();
+        this.editingValue = null;
         this.wrapperDiv = null;
 
         // Default options
@@ -56,6 +55,7 @@ class OcCategoUI {
 
         // Create edit button inside wrapper
         this.createEditButton();
+        this.createCopyButton();
 
         // Create dialog
         this.createDialog();
@@ -83,7 +83,7 @@ class OcCategoUI {
         const options = this.selectElement.querySelectorAll('option');
 
         options.forEach(option => {
-            if (option.value) { // Skip empty options
+            if (option.value) {
                 console.log("option to add", option.value, option.textContent);
                 this.currentOptions.set(option.value, {
                     value: option.value,
@@ -112,7 +112,24 @@ class OcCategoUI {
             this.openDialog();
         });
     }
+    createCopyButton() {
+        const editButton = document.createElement('button');
+        editButton.id = this.editButtonId;
+        editButton.type = 'button';
+        editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
+        editButton.innerHTML = '&forall;';
+        editButton.title = 'Copiar';
 
+        // Add button to wrapper
+        this.wrapperDiv.appendChild(editButton);
+
+        // Apply jQuery UI button styling
+        $(editButton).button();
+
+        editButton.addEventListener('click', () => {
+           // this.openDialog();
+        });
+    }
     createDialog() {
         const dialogHtml = `
             <div id="${this.dialogId}" class="OcCategoUI_dialog ui-widget" title="${this.options.dialogTitle}">
@@ -296,7 +313,9 @@ class OcCategoUI {
         // Cancel any other editing first
         this.cancelAllEditing();
 
-        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
+        // FIXED: Scope to this dialog instance
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
         if (!optionItem) return;
 
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
@@ -313,55 +332,10 @@ class OcCategoUI {
         this.editingValue = value;
     }
 
-    saveInlineEdit(value) {
-        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
-        if (!optionItem) return;
-
-        const input = optionItem.querySelector('.OcCategoUI_inlineInput');
-        const newText = input.value.trim();
-
-        if (!newText) {
-            alert('Text is required');
-            input.focus();
-            return;
-        }
-
-        const option = this.currentOptions.get(value);
-        if (!option) return;
-
-        // Send AJAX request
-        $.ajax({
-            url: this.options.apiUrl,
-            method: 'POST',
-            data: {
-                action: 'update',
-                id: value,
-                text: newText
-            },
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    // Update the option in memory
-                    option.text = newText;
-
-                    // Update the select element option AND sync Tom Select
-                    this.updateOptionInSelect(value, newText);
-
-                    // Update the display and exit edit mode
-                    optionItem.querySelector('.OcCategoUI_optionText').textContent = newText;
-                    this.cancelInlineEdit(value);
-                } else {
-                    alert('Error: ' + (response.error || 'Failed to update option'));
-                }
-            },
-            error: () => {
-                alert('Network error occurred while updating option');
-            }
-        });
-    }
-
     cancelInlineEdit(value) {
-        const optionItem = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
+        // FIXED: Scope to this dialog instance
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
         if (!optionItem) return;
 
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
@@ -503,11 +477,60 @@ class OcCategoUI {
         }
     }
 
-    saveNewOption() {
+    async saveInlineEdit(value) {
+        // FIXED: Scope to this dialog instance
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
+        if (!optionItem) return;
+
+        const input = optionItem.querySelector('.OcCategoUI_inlineInput');
+        const newText = input.value.trim();
+
+        // Validate the new text (exclude current value from check)
+        const validation = this.validOption(null, newText, value);
+        if (!validation.valid) {
+            await this.showAlert(validation.error);
+            input.focus();
+            return;
+        }
+
+        const option = this.currentOptions.get(value);
+        if (!option) return;
+
+        // Send AJAX request
+        $.ajax({
+            url: this.options.apiUrl,
+            method: 'POST',
+            data: {
+                action: 'update',
+                id: value,
+                text: newText
+            },
+            dataType: 'json',
+            success: (response) => {
+                if (response.success) {
+                    option.text = newText;
+                    this.updateOptionInSelect(value, newText);
+                    optionItem.querySelector('.OcCategoUI_optionText').textContent = newText;
+                    this.cancelInlineEdit(value);
+                } else {
+                    this.showAlert('Error: ' + (response.error || 'Failed to update option'));
+                }
+            },
+            error: () => {
+                this.showAlert('Network error occurred while updating option');
+            }
+        });
+    }
+
+    async saveNewOption() {
         const text = document.getElementById(`${this.dialogId}_newText`).value.trim();
 
-        if (!text) {
-            alert('Text is required');
+        // Validate the new option
+        const validation = this.validOption(null, text, null);
+        if (!validation.valid) {
+            await this.showAlert(validation.error);
+            document.getElementById(`${this.dialogId}_newText`).focus();
             return;
         }
 
@@ -523,35 +546,39 @@ class OcCategoUI {
                 if (response.success) {
                     const newValue = response.data && response.data.id ? response.data.id : Date.now().toString();
 
+                    const finalValidation = this.validOption(newValue, text, null);
+                    if (!finalValidation.valid) {
+                        this.showAlert(finalValidation.error);
+                        return;
+                    }
+
                     const newOption = {
                         value: newValue,
                         text: text,
                         selected: true
                     };
 
-                    // Add to select element (with duplicate check)
                     this.addOptionToSelect(newOption, true);
-
-                    // Reload from select and render
                     this.loadOptionsFromSelect();
                     this.renderOptionsList();
                     this.hideAllForms();
                 } else {
-                    alert('Error: ' + (response.error || 'Failed to add option'));
+                    this.showAlert('Error: ' + (response.error || 'Failed to add option'));
                 }
             },
             error: () => {
-                alert('Network error occurred while adding option');
+                this.showAlert('Network error occurred while adding option');
             }
         });
     }
 
-    deleteOption(value) {
+    async deleteOption(value) {
         const option = this.currentOptions.get(value);
         if (!option) return;
 
         if (this.options.confirmDelete) {
-            if (!confirm(`Confirme borrar: "${option.text}"?`)) {
+            const confirmed = await this.showConfirm(`Confirme borrar: "${option.text}"?`);
+            if (!confirmed) {
                 return;
             }
         }
@@ -567,17 +594,15 @@ class OcCategoUI {
             dataType: 'json',
             success: (response) => {
                 if (response.success) {
-                    // Remove from select element and sync Tom Select
                     this.removeOptionFromSelect(value);
-                    // Remove from current options Map
                     this.currentOptions.delete(value);
                     this.renderOptionsList();
                 } else {
-                    alert('Error: ' + (response.error || 'No se pudo borrar'));
+                    this.showAlert('Error: ' + (response.error || 'No se pudo borrar'));
                 }
             },
             error: () => {
-                alert('Error al borrar, intente mas tarde');
+                this.showAlert('Error al borrar, intente mas tarde');
             }
         });
     }
@@ -588,11 +613,140 @@ class OcCategoUI {
         return div.innerHTML;
     }
 
-    // Public method to destroy the widget
+    validOption(value, text, excludeValue = null) {
+        const trimmedText = text.trim();
+
+        if (!trimmedText) {
+            return {
+                valid: false,
+                error: 'Text cannot be empty'
+            };
+        }
+
+        const normalizeText = (str) => {
+            return str.normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().trim();
+        };
+
+        const normalizedNewText = normalizeText(trimmedText);
+
+        for (const [optValue, option] of this.currentOptions) {
+            if (excludeValue && optValue === excludeValue) {
+                continue;
+            }
+
+            if (value && optValue === value) {
+                return {
+                    valid: false,
+                    error: `Value "${value}" already exists`
+                };
+            }
+
+            const normalizedExistingText = normalizeText(option.text);
+            if (normalizedExistingText === normalizedNewText) {
+                return {
+                    valid: false,
+                    error: `Text "${trimmedText}" already exists (as "${option.text}")`
+                };
+            }
+        }
+
+        return {
+            valid: true,
+            error: null
+        };
+    }
+
+    showAlert(message) {
+        return new Promise((resolve) => {
+            const dialog = document.createElement('dialog');
+            dialog.className = 'OcCategoUI_alertDialog';
+
+            dialog.innerHTML = `
+            <div class="OcCategoUI_dialogHeader">
+                <h3 class="OcCategoUI_dialogTitle">Aviso</h3>
+            </div>
+            <div class="OcCategoUI_dialogBody">
+                ${this.escapeHtml(message)}
+            </div>
+            <div class="OcCategoUI_dialogFooter">
+                <button type="button" class="OcCategoUI_dialogButton primary">OK</button>
+            </div>
+        `;
+
+            document.body.appendChild(dialog);
+            dialog.style.zIndex = '10000';
+
+            const okButton = dialog.querySelector('.OcCategoUI_dialogButton');
+
+            const closeDialog = () => {
+                dialog.close();
+                dialog.remove();
+                resolve();
+            };
+
+            okButton.addEventListener('click', closeDialog);
+
+            dialog.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    closeDialog();
+                }
+            });
+
+            dialog.showModal();
+            okButton.focus();
+        });
+    }
+
+    showConfirm(message) {
+        return new Promise((resolve) => {
+            const dialog = document.createElement('dialog');
+            dialog.className = 'OcCategoUI_confirmDialog';
+
+            dialog.innerHTML = `
+            <div class="OcCategoUI_dialogHeader">
+                <h3 class="OcCategoUI_dialogTitle">Confirmar</h3>
+            </div>
+            <div class="OcCategoUI_dialogBody">
+                ${this.escapeHtml(message)}
+            </div>
+            <div class="OcCategoUI_dialogFooter">
+                <button type="button" class="OcCategoUI_dialogButton" data-action="cancel">Cancelar</button>
+                <button type="button" class="OcCategoUI_dialogButton danger" data-action="confirm">Confirmar</button>
+            </div>
+        `;
+
+            document.body.appendChild(dialog);
+            dialog.style.zIndex = '10000';
+
+            const cancelButton = dialog.querySelector('[data-action="cancel"]');
+            const confirmButton = dialog.querySelector('[data-action="confirm"]');
+
+            const closeDialog = (confirmed) => {
+                dialog.close();
+                dialog.remove();
+                resolve(confirmed);
+            };
+
+            cancelButton.addEventListener('click', () => closeDialog(false));
+            confirmButton.addEventListener('click', () => closeDialog(true));
+
+            dialog.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDialog(false);
+                } else if (e.key === 'Enter') {
+                    closeDialog(true);
+                }
+            });
+
+            dialog.showModal();
+            confirmButton.focus();
+        });
+    }
+
     destroy() {
-        // Remove wrapper (which contains both Tom Select and edit button)
         if (this.wrapperDiv && this.wrapperDiv.parentNode) {
-            // Move Tom Select back out before removing wrapper
             const tsWrapper = this.wrapperDiv.querySelector('.ts-wrapper');
             if (tsWrapper) {
                 this.wrapperDiv.parentNode.insertBefore(tsWrapper, this.wrapperDiv);
@@ -600,7 +754,6 @@ class OcCategoUI {
             this.wrapperDiv.remove();
         }
 
-        // Remove dialog
         const dialog = $(`#${this.dialogId}`);
         if (dialog.length) {
             dialog.dialog('destroy');
@@ -609,13 +762,12 @@ class OcCategoUI {
     }
 }
 
-// Auto-initialize for elements with data-occategoui attribute
+// Auto-initialize
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('[data-occategoui]');
     elements.forEach(element => {
         const options = {};
 
-        // Read options from data attributes
         if (element.dataset.occategouiApiurl) {
             options.apiUrl = element.dataset.occategouiApiurl;
         }

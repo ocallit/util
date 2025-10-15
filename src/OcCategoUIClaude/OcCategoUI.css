@@ -395,3 +395,92 @@
 .OcCategoUI_optionItem:has(.OcCategoUI_optionEdit[style*="flex"]) {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
 }
+
+/* Custom Alert and Confirm Dialogs */
+.OcCategoUI_alertDialog,
+.OcCategoUI_confirmDialog {
+    border: 2px solid #333;
+    border-radius: 6px;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: auto;
+    min-width: 300px;
+    resize: both;
+    overflow: auto;
+}
+
+.OcCategoUI_alertDialog::backdrop,
+.OcCategoUI_confirmDialog::backdrop {
+    background: transparent;
+}
+
+.OcCategoUI_dialogHeader {
+    padding: 12px 16px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 4px 4px 0 0;
+}
+
+.OcCategoUI_dialogTitle {
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+}
+
+.OcCategoUI_dialogBody {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 60px;
+}
+
+.OcCategoUI_dialogFooter {
+    padding: 12px 16px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f9f9f9;
+    border-radius: 0 0 4px 4px;
+}
+
+.OcCategoUI_dialogButton {
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.OcCategoUI_dialogButton:hover {
+    background: #f0f0f0;
+}
+
+.OcCategoUI_dialogButton.primary {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.OcCategoUI_dialogButton.primary:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.OcCategoUI_dialogButton.danger {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.OcCategoUI_dialogButton.danger:hover {
+    background: #c82333;
+    border-color: #c82333;
+}

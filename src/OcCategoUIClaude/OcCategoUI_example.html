@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OcCategoUI Demo</title>
-
     <style>
-        
         select {
             background-color: white;
         }
@@ -28,17 +26,14 @@
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
-
     <link rel="stylesheet" href="OcCategoUI.css">
     <script src="OcCategoUI.js"></script>
+
 </head>
 <body>
     <div class="demo-container">
-        <h1>Categorias</h1>
-
-
+        <h1>Categorias Producto</h1>
         <div class="demo-section">
-
             <div class="form-group" style="width:30em">
                 <label for="categories">Categorías</label>
                 <select id="categories" multiple data-occategoui data-occategoui-title="Edit Categories" data-occategoui-apiurl="./api/categories.php">
@@ -51,64 +46,18 @@
             </div>
             <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
         </div>
-        
-        <div class="demo-section">
-            <div class="form-group">
-                <label for="tags">Colores:</label>
-                <select id="tags" multiple>
-                    <option value="wd">Experimento</option>
-                    <option value="mo">Franelas</option>
-                    <option value="de">Elegante</option>
-                    <option value="ba">Verano</option>
-                    <option value="fr">Otoño</option>
-                </select>
-            </div>
-            <p><em>This select gets edit functionality programmatically via JavaScript.</em></p>
-        </div>
-        
-        <div class="demo-section">
-            <div class="form-group">
-                <label for="priority">Una</label>
-                <select id="priority">
-                    <option value="">Categoría...</option>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="critical">Critical</option>
-                </select>
-            </div>
-            <p><em>Single select dropdowns work too!</em></p>
-        </div>
-        
-        <div class="info-box">
-            <h4>Verano API Requirements</h4>
-            <p>The widget expects your API endpoint to handle three actions:</p>
-            <ul>
-                <li><strong>add</strong>: Creates a new option (receives <code>value</code> and <code>text</code>)</li>
-                <li><strong>update</strong>: Updates an existing option (receives <code>id</code> and <code>text</code>)</li>
-                <li><strong>delete</strong>: Deletes an option (receives <code>id</code>)</li>
-            </ul>
-            <p>Response format: <code>{"success": true, "error": null, "data": {...}}</code></p>
-        </div>
     </div>
-
-
-
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-        });
-        
+       // if(false)
         // Mock API for demo purposes (override jQuery.ajax)
         (function() {
             // Mock data storage
             let mockCategories = [
-                {id: '1', text: 'Deportes'},
-                {id: '2', text: 'Escolar'},
-                {id: '3', text: 'Nuevo'},
-                {id: '4', text: 'Primavera'},
-                {id: '5', text: 'Invierno'}
+                {id: 'a1', text: 'Deportes'},
+                {id: 'b2', text: 'Escolar'},
+                {id: 'c3', text: 'Nuevo'},
+                {id: 'd4', text: 'Primavera'},
+                {id: 'e5', text: 'Invierno'}
             ];
             
             let mockTags = [
@@ -196,7 +145,7 @@
                     if (response.success && options.success) {
                         options.success(response);
                     } else if (!response.success && options.error) {
-                        options.error();
+                       // options.error();
                     }
                 }, 500); // Simulate network delay
                 
