@@ -40,8 +40,6 @@ final class Session {
             'cookie_samesite'        => $sameSite,
             'cookie_path'            => $path,
             'cookie_domain'          => $domain,
-            'sid_length'             => 64,
-            'sid_bits_per_character' => 6,
             'gc_maxlifetime'         => $gcMaxLifetime,
             'cookie_lifetime'        => 0, // session cookie
         ]);
