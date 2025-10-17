@@ -1,0 +1,486 @@
+/* File: OcCategoUI.css
+ * Path: /src/css/OcCategoUI.css
+ * Version: 1.8.0 - Improved layout and styling
+ */
+
+
+
+
+/* Html page select & edit button */
+.OcCategoUI_wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.3em;
+    align-items: center;
+}
+
+/* Tom Select takes remaining space, button stays compact */
+.OcCategoUI_wrapper .ts-wrapper {
+    flex: 1 1 auto;
+    min-width: 200px;
+}
+
+/* Edit Button - compact and fixed size */
+.OcCategoUI_editButton {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.OcCategoUI_editButton.ui-state-default {
+    /* jQuery UI will provide the styling */
+}
+
+/* Dialog Container */
+.OcCategoUI_dialog.ui-widget {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.OcCategoUI_dialogContent.ui-widget-content {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Add Button - Compact for desktop */
+.OcCategoUI_addButton.ui-state-default {
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-right: 4px;
+    float: right;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Toolbar - Compact spacing for desktop */
+.OcCategoUI_toolbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+}
+
+/* Search Toolbar - Compact for desktop */
+.OcCategoUI_searchToolbar.ui-widget-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: none;
+}
+
+/* Search Input - Compact but functional */
+.OcCategoUI_searchInput.ui-widget-content {
+    flex: 1 1 200px;
+    min-width: 200px;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.OcCategoUI_searchInput:focus {
+    outline: none;
+}
+
+/* Search Clear Button - Compact for desktop */
+.OcCategoUI_searchClear.ui-state-default {
+    display: none;
+    flex-shrink: 0;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+/* Options List - Compact spacing */
+.OcCategoUI_optionsList.ui-widget-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+}
+
+/* Option Items - Compact for desktop efficiency */
+.OcCategoUI_optionItem.ui-widget-content {
+    border-radius: 4px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+}
+
+.OcCategoUI_optionItem:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Display Mode - Compact row layout */
+.OcCategoUI_optionDisplay {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+}
+
+.OcCategoUI_optionText {
+    flex: 1 1 120px;
+    min-width: 120px;
+    font-weight: 500;
+    font-size: 14px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Option Actions - Compact button spacing */
+.OcCategoUI_optionActions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.OcCategoUI_editBtn.ui-state-default,
+.OcCategoUI_deleteBtn.ui-state-default {
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Special hover state for delete button */
+.OcCategoUI_deleteBtn:hover {
+    background: #cd0a0a !important;
+    color: #ffffff !important;
+    border-color: #cd0a0a !important;
+}
+
+/* Edit Mode - Compact inline editing */
+.OcCategoUI_optionEdit.ui-state-highlight {
+    display: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border-width: 1px;
+}
+
+/* Inline Input - Compact but usable */
+.OcCategoUI_inlineInput.ui-widget-content {
+    flex: 1 1 150px;
+    min-width: 150px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.OcCategoUI_inlineInput:focus {
+    outline: none;
+}
+
+/* Inline Actions - Compact button layout */
+.OcCategoUI_inlineActions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.OcCategoUI_saveBtn.ui-state-default,
+.OcCategoUI_cancelBtn.ui-state-default {
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Success color override for save button */
+.OcCategoUI_saveBtn:hover {
+    background: #28a745 !important;
+    color: #ffffff !important;
+    border-color: #28a745 !important;
+}
+
+/* Compact Add Form */
+.OcCategoUI_addForm.ui-state-highlight {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin: 0 14px 8px 14px;
+    border-radius: 4px;
+    border-width: 1px;
+}
+
+/* Add Input - Compact but functional */
+.OcCategoUI_addInput.ui-widget-content {
+    flex: 1 1 180px;
+    min-width: 180px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.OcCategoUI_addInput:focus {
+    outline: none;
+}
+
+/* Add Actions - Compact button spacing */
+.OcCategoUI_addActions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Touch device optimizations - Only for devices with coarse pointer (touch) */
+/* Touch device optimizations - Only for devices with coarse pointer (touch) */
+@media (pointer: coarse) {
+    /* Larger touch targets for buttons */
+    .OcCategoUI_editButton {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .OcCategoUI_wrapper {
+        gap: 0.75em;
+    }
+
+    .OcCategoUI_addButton {
+        padding: 12px 16px;
+        font-size: 15px;
+        min-height: 44px;
+        margin-right: 8px;
+    }
+
+    .OcCategoUI_editBtn,
+    .OcCategoUI_deleteBtn {
+        padding: 12px 16px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .OcCategoUI_saveBtn,
+    .OcCategoUI_cancelBtn {
+        padding: 12px 16px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .OcCategoUI_searchClear {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    /* Larger input fields for touch */
+    .OcCategoUI_searchInput,
+    .OcCategoUI_inlineInput,
+    .OcCategoUI_addInput {
+        padding: 12px 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        min-height: 44px;
+        min-width: 200px;
+    }
+
+    /* Increased spacing for touch targets */
+    .OcCategoUI_toolbar {
+        gap: 12px;
+        padding: 16px 20px;
+    }
+
+    .OcCategoUI_searchToolbar {
+        gap: 12px;
+        padding: 16px 20px;
+        min-height: 60px;
+    }
+
+    .OcCategoUI_optionsList {
+        padding: 16px 20px;
+    }
+
+    .OcCategoUI_optionDisplay,
+    .OcCategoUI_optionEdit {
+        gap: 12px;
+        padding: 16px 20px;
+        min-height: 44px;
+    }
+
+    .OcCategoUI_addForm {
+        gap: 12px;
+        padding: 16px 20px;
+        margin: 0 20px 12px 20px;
+        min-height: 44px;
+    }
+
+    .OcCategoUI_optionActions,
+    .OcCategoUI_inlineActions,
+    .OcCategoUI_addActions {
+        gap: 12px;
+    }
+
+    /* Ensure minimum spacing between option items */
+    .OcCategoUI_optionItem {
+        margin-bottom: 12px;
+        min-height: 60px;
+    }
+
+    /* Larger border for better touch visibility */
+    .OcCategoUI_optionEdit.ui-state-highlight,
+    .OcCategoUI_addForm.ui-state-highlight {
+        border-width: 1px;
+    }
+}
+
+/* Animation for smooth transitions */
+.OcCategoUI_optionItem {
+    animation: OcCategoUI_fadeIn 0.3s ease-out;
+}
+
+@keyframes OcCategoUI_fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus states for accessibility */
+.OcCategoUI_editButton:focus,
+.OcCategoUI_addButton:focus,
+.OcCategoUI_editBtn:focus,
+.OcCategoUI_deleteBtn:focus,
+.OcCategoUI_saveBtn:focus,
+.OcCategoUI_cancelBtn:focus {
+    outline: 2px solid #003eff;
+    outline-offset: 2px;
+}
+
+/* Special styling for editing state */
+.OcCategoUI_optionItem:has(.OcCategoUI_optionEdit[style*="flex"]) {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Custom Alert and Confirm Dialogs */
+.OcCategoUI_alertDialog,
+.OcCategoUI_confirmDialog {
+    border: 2px solid #333;
+    border-radius: 6px;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: auto;
+    min-width: 300px;
+    resize: both;
+    overflow: auto;
+}
+
+.OcCategoUI_alertDialog::backdrop,
+.OcCategoUI_confirmDialog::backdrop {
+    background: transparent;
+}
+
+.OcCategoUI_dialogHeader {
+    padding: 12px 16px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 4px 4px 0 0;
+}
+
+.OcCategoUI_dialogTitle {
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+}
+
+.OcCategoUI_dialogBody {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 60px;
+}
+
+.OcCategoUI_dialogFooter {
+    padding: 12px 16px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f9f9f9;
+    border-radius: 0 0 4px 4px;
+}
+
+.OcCategoUI_dialogButton {
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.OcCategoUI_dialogButton:hover {
+    background: #f0f0f0;
+}
+
+.OcCategoUI_dialogButton.primary {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.OcCategoUI_dialogButton.primary:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.OcCategoUI_dialogButton.danger {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.OcCategoUI_dialogButton.danger:hover {
+    background: #c82333;
+    border-color: #c82333;
+}

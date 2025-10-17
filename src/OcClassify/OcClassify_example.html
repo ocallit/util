@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OcClassify Demo</title>
+    <style>
+        select {
+            background-color: white;
+        }
+
+        code {
+            border: 1px silver solid;
+            width: fit-content;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+        }
+    </style>
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/redmond/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="OcClassify.css">
+    <script src="OcClassify.js"></script>
+
+</head>
+<body>
+    <div class="demo-container">
+        <h1>Categorias Producto</h1>
+        <div class="demo-section">
+            <div class="form-group" style="width:30em">
+                <label for="categories">Categorías</label>
+                <select id="categories" multiple data-occategoui data-occategoui-title="Edit Categories" data-occategoui-apiurl="./api/categories.php">
+                    <option value="a1">Deportes</option>
+                    <option value="b2">Escolar</option>
+                    <option value="c3" selected="selected">Nuevo</option>
+                    <option value="d4" selected="selected">Primavera</option>
+                    <option value="e5">Invierno</option>
+                </select>
+            </div>
+            <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
+        </div>
+    </div>
+    <script>
+       // if(false)
+        // Mock API for demo purposes (override jQuery.ajax)
+        (function() {
+            // Mock data storage
+            let mockCategories = [
+                {id: 'a1', text: 'Deportes'},
+                {id: 'b2', text: 'Escolar'},
+                {id: 'c3', text: 'Nuevo'},
+                {id: 'd4', text: 'Primavera'},
+                {id: 'e5', text: 'Invierno'}
+            ];
+            
+            let mockTags = [
+                {id: 'wd', text: 'Experimento!'},
+                {id: 'mo', text: 'Franelas!'},
+                {id: 'de', text: 'Elegante'},
+                {id: 'ba', text: 'Verano'},
+                {id: 'fr', text: 'Otoño'}
+            ];
+            
+            let mockPriorities = [
+                {id: 'low', text: 'Low'},
+                {id: 'medium', text: 'Medium'},
+                {id: 'high', text: 'High'},
+                {id: 'critical', text: 'Critical'}
+            ];
+            
+            // Override jQuery.ajax for demo
+            const originalAjax = $.ajax;
+            $.ajax = function(options) {
+                const url = options.url;
+                const data = options.data;
+                
+                // Simulate API delay
+                setTimeout(() => {
+                    let response = { success: false, error: 'Unknown action', data: null };
+                    let mockData;
+                    
+                    // Determine which dataset to use
+                    if (url.includes('categories')) {
+                        mockData = mockCategories;
+                    } else if (url.includes('tags')) {
+                        mockData = mockTags;
+                    } else if (url.includes('priorities')) {
+                        mockData = mockPriorities;
+                    }
+                    console.log("data", data)
+                    console.log("asdf", url)
+                    console.log("mockData", mockData)
+                    if (mockData) {
+                        switch (data.action) {
+                            case 'add':
+                                // Check for duplicates
+                                const exists = mockData.some(item => item.id === data.value);
+                                if (exists) {
+                                    response = { success: false, error: 'Item already exists', data: null };
+                                    break;
+                                }
+                                
+                                const newId = data.value || Date.now().toString();
+                                mockData.push({
+                                    id: newId,
+                                    text: data.text
+                                });
+                                response = {
+                                    success: true,
+                                    error: null,
+                                    data: { id: newId }
+                                };
+                                break;
+                                
+                            case 'update':
+                                const updateIndex = mockData.findIndex(item => item.id === data.id);
+                                if (updateIndex !== -1) {
+                                    mockData[updateIndex].text = data.text;
+                                    response = { success: true, error: null, data: null };
+                                } else {
+                                    response = { success: false, error: 'Item not found', data: null };
+                                }
+                                break;
+                                
+                            case 'delete':
+                                const deleteIndex = mockData.findIndex(item => item.id === data.id);
+                                if (deleteIndex !== -1) {
+                                    mockData.splice(deleteIndex, 1);
+                                    response = { success: true, error: null, data: null };
+                                } else {
+                                    response = { success: false, error: 'Item not found', data: null };
+                                }
+                                break;
+                        }
+                    }
+                    
+                    // Call success or error callback
+                    if (response.success && options.success) {
+                        options.success(response);
+                    } else if (!response.success && options.error) {
+                       // options.error();
+                    }
+                }, 500); // Simulate network delay
+                
+                // Return a mock jqXHR object
+                return {
+                    done: function() { return this; },
+                    fail: function() { return this; },
+                    always: function() { return this; }
+                };
+            };
+        })();
+    </script>
+</body>
+</html>
