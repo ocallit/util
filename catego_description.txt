@@ -1,0 +1,65 @@
+A tag or classification widget:
+
+A multiple select backed by a tom select the select tag has a data-occatalog="catalogName" data-ocitem="tableName"
+Categoria/tag widget:
+
+-)This select+tom select allows the user to assing 0 or more catalogName's values to this instance or row of tableName.
+a)There is a CRUD button, calls function OcCateo.crud(catalogName, tableName, baseSelect, tomselect) 
+ that lets the user do CRUD on catalogName that is the options of the select tag, when changed they change their options and the tom select'select.
+b)There is a Catego button, calls function OcCateo.catego(catalogName, tableName, baseSelect, tomselect) shows a dialog that
+  allows the user to do the the opposite: given on catalogName option "give" it to 0 or more tableName instances
+  It has a single select tom select activated to select the catalogName's option and a sortable.js to view and edit the tableName instances, 
+  after saving or cancel the user may select another catalogName's option and edit.
+Each a has permissions
+-) the select tag assign or readonly, this one updates the backend with the form or container where it resides.
+a) readonly or add, edit, delete permission. (has a save or cancel mode)
+b) has assign, unassign, both or read only mode. (has a save or cancel mode)
+- all 3 have an export set of buttons: copy, print, xlsx or csv
+
+mysql db-schema
+create table ocCatalog(
+	ocCatalog_id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	catalogName VARCHAR(64) NOT NULL UNIQUE,
+	description VARCHAR(255) NOT NULL DEFAULT '',
+	icon VARCHAR(64) NOT NULL DEFAULT '',
+);
+create table ocCatalogTags(
+	ocCatalogTags_id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ocCatalog_id MEDIUMINT UNSIGNED NOT NULL,
+	CONSTRAINT fk_catalog FOREIGN KEY (ocCatalog_id) REFERENCES ocCatalog(ocCatalog_id) ON DELETE CASCADE,
+	tag VARCHAR(64) NOT NULL,
+	UNIQUE KEY tag_unico(ocCatalog_id, tag)
+);
+
+create table ocCatlogTagged (
+	ocCatlogTagged_id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ocCatalogTags_id MEDIUMINT UNSIGNED NOT NULL,
+		CONSTRAINT fk_tag FOREIGN KEY (ocCatalogTags_id) REFERENCES ocCatalogTags(ocCatalogTags_id) ON DELETE CASCADE.
+	pk VARCHAR(32) NOT NULL,
+	tableName varchar(128) NOT NULL,
+	fieldName varchar(128) NOT NULL,
+	UNIQUE KEY unico(pk, tableName, ocCatlogTags_id)
+);
+
+-- option #1 all tags, or all catalogs, in a single table tableName the catalog is differentitated, edit & show distinguish by ocCatalog_id up the heirarchy
+-- ≤5 target tables, separate tables
+create table ocCatlogTagged_tableName (
+	ocCatlogTagged_tableName_id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ocCatalogTags_id MEDIUMINT UNSIGNED NOT NULL,
+	CONSTRAINT fk_tag FOREIGN KEY (ocCatalogTags_id) REFERENCES ocCatalogTags(ocCatalogTags_id) ON DELETE CASCADE.
+	pk VARCHAR(32) NOT NULL, -- or whatever he table is using as primary key type
+	-- todo foreign key to tableName
+	UNIQUE KEY unico(pk, ocCatlogTags_id)
+);
+ 
+CREATE TABLE ocCatalogPermissions (
+    ocCatalogPermissions_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ocCatalog_id MEDIUMINT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL, -- or role_id
+    can_read TINYINT(1) DEFAULT 1,
+    can_assign TINYINT(1) DEFAULT 0,
+    can_crud TINYINT(1) DEFAULT 0,
+    can_catego TINYINT(1) DEFAULT 0,
+    UNIQUE KEY unico(ocCatalog_id, user_id)
+);
+	

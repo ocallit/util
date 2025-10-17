@@ -35,51 +35,13 @@
     justify-content: center;
 }
 .OcCategoUI_editButton.ui-state-default {
-    /* Legacy class kept for compatibility with existing themes */
-}
-
-/* Provide lightweight styling when jQuery UI is not present */
-.OcCategoUI_dialog .ui-state-default {
-    background: var(--color-neutral-bg, #f6f7f9);
-    border: 1px solid var(--color-border, #c5c5c5);
-    color: var(--color-text, #333333);
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.OcCategoUI_dialog .ui-state-default:hover,
-.OcCategoUI_dialog .ui-state-default:focus {
-    background: var(--color-secondary-bg, #e6ebf2);
-    border-color: var(--color-secondary, #8da3c1);
-    color: var(--color-secondary, #1f3d5a);
-}
-
-.OcCategoUI_dialog .ui-state-highlight {
-    background: var(--color-warning-bg, #fff9e5);
-    border: 1px solid var(--color-warning, #f0c36d);
-}
-
-.OcCategoUI_dialog .ui-widget-content {
-    background: var(--color-surface, #ffffff);
-    border: 1px solid var(--color-border, #d4d4d4);
-}
-
-.OcCategoUI_dialog .ui-widget-header {
-    background: var(--color-neutral-bg, #f4f6f8);
-    border-bottom: 1px solid var(--color-border, #d4d4d4);
-}
-
-.OcCategoUI_dialog .ui-corner-all {
-    border-radius: 4px;
+    /* jQuery UI will provide the styling */
 }
 
 /* Dialog Container */
 .OcCategoUI_dialog.ui-widget {
     font-size: 14px;
     line-height: 1.4;
-    width: min(600px, 90vw);
-    max-height: 75vh;
-    display: flex;
-    flex-direction: column;
 }
 
 .OcCategoUI_dialogContent.ui-widget-content {
@@ -87,8 +49,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
 }
 
 /* Add Button - Compact for desktop */
@@ -157,7 +117,6 @@
     flex: 1;
     overflow-y: auto;
     padding: 10px 14px;
-    min-height: 0;
 }
 
 /* Option Items - Compact for desktop efficiency */

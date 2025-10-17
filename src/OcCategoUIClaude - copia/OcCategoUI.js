@@ -1,5 +1,5 @@
 // File: OcCategoUI.js
-// Version: 2.0.0 - Migrated to OcDialog modal system
+// Version: 1.7.1 - Fixed multi-instance support
 
 /**
  * OcCategoUI - A stateless widget for editing Tom Select options
@@ -12,11 +12,6 @@ class OcCategoUI {
         this.currentOptions = new Map();
         this.editingValue = null;
         this.wrapperDiv = null;
-        this.dialogContent = null;
-        this.dialogElements = {};
-        this.dialogElement = null;
-        this.activeDialogPromise = null;
-        this.dialogEventsBound = false;
 
         // Default options
         this.options = {
@@ -35,7 +30,6 @@ class OcCategoUI {
         const random = Math.floor(Math.random() * 1000);
         this.dialogId = `OcCategoUI_dialog_${timestamp}_${random}`;
         this.editButtonId = `OcCategoUI_editBtn_${timestamp}_${random}`;
-        this.copyButtonId = `OcCategoUI_copyBtn_${timestamp}_${random}`;
 
         // Create wrapper FIRST (before Tom Select)
         this.createWrapperEarly();
@@ -64,7 +58,7 @@ class OcCategoUI {
         this.createCopyButton();
 
         // Create dialog
-        this.buildDialogContent();
+        this.createDialog();
     }
 
     getTomSelectInstance() {
@@ -90,6 +84,7 @@ class OcCategoUI {
 
         options.forEach(option => {
             if (option.value) {
+                console.log("option to add", option.value, option.textContent);
                 this.currentOptions.set(option.value, {
                     value: option.value,
                     text: option.textContent,
@@ -110,13 +105,16 @@ class OcCategoUI {
         // Add button to wrapper
         this.wrapperDiv.appendChild(editButton);
 
+        // Apply jQuery UI button styling
+        $(editButton).button();
+
         editButton.addEventListener('click', () => {
             this.openDialog();
         });
     }
     createCopyButton() {
         const editButton = document.createElement('button');
-        editButton.id = this.copyButtonId;
+        editButton.id = this.editButtonId;
         editButton.type = 'button';
         editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
         editButton.innerHTML = '&forall;';
@@ -125,156 +123,109 @@ class OcCategoUI {
         // Add button to wrapper
         this.wrapperDiv.appendChild(editButton);
 
+        // Apply jQuery UI button styling
+        $(editButton).button();
+
         editButton.addEventListener('click', () => {
            // this.openDialog();
         });
     }
-    buildDialogContent() {
-        if (this.dialogContent) {
-            return;
-        }
-
-        const container = document.createElement('div');
-        container.id = this.dialogId;
-        container.className = 'OcCategoUI_dialog ui-widget';
-        container.innerHTML = `
-            <div class="OcCategoUI_dialogContent ui-widget-content">
-                <div class="OcCategoUI_searchToolbar ui-widget-header ui-corner-all">
-                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Buscar ...">
-                    <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear ui-state-default ui-corner-all">×</button>
-                </div>
-                <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list"></div>
-                <div class="OcCategoUI_toolbar">
-                    <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nueva Categoría</button>
-                </div>
-                <div class="OcCategoUI_addForm ui-state-highlight ui-corner-all" id="${this.dialogId}_addForm" style="display: none;">
-                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Categoría...">
-                    <div class="OcCategoUI_addActions">
-                        <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn ui-state-default ui-corner-all">✓</button>
-                        <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all">✗</button>
+    createDialog() {
+        const dialogHtml = `
+            <div id="${this.dialogId}" class="OcCategoUI_dialog ui-widget" title="${this.options.dialogTitle}">
+                <div class="OcCategoUI_dialogContent ui-widget-content">
+                    <div class="OcCategoUI_searchToolbar ui-widget-header ui-corner-all">
+                        <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Buscar ...">
+                        <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear ui-state-default ui-corner-all">×</button>
+                    </div>
+                    <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list"></div>
+                    <div class="OcCategoUI_toolbar">
+                        <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nueva Categoría</button>
+                    </div>
+                    <div class="OcCategoUI_addForm ui-state-highlight ui-corner-all" id="${this.dialogId}_addForm" style="display: none;">
+                        <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Categoría...">
+                        <div class="OcCategoUI_addActions">
+                            <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn ui-state-default ui-corner-all">✓</button>
+                            <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all">✗</button>
+                        </div>
                     </div>
                 </div>
             </div>`;
 
-        this.dialogContent = container;
-        this.dialogElements = {
-            root: container,
-            searchInput: container.querySelector(`#${this.dialogId}_search`),
-            searchClear: container.querySelector(`#${this.dialogId}_searchClear`),
-            list: container.querySelector(`#${this.dialogId}_list`),
-            addBtn: container.querySelector(`#${this.dialogId}_addBtn`),
-            addForm: container.querySelector(`#${this.dialogId}_addForm`),
-            newText: container.querySelector(`#${this.dialogId}_newText`),
-            saveNew: container.querySelector(`#${this.dialogId}_saveNew`),
-            cancelNew: container.querySelector(`#${this.dialogId}_cancelNew`)
-        };
+        // Append dialog to body
+        document.body.insertAdjacentHTML('beforeend', dialogHtml);
 
+        // Initialize jQuery UI dialog
+        $(`#${this.dialogId}`).dialog({
+            autoOpen: false,
+            width: 600,
+            height: 500,
+            modal: true,
+            resizable: true,
+            close: () => {
+                this.hideAllForms();
+                this.cancelAllEditing();
+            }
+        });
+
+        // Apply jQuery UI button styling to all buttons
+        $(`#${this.dialogId}_addBtn`).button();
+        $(`#${this.dialogId}_searchClear`).button();
+        $(`#${this.dialogId}_saveNew`).button();
+        $(`#${this.dialogId}_cancelNew`).button();
+
+        // Bind events
         this.bindDialogEvents();
     }
 
     bindDialogEvents() {
-        if (!this.dialogContent || this.dialogEventsBound) {
-            return;
-        }
+        // Search functionality
+        $(`#${this.dialogId}_search`).on('input', (e) => {
+            this.filterOptions(e.target.value);
+        });
 
-        const { searchInput, searchClear, addBtn, saveNew, cancelNew, newText } = this.dialogElements;
+        // Clear search
+        $(`#${this.dialogId}_searchClear`).on('click', () => {
+            document.getElementById(`${this.dialogId}_search`).value = '';
+            this.filterOptions('');
+        });
 
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.filterOptions(e.target.value);
-            });
-        }
+        // Add button
+        $(`#${this.dialogId}_addBtn`).on('click', () => {
+            this.showAddForm();
+        });
 
-        if (searchClear) {
-            searchClear.addEventListener('click', () => {
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                this.filterOptions('');
-            });
-        }
+        // Add form buttons
+        $(`#${this.dialogId}_saveNew`).on('click', () => {
+            this.saveNewOption();
+        });
 
-        if (addBtn) {
-            addBtn.addEventListener('click', () => {
-                this.showAddForm();
-            });
-        }
+        $(`#${this.dialogId}_cancelNew`).on('click', () => {
+            this.hideAllForms();
+        });
 
-        if (saveNew) {
-            saveNew.addEventListener('click', () => {
+        // Enter key handling for add form
+        $(`#${this.dialogId}_newText`).on('keydown', (e) => {
+            if (e.key === 'Enter') {
                 this.saveNewOption();
-            });
-        }
-
-        if (cancelNew) {
-            cancelNew.addEventListener('click', () => {
+            } else if (e.key === 'Escape') {
                 this.hideAllForms();
-            });
-        }
-
-        if (newText) {
-            newText.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.saveNewOption();
-                } else if (e.key === 'Escape') {
-                    this.hideAllForms();
-                }
-            });
-        }
-
-        this.dialogEventsBound = true;
+            }
+        });
     }
 
     openDialog() {
-        if (this.activeDialogPromise) {
-            return;
-        }
-
-        this.buildDialogContent();
         this.loadOptionsFromSelect();
         this.renderOptionsList();
-
-        if (this.dialogElements.searchInput) {
-            this.filterOptions(this.dialogElements.searchInput.value || '');
-        }
-
-        if (!this.dialogContent) {
-            return;
-        }
-
-        this.dialogContent.style.removeProperty('display');
-
-        const { dialog, promise } = OcDialog.dialog({
-            title: this.options.dialogTitle,
-            html: this.dialogContent,
-            keepHtml: true
-        });
-
-        this.dialogElement = dialog;
-        this.activeDialogPromise = promise;
-
-        promise.catch(() => {
-            // swallow cancellation
-        }).finally(() => {
-            this.hideAllForms();
-            this.cancelAllEditing();
-            this.dialogElement = null;
-            this.activeDialogPromise = null;
-        });
-
-        return promise;
+        $(`#${this.dialogId}`).dialog('open');
     }
 
     renderOptionsList() {
-        if (!this.dialogElements.list) {
-            return;
-        }
-
-        const listContainer = this.dialogElements.list;
+        const listContainer = document.getElementById(`${this.dialogId}_list`);
         let html = '';
 
         this.currentOptions.forEach((option) => {
+            console.log("renderOptionsList:", option.value, option.text);
             const escapedValue = this.escapeHtml(option.value);
             const escapedText = this.escapeHtml(option.text);
 
@@ -302,16 +253,15 @@ class OcCategoUI {
 
         listContainer.innerHTML = html;
 
+        // Apply jQuery UI button styling to all newly created buttons
+        $(`#${this.dialogId}_list .ui-state-default`).button();
+
         // Bind option actions
         this.bindOptionEvents();
     }
 
     bindOptionEvents() {
-        if (!this.dialogElements.list) {
-            return;
-        }
-
-        const listContainer = this.dialogElements.list;
+        const listContainer = document.getElementById(`${this.dialogId}_list`);
 
         // Edit buttons
         listContainer.querySelectorAll('.OcCategoUI_editBtn').forEach(btn => {
@@ -364,11 +314,8 @@ class OcCategoUI {
         this.cancelAllEditing();
 
         // FIXED: Scope to this dialog instance
-        if (!this.dialogContent) {
-            return;
-        }
-
-        const optionItem = this.dialogContent.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
         if (!optionItem) return;
 
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
@@ -387,11 +334,8 @@ class OcCategoUI {
 
     cancelInlineEdit(value) {
         // FIXED: Scope to this dialog instance
-        if (!this.dialogContent) {
-            return;
-        }
-
-        const optionItem = this.dialogContent.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
         if (!optionItem) return;
 
         const displayMode = optionItem.querySelector('.OcCategoUI_optionDisplay');
@@ -408,12 +352,8 @@ class OcCategoUI {
     }
 
     cancelAllEditing() {
-        if (!this.dialogContent) {
-            return;
-        }
-
-        const editModes = this.dialogContent.querySelectorAll('.OcCategoUI_optionEdit');
-        const displayModes = this.dialogContent.querySelectorAll('.OcCategoUI_optionDisplay');
+        const editModes = document.querySelectorAll(`#${this.dialogId} .OcCategoUI_optionEdit`);
+        const displayModes = document.querySelectorAll(`#${this.dialogId} .OcCategoUI_optionDisplay`);
 
         editModes.forEach(edit => edit.style.display = 'none');
         displayModes.forEach(display => display.style.display = 'flex');
@@ -422,14 +362,10 @@ class OcCategoUI {
     }
 
     filterOptions(searchTerm) {
-        if (!this.dialogElements.list) {
-            return;
-        }
-
-        const listContainer = this.dialogElements.list;
+        const listContainer = document.getElementById(`${this.dialogId}_list`);
         const items = listContainer.querySelectorAll('.OcCategoUI_optionItem');
 
-        const searchLower = (searchTerm || '').toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
 
         items.forEach(item => {
             const text = item.querySelector('.OcCategoUI_optionText').textContent.toLowerCase();
@@ -438,28 +374,22 @@ class OcCategoUI {
         });
 
         // Show/hide clear button
-        if (this.dialogElements.searchClear) {
-            this.dialogElements.searchClear.style.display = searchTerm ? 'block' : 'none';
-        }
+        const clearBtn = document.getElementById(`${this.dialogId}_searchClear`);
+        clearBtn.style.display = searchTerm ? 'block' : 'none';
     }
 
     showAddForm() {
         this.hideAllForms();
         this.cancelAllEditing();
-        if (!this.dialogElements.addForm || !this.dialogElements.newText) {
-            return;
-        }
-
-        this.dialogElements.addForm.style.display = 'flex';
-        const input = this.dialogElements.newText;
+        document.getElementById(`${this.dialogId}_addForm`).style.display = 'flex';
+        // Clear and focus form
+        const input = document.getElementById(`${this.dialogId}_newText`);
         input.value = '';
         input.focus();
     }
 
     hideAllForms() {
-        if (this.dialogElements.addForm) {
-            this.dialogElements.addForm.style.display = 'none';
-        }
+        document.getElementById(`${this.dialogId}_addForm`).style.display = 'none';
     }
 
     addOptionToSelect(option, markSelected = true) {
@@ -549,11 +479,8 @@ class OcCategoUI {
 
     async saveInlineEdit(value) {
         // FIXED: Scope to this dialog instance
-        if (!this.dialogContent) {
-            return;
-        }
-
-        const optionItem = this.dialogContent.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
+        const dialogElement = document.getElementById(this.dialogId);
+        const optionItem = dialogElement.querySelector(`.OcCategoUI_optionItem[data-value="${CSS.escape(value)}"]`);
         if (!optionItem) return;
 
         const input = optionItem.querySelector('.OcCategoUI_inlineInput');
@@ -597,17 +524,13 @@ class OcCategoUI {
     }
 
     async saveNewOption() {
-        if (!this.dialogElements.newText) {
-            return;
-        }
-
-        const text = this.dialogElements.newText.value.trim();
+        const text = document.getElementById(`${this.dialogId}_newText`).value.trim();
 
         // Validate the new option
         const validation = this.validOption(null, text, null);
         if (!validation.valid) {
             await this.showAlert(validation.error);
-            this.dialogElements.newText.focus();
+            document.getElementById(`${this.dialogId}_newText`).focus();
             return;
         }
 
@@ -736,19 +659,90 @@ class OcCategoUI {
     }
 
     showAlert(message) {
-        return OcDialog.alert(this.escapeHtml(message));
+        return new Promise((resolve) => {
+            const dialog = document.createElement('dialog');
+            dialog.className = 'OcCategoUI_alertDialog';
+
+            dialog.innerHTML = `
+            <div class="OcCategoUI_dialogHeader">
+                <h3 class="OcCategoUI_dialogTitle">Aviso</h3>
+            </div>
+            <div class="OcCategoUI_dialogBody">
+                ${this.escapeHtml(message)}
+            </div>
+            <div class="OcCategoUI_dialogFooter">
+                <button type="button" class="OcCategoUI_dialogButton primary">OK</button>
+            </div>
+        `;
+
+            document.body.appendChild(dialog);
+            dialog.style.zIndex = '10000';
+
+            const okButton = dialog.querySelector('.OcCategoUI_dialogButton');
+
+            const closeDialog = () => {
+                dialog.close();
+                dialog.remove();
+                resolve();
+            };
+
+            okButton.addEventListener('click', closeDialog);
+
+            dialog.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    closeDialog();
+                }
+            });
+
+            dialog.showModal();
+            okButton.focus();
+        });
     }
 
     showConfirm(message) {
-        return OcDialog.confirmDelete(
-            this.escapeHtml(message),
-            'Confirmar',
-            '🗑️',
-            'Eliminar',
-            '🗑️',
-            'Cancelar',
-            '✗'
-        ).then(() => true).catch(() => false);
+        return new Promise((resolve) => {
+            const dialog = document.createElement('dialog');
+            dialog.className = 'OcCategoUI_confirmDialog';
+
+            dialog.innerHTML = `
+            <div class="OcCategoUI_dialogHeader">
+                <h3 class="OcCategoUI_dialogTitle">Confirmar</h3>
+            </div>
+            <div class="OcCategoUI_dialogBody">
+                ${this.escapeHtml(message)}
+            </div>
+            <div class="OcCategoUI_dialogFooter">
+                <button type="button" class="OcCategoUI_dialogButton" data-action="cancel">Cancelar</button>
+                <button type="button" class="OcCategoUI_dialogButton danger" data-action="confirm">Confirmar</button>
+            </div>
+        `;
+
+            document.body.appendChild(dialog);
+            dialog.style.zIndex = '10000';
+
+            const cancelButton = dialog.querySelector('[data-action="cancel"]');
+            const confirmButton = dialog.querySelector('[data-action="confirm"]');
+
+            const closeDialog = (confirmed) => {
+                dialog.close();
+                dialog.remove();
+                resolve(confirmed);
+            };
+
+            cancelButton.addEventListener('click', () => closeDialog(false));
+            confirmButton.addEventListener('click', () => closeDialog(true));
+
+            dialog.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDialog(false);
+                } else if (e.key === 'Enter') {
+                    closeDialog(true);
+                }
+            });
+
+            dialog.showModal();
+            confirmButton.focus();
+        });
     }
 
     destroy() {
@@ -760,18 +754,11 @@ class OcCategoUI {
             this.wrapperDiv.remove();
         }
 
-        if (this.dialogElement) {
-            this.dialogElement.close();
-            this.dialogElement = null;
+        const dialog = $(`#${this.dialogId}`);
+        if (dialog.length) {
+            dialog.dialog('destroy');
+            dialog.remove();
         }
-
-        if (this.dialogContent && this.dialogContent.parentNode) {
-            this.dialogContent.parentNode.removeChild(this.dialogContent);
-        }
-
-        this.dialogContent = null;
-        this.dialogElements = {};
-        this.dialogEventsBound = false;
     }
 }
 
