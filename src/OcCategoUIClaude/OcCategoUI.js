@@ -102,7 +102,7 @@ class OcCategoUI {
         const editButton = document.createElement('button');
         editButton.id = this.editButtonId;
         editButton.type = 'button';
-        editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
+        editButton.className = 'OcCategoUI_editButton OcCategoUI_state-default OcCategoUI_corner-all';
         editButton.innerHTML = '✏️';
         editButton.title = 'Editar Categorias';
 
@@ -117,7 +117,7 @@ class OcCategoUI {
         const editButton = document.createElement('button');
         editButton.id = this.editButtonId;
         editButton.type = 'button';
-        editButton.className = 'OcCategoUI_editButton ui-state-default ui-corner-all';
+        editButton.className = 'OcCategoUI_editButton OcCategoUI_state-default OcCategoUI_corner-all';
         editButton.innerHTML = '&forall;';
         editButton.title = 'Copiar';
 
@@ -128,6 +128,7 @@ class OcCategoUI {
            // this.openDialog();
         });
     }
+
     buildDialogContent() {
         if (this.dialogContent) {
             return;
@@ -135,22 +136,22 @@ class OcCategoUI {
 
         const container = document.createElement('div');
         container.id = this.dialogId;
-        container.className = 'OcCategoUI_dialog ui-widget';
+        container.className = 'OcCategoUI_dialog OcCategoUI_widget';
         container.innerHTML = `
-            <div class="OcCategoUI_dialogContent ui-widget-content">
-                <div class="OcCategoUI_searchToolbar ui-widget-header ui-corner-all">
-                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput ui-widget-content ui-corner-all" placeholder="🔍 Buscar ...">
-                    <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear ui-state-default ui-corner-all">×</button>
+            <div class="OcCategoUI_dialogContent OcCategoUI_widget-content">
+                <div class="OcCategoUI_searchToolbar OcCategoUI_widget-header OcCategoUI_corner-all">
+                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="🔍 Buscar ...">
+                    <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear OcCategoUI_state-default OcCategoUI_corner-all">×</button>
                 </div>
-                <div class="OcCategoUI_optionsList ui-widget-content" id="${this.dialogId}_list"></div>
+                <div class="OcCategoUI_optionsList OcCategoUI_widget-content" id="${this.dialogId}_list"></div>
                 <div class="OcCategoUI_toolbar">
-                    <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton ui-state-default ui-corner-all">Nueva Categoría</button>
+                    <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton OcCategoUI_state-default OcCategoUI_corner-all">Nueva Categoría</button>
                 </div>
-                <div class="OcCategoUI_addForm ui-state-highlight ui-corner-all" id="${this.dialogId}_addForm" style="display: none;">
-                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput ui-widget-content ui-corner-all" placeholder="Categoría...">
+                <div class="OcCategoUI_addForm OcCategoUI_state-highlight OcCategoUI_corner-all" id="${this.dialogId}_addForm" style="display: none;">
+                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="Categoría...">
                     <div class="OcCategoUI_addActions">
-                        <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn ui-state-default ui-corner-all">✓</button>
-                        <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all">✗</button>
+                        <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all">✓</button>
+                        <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all">✗</button>
                     </div>
                 </div>
             </div>`;
@@ -242,8 +243,6 @@ class OcCategoUI {
             return;
         }
 
-        this.dialogContent.style.removeProperty('display');
-
         const { dialog, promise } = OcDialog.dialog({
             title: this.options.dialogTitle,
             html: this.dialogContent,
@@ -252,7 +251,7 @@ class OcCategoUI {
 
         this.dialogElement = dialog;
         this.activeDialogPromise = promise;
-
+       // this.copyButtonHeader(dialog);
         promise.catch(() => {
             // swallow cancellation
         }).finally(() => {
@@ -278,21 +277,21 @@ class OcCategoUI {
             const escapedText = this.escapeHtml(option.text);
 
             html += `
-                <div class="OcCategoUI_optionItem ui-widget-content ui-corner-all" data-value="${escapedValue}">
+                <div class="OcCategoUI_optionItem OcCategoUI_widget-content OcCategoUI_corner-all" data-value="${escapedValue}">
                     <!-- View mode -->
                     <div class="OcCategoUI_optionDisplay" data-mode="view">
                         <span class="OcCategoUI_optionText">${escapedText}</span>
                         <div class="OcCategoUI_optionActions">
-                            <button type="button" class="OcCategoUI_editBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
-                            <button type="button" class="OcCategoUI_deleteBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
+                            <button type="button" class="OcCategoUI_editBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
+                            <button type="button" class="OcCategoUI_deleteBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
                         </div>
                     </div>
                     <!-- Edit mode -->
-                    <div class="OcCategoUI_optionEdit ui-state-highlight ui-corner-all" data-mode="edit" style="display: none;">
-                        <input type="text" class="OcCategoUI_inlineInput ui-widget-content ui-corner-all" value="${escapedText}" data-original-value="${escapedText}">
+                    <div class="OcCategoUI_optionEdit OcCategoUI_state-highlight OcCategoUI_corner-all" data-mode="edit" style="display: none;">
+                        <input type="text" class="OcCategoUI_inlineInput OcCategoUI_widget-content OcCategoUI_corner-all" value="${escapedText}" data-original-value="${escapedText}">
                         <div class="OcCategoUI_inlineActions">
-                            <button type="button" class="OcCategoUI_saveBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Save">✓</button>
-                            <button type="button" class="OcCategoUI_cancelBtn ui-state-default ui-corner-all" data-value="${escapedValue}" title="Cancel">✗</button>
+                            <button type="button" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Save">✓</button>
+                            <button type="button" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Cancel">✗</button>
                         </div>
                     </div>
                 </div>
@@ -771,6 +770,73 @@ class OcCategoUI {
         this.dialogContent = null;
         this.dialogElements = {};
         this.dialogEventsBound = false;
+    }
+
+    /**
+     * Injects a "Copy" button into the dialog title bar (left of the ✕).
+     * Clicking it copies all listed categories to the clipboard, one per line.
+     * @param {HTMLElement} dialogEl - The <dialog class="ocdialog"> element.
+     */
+   copyButtonHeader(dialogEl) {
+        if (!dialogEl) return;
+
+        const header = dialogEl.querySelector('.ocdialog_header');
+        const closeBtn = dialogEl.querySelector('.ocdialog_close');
+        if (!header || !closeBtn) return;
+
+        // Avoid duplicates if dialog is reused
+        if (header.querySelector('.ocdialog_copy')) return;
+
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'ocdialog_copy';
+        copyBtn.title = 'Copiar lista';
+        copyBtn.setAttribute('aria-label', 'Copiar lista');
+        copyBtn.textContent = '⎘'; // simple copy glyph (can swap for another)
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                // Get ALL visible category names listed in this dialog
+                const names = Array.from(
+                    dialogEl.querySelectorAll('.OcCategoUI_optionText')
+                ).map(el => (el.textContent || '').trim())
+                    .filter(Boolean);
+
+                const payload = names.join('\n') || '';
+
+                if (!payload) {
+                    // optional: tiny feedback if empty
+                    copyBtn.textContent = '⎘';
+                    copyBtn.classList.add('shake'); // if you want to add a tiny CSS effect
+                    setTimeout(() => copyBtn.classList.remove('shake'), 350);
+                    return;
+                }
+
+                // Try async Clipboard API, fallback to a hidden textarea
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(payload);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = payload;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+
+                // Tiny success tick for UX
+                const prev = copyBtn.textContent;
+                copyBtn.textContent = '✔';
+                setTimeout(() => (copyBtn.textContent = prev), 800);
+            } catch (e) {
+                console.error('Copy failed', e);
+            }
+        });
+
+        // Insert just BEFORE the close X
+        header.insertBefore(copyBtn, closeBtn);
     }
 }
 
