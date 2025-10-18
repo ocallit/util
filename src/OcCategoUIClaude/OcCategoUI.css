@@ -80,13 +80,25 @@
     max-height: 75vh;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
 }
 
 .OcCategoUI_dialogContent.ui-widget-content {
     padding: 0;
     height: 100%;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+}
+
+.OcCategoUI_dialogContent.ui-widget-content > :not(.OcCategoUI_optionsList) {
+    flex: 0 0 auto;
+}
+
+.OcCategoUI_dialogContent.ui-widget-content > :not(.OcCategoUI_optionsList) {
+    flex: 0 0 auto;
 }
 
 /* Add Button - Compact for desktop */
@@ -152,9 +164,10 @@
 
 /* Options List - Compact spacing */
 .OcCategoUI_optionsList.ui-widget-content {
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
     padding: 10px 14px;
+    min-height: 0;
 }
 
 /* Option Items - Compact for desktop efficiency */
