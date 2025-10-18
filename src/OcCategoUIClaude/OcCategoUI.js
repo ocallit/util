@@ -8,6 +8,7 @@
 class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
+        catalogId: "",
         this.dialogId = null;
         this.currentOptions = new Map();
         this.editingValue = null;
@@ -125,7 +126,7 @@ class OcCategoUI {
         this.wrapperDiv.appendChild(editButton);
 
         editButton.addEventListener('click', () => {
-           // this.openDialog();
+            // this.openDialog();
         });
     }
 
@@ -232,6 +233,14 @@ class OcCategoUI {
         }
 
         this.buildDialogContent();
+
+        // *** BUG FIX ***
+        // When OcDialog closes with keepHtml:true, it sets the content to 'display: none'.
+        // We must reset this before showing the dialog again.
+        if (this.dialogContent.style.display === 'none') {
+            this.dialogContent.style.display = '';
+        }
+
         this.loadOptionsFromSelect();
         this.renderOptionsList();
 
@@ -251,7 +260,7 @@ class OcCategoUI {
 
         this.dialogElement = dialog;
         this.activeDialogPromise = promise;
-       // this.copyButtonHeader(dialog);
+        this.copyButtonHeader(dialog);
         promise.catch(() => {
             // swallow cancellation
         }).finally(() => {
@@ -278,7 +287,6 @@ class OcCategoUI {
 
             html += `
                 <div class="OcCategoUI_optionItem OcCategoUI_widget-content OcCategoUI_corner-all" data-value="${escapedValue}">
-                    <!-- View mode -->
                     <div class="OcCategoUI_optionDisplay" data-mode="view">
                         <span class="OcCategoUI_optionText">${escapedText}</span>
                         <div class="OcCategoUI_optionActions">
@@ -286,7 +294,6 @@ class OcCategoUI {
                             <button type="button" class="OcCategoUI_deleteBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
                         </div>
                     </div>
-                    <!-- Edit mode -->
                     <div class="OcCategoUI_optionEdit OcCategoUI_state-highlight OcCategoUI_corner-all" data-mode="edit" style="display: none;">
                         <input type="text" class="OcCategoUI_inlineInput OcCategoUI_widget-content OcCategoUI_corner-all" value="${escapedText}" data-original-value="${escapedText}">
                         <div class="OcCategoUI_inlineActions">
@@ -573,7 +580,8 @@ class OcCategoUI {
             url: this.options.apiUrl,
             method: 'POST',
             data: {
-                action: 'update',
+                action: 'tagUpdate',
+                catalog_id: this.options.catalogId,
                 id: value,
                 text: newText
             },
@@ -613,7 +621,8 @@ class OcCategoUI {
             url: this.options.apiUrl,
             method: 'POST',
             data: {
-                action: 'add',
+                action: 'tagAdd',
+                catalog_id: this.options.catalogId,
                 text: text
             },
             dataType: 'json',
@@ -663,7 +672,8 @@ class OcCategoUI {
             url: this.options.apiUrl,
             method: 'POST',
             data: {
-                action: 'delete',
+                action: 'tagDelete',
+                catalog_id: this.options.catalogId,
                 id: value
             },
             dataType: 'json',
@@ -777,7 +787,7 @@ class OcCategoUI {
      * Clicking it copies all listed categories to the clipboard, one per line.
      * @param {HTMLElement} dialogEl - The <dialog class="ocdialog"> element.
      */
-   copyButtonHeader(dialogEl) {
+    copyButtonHeader(dialogEl) {
         if (!dialogEl) return;
 
         const header = dialogEl.querySelector('.ocdialog_header');

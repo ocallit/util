@@ -38,7 +38,13 @@
         <div class="demo-section">
             <div class="form-group" style="width:30em">
                 <label for="categories">Categorías</label>
-                <select id="categories" multiple data-occategoui data-occategoui-title="Edit Categories" data-occategoui-apiurl="./api/categories.php">
+                <select id="categories" multiple
+                        data-occategoui
+                        data-occategoui-catalogid="1"
+                        data-occategoui-table="producto_general_id"
+                        data-occategoui-title="Edit Categories"
+                        data-occategoui-apiurl="./api/occategoui_api.php"
+                >
                     <option value="a1">Deportes</option>
                     <option value="b2">Escolar</option>
                     <option value="c3" selected="selected">Nuevo</option>
@@ -49,8 +55,8 @@
             <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
         </div>
     </div>
-    <script>
-       // if(false)
+    <!-- script>
+
         // Mock API for demo purposes (override jQuery.ajax)
         (function() {
             // Mock data storage
@@ -101,7 +107,7 @@
                     console.log("mockData", mockData)
                     if (mockData) {
                         switch (data.action) {
-                            case 'add':
+                            case 'tagAdd':
                                 // Check for duplicates
                                 const exists = mockData.some(item => item.id === data.value);
                                 if (exists) {
@@ -121,7 +127,7 @@
                                 };
                                 break;
                                 
-                            case 'update':
+                            case 'tagUpdate':
                                 const updateIndex = mockData.findIndex(item => item.id === data.id);
                                 if (updateIndex !== -1) {
                                     mockData[updateIndex].text = data.text;
@@ -131,7 +137,7 @@
                                 }
                                 break;
                                 
-                            case 'delete':
+                            case 'tagDelete':
                                 const deleteIndex = mockData.findIndex(item => item.id === data.id);
                                 if (deleteIndex !== -1) {
                                     mockData.splice(deleteIndex, 1);
@@ -159,6 +165,6 @@
                 };
             };
         })();
-    </script>
+    </script -->
 </body>
 </html>
