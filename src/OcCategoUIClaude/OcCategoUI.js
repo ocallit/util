@@ -1,15 +1,17 @@
 // File: OcCategoUI.js
-// Version: 2.0.0 - Migrated to OcDialog modal system
+// Version: 2.1.1 - Corrected: Restored missing JS logic functions
+// Original Version: 2.0.0 - Migrated to OcDialog modal system
 
 /**
  * OcCategoUI - A stateless widget for editing Tom Select options
  * Each instance is independent with no central management
+ * @TODO 👁️ a list/clasificame
  */
 class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
-         catalogId: "",
-        this.dialogId = null;
+        catalogId: "",
+            this.dialogId = null;
         this.currentOptions = new Map();
         this.editingValue = null;
         this.wrapperDiv = null;
@@ -75,17 +77,82 @@ class OcCategoUI {
         return this.selectElement.tomselect || null;
     }
 
+    /**
+     * MODIFIED: Creates the flexRowDyanimic wrapper for the TomSelect element
+     */
     createWrapperEarly() {
         // Create wrapper div
         this.wrapperDiv = document.createElement('div');
-        this.wrapperDiv.className = 'OcCategoUI_wrapper';
+        this.wrapperDiv.className = 'OcCategoUI_wrapper flexRowDyanimic';
+
+        // Create the growable div for TomSelect
+        const tomSelectContainer = document.createElement('div');
+        // This div will be the :first-child, so it will grow
 
         // Insert wrapper BEFORE the select element
         this.selectElement.parentNode.insertBefore(this.wrapperDiv, this.selectElement);
 
-        // Move select INTO wrapper
-        this.wrapperDiv.appendChild(this.selectElement);
+        // Move select INTO the growable div
+        tomSelectContainer.appendChild(this.selectElement);
+
+        // Add the growable div to the wrapper
+        this.wrapperDiv.appendChild(tomSelectContainer);
     }
+
+    /**
+     * MODIFIED: Adds buttons into a fixed-width container
+     */
+    getButtonContainer() {
+        // Find or create the fixed-size container for buttons
+        let buttonContainer = this.wrapperDiv.querySelector('.OcCategoUI_buttonContainer');
+        if (!buttonContainer) {
+            buttonContainer = document.createElement('div');
+            // This div will be :not(:first-child), so it will be fixed-width
+            buttonContainer.className = 'OcCategoUI_buttonContainer';
+            this.wrapperDiv.appendChild(buttonContainer);
+        }
+        return buttonContainer;
+    }
+
+    createEditButton() {
+        const buttonContainer = this.getButtonContainer();
+
+        const editButton = document.createElement('button');
+        editButton.id = this.editButtonId;
+        editButton.type = 'button';
+        editButton.className = 'OcCategoUI_button--icon'; // Use new CSS class
+        editButton.innerHTML = this.options.readOnly ? '📖' : '✏️';
+        editButton.title = 'Editar Categorias';
+
+        buttonContainer.appendChild(editButton);
+
+        editButton.addEventListener('click', () => {
+            this.openDialog();
+        });
+    }
+
+    createCopyButton() {
+        const buttonContainer = this.getButtonContainer();
+
+        const copyButton = document.createElement('button');
+        copyButton.id = this.copyButtonId;
+        copyButton.type = 'button';
+        copyButton.className = 'OcCategoUI_button--icon'; // Use new CSS class
+        copyButton.innerHTML = '⎘'; // Using a simpler copy icon
+        copyButton.title = 'Copiar';
+
+        buttonContainer.appendChild(copyButton);
+
+        copyButton.addEventListener('click', (e) => {
+            // This is just a placeholder, the real copy button is on the dialog
+            // You could implement a "copy selected" here if you wanted.
+            this.copyOptionsToClipboard(e.currentTarget);
+        });
+    }
+
+    // ===================================================================
+    // RESTORED: All JS helper functions are back
+    // ===================================================================
 
     loadOptionsFromSelect() {
         this.currentOptions.clear();
@@ -103,37 +170,166 @@ class OcCategoUI {
         });
     }
 
-    createEditButton() {
-        const editButton = document.createElement('button');
-        editButton.id = this.editButtonId;
-        editButton.type = 'button';
-        editButton.className = 'OcCategoUI_editButton OcCategoUI_state-default OcCategoUI_corner-all';
-        editButton.innerHTML = this.options.readOnly ? '📖' : '✏️';
-        editButton.title = 'Editar Categorias';
+    addOptionToSelect(option, markSelected = true) {
+        // Check if option already exists in select element
+        let optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(option.value)}"]`);
 
-        // Add button to wrapper
-        this.wrapperDiv.appendChild(editButton);
+        if (!optionElement) {
+            // Only create if doesn't exist
+            optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            this.selectElement.appendChild(optionElement);
+        } else {
+            // Update text if it already exists
+            optionElement.textContent = option.text;
+        }
 
-        editButton.addEventListener('click', () => {
-            this.openDialog();
-        });
+        if (markSelected) {
+            optionElement.selected = true;
+        }
+
+        // Step 2: Update Tom Select
+        let tomSelectInstance = this.getTomSelectInstance();
+        if (tomSelectInstance) {
+            // Check if option exists in Tom Select
+            if (!tomSelectInstance.options[option.value]) {
+                tomSelectInstance.addOption({
+                    value: option.value,
+                    text: option.text
+                });
+            }
+
+            if (markSelected) {
+                tomSelectInstance.addItem(option.value, false);
+            }
+        }
     }
-    createCopyButton() {
-        const editButton = document.createElement('button');
-        editButton.id = this.editButtonId;
-        editButton.type = 'button';
-        editButton.className = 'OcCategoUI_editButton OcCategoUI_state-default OcCategoUI_corner-all';
-        editButton.innerHTML = '&forall;';
-        editButton.title = 'Copiar';
 
-        // Add button to wrapper
-        this.wrapperDiv.appendChild(editButton);
+    removeOptionFromSelect(optionValue) {
+        // Step 1: Update the underlying <select> element
+        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
+        if (optionElement) {
+            optionElement.remove();
+        }
 
-        // editButton.addEventListener('click', () => {
-            // this.openDialog();
-        // });
+        // Step 2: Update Tom Select directly
+        let tomSelectInstance = this.getTomSelectInstance();
+        if (tomSelectInstance) {
+            // First remove from selection if selected
+            const currentValues = tomSelectInstance.getValue();
+            if (Array.isArray(currentValues) ? currentValues.includes(optionValue) : currentValues === optionValue) {
+                tomSelectInstance.removeItem(optionValue, true);
+            }
+
+            // Then remove the option itself
+            tomSelectInstance.removeOption(optionValue);
+        }
     }
 
+    updateOptionInSelect(optionValue, newText) {
+        // Step 1: Update the underlying <select> element
+        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
+        if(optionElement) {
+            optionElement.textContent = newText;
+        }
+
+        let tomSelectInstance = this.getTomSelectInstance();
+        if(tomSelectInstance) {
+            // Check if this option is currently selected
+            const currentValues = tomSelectInstance.getValue();
+            const isSelected = Array.isArray(currentValues)
+                ? currentValues.includes(optionValue)
+                : currentValues === optionValue;
+
+            // Update the option data in Tom Select
+            tomSelectInstance.updateOption(optionValue, {
+                value: optionValue,
+                text: newText
+            });
+
+            if(isSelected) {
+                tomSelectInstance.removeItem(optionValue, true);
+                tomSelectInstance.addItem(optionValue, false);
+            }
+        }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    validOption(value, text, excludeValue = null) {
+        const trimmedText = text.trim();
+
+        if (!trimmedText) {
+            return {
+                valid: false,
+                error: 'Es un dato requerido'
+            };
+        }
+
+        const normalizeText = (str) => {
+            return str.normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().trim();
+        };
+
+        const normalizedNewText = normalizeText(trimmedText);
+
+        for (const [optValue, option] of this.currentOptions) {
+            if (excludeValue && optValue === excludeValue) {
+                continue;
+            }
+
+            if (value && optValue === value) {
+                return {
+                    valid: false,
+                    error: `Value "${value}" already exists`
+                };
+            }
+
+            const normalizedExistingText = normalizeText(option.text);
+            if (normalizedExistingText === normalizedNewText) {
+                return {
+                    valid: false,
+                    error: `Ya existe "${trimmedText}" como: "${option.text}"`
+                };
+            }
+        }
+
+        return {
+            valid: true,
+            error: null
+        };
+    }
+
+    showAlert(message) {
+        return OcDialog.alert(this.escapeHtml(message));
+    }
+
+    showConfirm(message) {
+        return OcDialog.confirmDelete(
+            this.escapeHtml(message),
+            'Confirmar',
+            '🗑️',
+            'Eliminar',
+            '🗑️',
+            'Cancelar',
+            '✗'
+        ).then(() => true).catch(() => false);
+    }
+
+    // ===================================================================
+    // END of restored functions
+    // ===================================================================
+
+
+    /**
+     * MODIFIED: Rebuilds the dialog content using the new flexbox classes
+     */
     buildDialogContent() {
         if (this.dialogContent) {
             return;
@@ -141,29 +337,45 @@ class OcCategoUI {
 
         const container = document.createElement('div');
         container.id = this.dialogId;
-        container.className = 'OcCategoUI_dialog OcCategoUI_widget';
+        // This is now the main flex column
+        container.className = 'OcCategoUI_dialog flexColumnFlexible';
+
         container.innerHTML = `
-            <div class="OcCategoUI_dialogContent OcCategoUI_widget-content">
-                <div class="OcCategoUI_searchToolbar OcCategoUI_widget-header OcCategoUI_corner-all">
-                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="🔍 Buscar ..." enterkeyhint="search">
-                    <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear OcCategoUI_state-default OcCategoUI_corner-all">×</button>
+           
+            <div class="OcCategoUI_searchToolbar flexRowDyanimic">
+                <div> 
+                    <input type="text" id="${this.dialogId}_search" placeholder="🔍 Buscar ..." enterkeyhint="search">
                 </div>
-                <div class="OcCategoUI_optionsList OcCategoUI_widget-content" id="${this.dialogId}_list"></div>
-                ${!this.options.readOnly ? `
+                <div> 
+                    <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_button--icon" style="display: none;">×</button>
+                </div>
+            </div>
+
+            <div class="OcCategoUI_optionsList" id="${this.dialogId}_list">
+                <!-- List items will be injected here by renderOptionsList -->
+            </div>
+
+            ${!this.options.readOnly ? `
+                
                 <div class="OcCategoUI_toolbar">
-                    <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton OcCategoUI_state-default OcCategoUI_corner-all">Nueva Categoría</button>
+                    <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_button--fullWidth">Nueva Categoría</button>
                 </div>
-                <div class="OcCategoUI_addForm OcCategoUI_state-highlight OcCategoUI_corner-all" id="${this.dialogId}_addForm" style="display: none;">
-                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="Categoría..." enterkeyhint="done">
-                    <div class="OcCategoUI_addActions">
-                        <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all">✓</button>
-                        <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all">✗</button>
+
+                
+                <div class="OcCategoUI_addForm flexRowDyanimic" id="${this.dialogId}_addForm" style="display: none;">
+                    <div> 
+                        <input type="text" id="${this.dialogId}_newText" placeholder="Categoría..." enterkeyhint="done">
+                    </div>
+                    <div> 
+                        <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_button--icon" title="Save">✓</button>
+                        <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_button--icon" title="Cancel">✗</button>
                     </div>
                 </div>` : ''}
-                
-            </div>`;
+        `;
 
         this.dialogContent = container;
+
+        // Element cache is now flat, no need for complex selectors
         if(this.options.readOnly) {
             this.dialogElements = {
                 root: container,
@@ -288,6 +500,9 @@ class OcCategoUI {
         return promise;
     }
 
+    /**
+     * MODIFIED: Renders list items using the flexRowDyanimic pattern
+     */
     renderOptionsList() {
         if (!this.dialogElements.list) {
             return;
@@ -296,28 +511,41 @@ class OcCategoUI {
         const listContainer = this.dialogElements.list;
         let html = '';
 
-        this.currentOptions.forEach((option) => {
+        // Sort options alphabetically by text before rendering
+        const sortedOptions = [...this.currentOptions.values()].sort((a, b) => {
+            return a.text.localeCompare(b.text, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        sortedOptions.forEach((option) => {
             const escapedValue = this.escapeHtml(option.value);
             const escapedText = this.escapeHtml(option.text);
 
             html += `
-                <div class="OcCategoUI_optionItem OcCategoUI_widget-content OcCategoUI_corner-all" data-value="${escapedValue}">
-                    <div class="OcCategoUI_optionDisplay" data-mode="view">
-                        <span class="OcCategoUI_optionText">${escapedText}</span>
+                <div class="OcCategoUI_optionItem" data-value="${escapedValue}">
+                    <div class="OcCategoUI_optionDisplay flexRowDyanimic" data-mode="view">
+                        <div> 
+                            <span class="OcCategoUI_optionText">${escapedText}</span>
+                        </div>
                         ${!this.options.readOnly ? `
-                            <div class="OcCategoUI_optionActions">
-                                <button type="button" class="OcCategoUI_editBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
-                                <button type="button" class="OcCategoUI_deleteBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
+                            <div> 
+                                <button type="button" class="OcCategoUI_button--icon OcCategoUI_editBtn" data-value="${escapedValue}" title="Edit">✏️</button>
+                                <button type="button" class="OcCategoUI_button--icon OcCategoUI_deleteBtn" data-value="${escapedValue}" title="Delete">🗑️</button>
                             </div>
                         ` : ''}
                     </div>
-                    <div class="OcCategoUI_optionEdit OcCategoUI_state-highlight OcCategoUI_corner-all" data-mode="edit" style="display: none;">
-                        <input type="text" class="OcCategoUI_inlineInput OcCategoUI_widget-content OcCategoUI_corner-all" value="${escapedText}" data-original-value="${escapedText}" enterkeyhint="done">
-                        <div class="OcCategoUI_inlineActions">
-                            <button type="button" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Save">✓</button>
-                            <button type="button" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Cancel">✗</button>
+
+                ${!this.options.readOnly ? `
+                    <div class="OcCategoUI_optionEdit flexRowDyanimic" data-mode="edit" style="display: none;">
+                        <div> 
+                            <input type="text" class="OcCategoUI_inlineInput" value="${escapedText}" data-original-value="${escapedText}" enterkeyhint="done">
+                        </div>
+                        <div> 
+                            <button type="button" class="OcCategoUI_button--icon OcCategoUI_saveBtn" data-value="${escapedValue}" title="Save">✓</button>
+                            <button type="button" class="OcCategoUI_button--icon OcCategoUI_cancelBtn" data-value="${escapedValue}" title="Cancel">✗</button>
                         </div>
                     </div>
+                    ` : ''}
+
                 </div>
             `;
         });
@@ -338,7 +566,7 @@ class OcCategoUI {
         // Edit buttons
         listContainer.querySelectorAll('.OcCategoUI_editBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const value = e.target.getAttribute('data-value');
+                const value = e.currentTarget.getAttribute('data-value');
                 this.startInlineEdit(value);
             });
         });
@@ -346,7 +574,7 @@ class OcCategoUI {
         // Delete buttons
         listContainer.querySelectorAll('.OcCategoUI_deleteBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const value = e.target.getAttribute('data-value');
+                const value = e.currentTarget.getAttribute('data-value');
                 this.deleteOption(value);
             });
         });
@@ -354,7 +582,7 @@ class OcCategoUI {
         // Save buttons (inline edit)
         listContainer.querySelectorAll('.OcCategoUI_saveBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const value = e.target.getAttribute('data-value');
+                const value = e.currentTarget.getAttribute('data-value');
                 this.saveInlineEdit(value);
             });
         });
@@ -362,7 +590,7 @@ class OcCategoUI {
         // Cancel buttons (inline edit)
         listContainer.querySelectorAll('.OcCategoUI_cancelBtn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const value = e.target.getAttribute('data-value');
+                const value = e.currentTarget.getAttribute('data-value');
                 this.cancelInlineEdit(value);
             });
         });
@@ -397,7 +625,7 @@ class OcCategoUI {
         const editMode = optionItem.querySelector('.OcCategoUI_optionEdit');
 
         displayMode.style.display = 'none';
-        editMode.style.display = 'flex';
+        editMode.style.display = 'flex'; // This is 'flex' now, not 'block'
 
         // Focus the input
         const input = editMode.querySelector('.OcCategoUI_inlineInput');
@@ -423,7 +651,7 @@ class OcCategoUI {
         // Restore original value
         input.value = input.getAttribute('data-original-value');
 
-        displayMode.style.display = 'flex';
+        displayMode.style.display = 'flex'; // This is 'flex' now
         editMode.style.display = 'none';
 
         this.editingValue = null;
@@ -438,7 +666,7 @@ class OcCategoUI {
         const displayModes = this.dialogContent.querySelectorAll('.OcCategoUI_optionDisplay');
 
         editModes.forEach(edit => edit.style.display = 'none');
-        displayModes.forEach(display => display.style.display = 'flex');
+        displayModes.forEach(display => display.style.display = 'flex'); // This is 'flex' now
 
         this.editingValue = null;
     }
@@ -456,7 +684,7 @@ class OcCategoUI {
         items.forEach(item => {
             const text = item.querySelector('.OcCategoUI_optionText').textContent.toLowerCase();
             const matches = text.includes(searchLower);
-            item.style.display = matches ? 'block' : 'none';
+            item.style.display = matches ? 'block' : 'none'; // 'block' is fine for the item container
         });
 
         // Show/hide clear button
@@ -472,7 +700,7 @@ class OcCategoUI {
             return;
         }
 
-        this.dialogElements.addForm.style.display = 'flex';
+        this.dialogElements.addForm.style.display = 'flex'; // This is 'flex' now
         const input = this.dialogElements.newText;
         input.value = '';
         input.focus();
@@ -481,91 +709,6 @@ class OcCategoUI {
     hideAllForms() {
         if (this.dialogElements.addForm) {
             this.dialogElements.addForm.style.display = 'none';
-        }
-    }
-
-    addOptionToSelect(option, markSelected = true) {
-        // Check if option already exists in select element
-        let optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(option.value)}"]`);
-
-        if (!optionElement) {
-            // Only create if doesn't exist
-            optionElement = document.createElement('option');
-            optionElement.value = option.value;
-            optionElement.textContent = option.text;
-            this.selectElement.appendChild(optionElement);
-        } else {
-            // Update text if it already exists
-            optionElement.textContent = option.text;
-        }
-
-        if (markSelected) {
-            optionElement.selected = true;
-        }
-
-        // Step 2: Update Tom Select
-        let tomSelectInstance = this.getTomSelectInstance();
-        if (tomSelectInstance) {
-            // Check if option exists in Tom Select
-            if (!tomSelectInstance.options[option.value]) {
-                tomSelectInstance.addOption({
-                    value: option.value,
-                    text: option.text
-                });
-            }
-
-            if (markSelected) {
-                tomSelectInstance.addItem(option.value, false);
-            }
-        }
-    }
-
-    removeOptionFromSelect(optionValue) {
-        // Step 1: Update the underlying <select> element
-        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
-        if (optionElement) {
-            optionElement.remove();
-        }
-
-        // Step 2: Update Tom Select directly
-        let tomSelectInstance = this.getTomSelectInstance();
-        if (tomSelectInstance) {
-            // First remove from selection if selected
-            const currentValues = tomSelectInstance.getValue();
-            if (Array.isArray(currentValues) ? currentValues.includes(optionValue) : currentValues === optionValue) {
-                tomSelectInstance.removeItem(optionValue, true);
-            }
-
-            // Then remove the option itself
-            tomSelectInstance.removeOption(optionValue);
-        }
-    }
-
-    updateOptionInSelect(optionValue, newText) {
-        // Step 1: Update the underlying <select> element
-        const optionElement = this.selectElement.querySelector(`option[value="${CSS.escape(optionValue)}"]`);
-        if(optionElement) {
-            optionElement.textContent = newText;
-        }
-
-        let tomSelectInstance = this.getTomSelectInstance();
-        if(tomSelectInstance) {
-            // Check if this option is currently selected
-            const currentValues = tomSelectInstance.getValue();
-            const isSelected = Array.isArray(currentValues)
-                ? currentValues.includes(optionValue)
-                : currentValues === optionValue;
-
-            // Update the option data in Tom Select
-            tomSelectInstance.updateOption(optionValue, {
-                value: optionValue,
-                text: newText
-            });
-
-            if(isSelected) {
-                tomSelectInstance.removeItem(optionValue, true);
-                tomSelectInstance.addItem(optionValue, false);
-            }
         }
     }
 
@@ -709,73 +852,6 @@ class OcCategoUI {
         });
     }
 
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    validOption(value, text, excludeValue = null) {
-        const trimmedText = text.trim();
-
-        if (!trimmedText) {
-            return {
-                valid: false,
-                error: 'Es un dato requerido'
-            };
-        }
-
-        const normalizeText = (str) => {
-            return str.normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase().trim();
-        };
-
-        const normalizedNewText = normalizeText(trimmedText);
-
-        for (const [optValue, option] of this.currentOptions) {
-            if (excludeValue && optValue === excludeValue) {
-                continue;
-            }
-
-            if (value && optValue === value) {
-                return {
-                    valid: false,
-                    error: `Value "${value}" already exists`
-                };
-            }
-
-            const normalizedExistingText = normalizeText(option.text);
-            if (normalizedExistingText === normalizedNewText) {
-                return {
-                    valid: false,
-                    error: `Ya existe "${trimmedText}" como: "${option.text}"`
-                };
-            }
-        }
-
-        return {
-            valid: true,
-            error: null
-        };
-    }
-
-    showAlert(message) {
-        return OcDialog.alert(this.escapeHtml(message));
-    }
-
-    showConfirm(message) {
-        return OcDialog.confirmDelete(
-            this.escapeHtml(message),
-            'Confirmar',
-            '🗑️',
-            'Eliminar',
-            '🗑️',
-            'Cancelar',
-            '✗'
-        ).then(() => true).catch(() => false);
-    }
-
     destroy() {
         if (this.wrapperDiv && this.wrapperDiv.parentNode) {
             const tsWrapper = this.wrapperDiv.querySelector('.ts-wrapper');
@@ -798,6 +874,50 @@ class OcCategoUI {
         this.dialogElements = {};
         this.dialogEventsBound = false;
     }
+
+    /**
+     * Helper for the main-page copy button
+     */
+    async copyOptionsToClipboard(button) {
+        try {
+            const tomSelect = this.getTomSelectInstance();
+            if (!tomSelect) return;
+
+            const selectedItems = tomSelect.items || [];
+            if (selectedItems.length === 0) return;
+
+            const names = selectedItems.map(value => {
+                return (tomSelect.options[value] || {}).text || '';
+            }).filter(Boolean);
+
+            const payload = names.join('\n');
+            if (!payload) return;
+
+            // Use clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(payload);
+            } else {
+                // Fallback for older browsers/http
+                const ta = document.createElement('textarea');
+                ta.value = payload;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+
+            // Tiny success tick for UX
+            const prev = button.innerHTML;
+            button.innerHTML = '✔';
+            setTimeout(() => (button.innerHTML = '⎘'), 800);
+
+        } catch (e) {
+            console.error('Copy failed', e);
+        }
+    }
+
 
     /**
      * Injects a "Copy" button into the dialog title bar (left of the ✕).
@@ -878,6 +998,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (element.dataset.occategouiTitle) {
             options.dialogTitle = element.dataset.occategouiTitle;
+        }
+        if (element.dataset.occategouiCatalogid) {
+            options.catalogId = element.dataset.occategouiCatalogid;
         }
 
         new OcCategoUI(element, options);

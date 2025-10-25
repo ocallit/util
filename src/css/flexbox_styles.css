@@ -1,0 +1,393 @@
+
+/* region: flexDialogDyanimic */
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested Flexbox Example</title>
+</head>
+<body>
+
+<dialog class="resize flexColumnFlexible" open>
+<header>Dialog with Dynamic Rows</header>
+
+<div class="dlg_topBar">
+                       Fixed top bar
+</div>
+
+<div class="dlg_content">
+
+<div class="flexRowDyanimic">
+<div>
+<span>This label will expand/shrink</span>
+</div>
+<div>
+<button type="button">E</button>
+<button type="button">D</button>
+</div>
+</div>
+
+<div class="flexRowDyanimic">
+<div>
+<input type="text" placeholder="This input will fill the space">
+</div>
+<div>
+<button type="button">E</button>
+<button type="button">D</button>
+</div>
+<div>
+<button type="button">New</button>
+</div>
+</div>
+
+<div class="flexRowDyanimic">
+<div>
+<input type="text" placeholder="Another expanding input">
+</div>
+<div>
+<button type="button">Go</button>
+</div>
+</div>
+
+<div class="flexRowDyanimic">
+<div><span>Row 4</span></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><input type="text" value="Row 5"></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><span>Row 6</span></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><input type="text" value="Row 7"></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><span>Row 8</span></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><input type="text" value="Row 9"></div>
+<div><button>...</button></div>
+</div>
+<div class="flexRowDyanimic">
+<div><span>Row 10</span></div>
+<div><button>...</button></div>
+</div>
+
+</div>
+
+<div class="dlg_Footer">
+<button type="button">Cancel</button>
+<button type="button">OK</button>
+</div>
+</dialog>
+
+</body>
+</html>
+
+ */
+
+/* * This rule is added to make the <dialog> fill the viewport.
+ * You can change this to fixed pixel heights (e.g., height: 400px)
+ * and the flexbox logic will still work perfectly.
+*/
+dialog.resize {
+    min-width:320px;
+    min-height: 220px;
+    height: 50vh;
+    width: 450px;
+}
+
+/* ========================================
+ PATTERN 1: FLEXBOX COLUMN (The Dialog)
+========================================
+*/
+
+.flexColumnFlexible {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #777;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    resize: both;
+    overflow: hidden;
+}
+
+/* 1. FIXED elements (header, topbar, footer) */
+.flexColumnFlexible > header,
+.flexColumnFlexible > .dlg_topBar,
+.flexColumnFlexible > .dlg_Footer {
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 12px 15px;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.flexColumnFlexible > header {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.flexColumnFlexible > .dlg_Footer {
+    border-top: 1px solid #ddd;
+    border-bottom: none;
+    background: #f9f9f9;
+    text-align: right;
+}
+
+/* 2. FLEXIBLE element (the content area) */
+.flexColumnFlexible > .dlg_content {
+    flex-grow: 1;     /* Grow/shrink VERTICALLY */
+    flex-shrink: 1;
+    min-height: 0;    /* Critical for shrinking */
+    overflow-y: auto; /* Add VERTICAL scrollbar if needed */
+
+    /* (Demo styling) */
+    padding: 10px 15px; /* Add padding for the content */
+    background: #ffffff;
+}
+
+
+/* =======================================
+ PATTERN 2: FLEXBOX ROW (The Content)
+=======================================
+*/
+
+.flexRowDyanimic {
+    display: flex;
+    width: 100%;
+    align-items: center;    /* Vertically aligns items */
+    gap: 8px;               /* Spacing between items */
+    margin-bottom: 8px;     /* Spacing between rows */
+
+    /* (Demo styling) */
+    border: 1px solid #ccc;
+    padding: 5px;
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+/* 1. Select the FIRST child (the one that grows) */
+.flexRowDyanimic > div:first-child {
+    flex-grow: 1;     /* Tells this item to GROW horizontally */
+    flex-shrink: 1;   /* Allows this item to SHRINK horizontally */
+    min-width: 10ch;  /* Prevents it from shrinking too much */
+}
+
+/* 2. Select ALL children EXCEPT the first child (the fixed ones) */
+.flexRowDyanimic > div:not(:first-child) {
+    flex-grow: 0;
+    flex-shrink: 0;   /* Tells these items NOT to shrink */
+}
+
+/* --- Helper for the input --- */
+.flexRowDyanimic input[type="text"] {
+    width: 100%;
+    min-width: 0; /* Fix for inputs inside flexbox */
+    box-sizing: border-box;
+
+    /* (Demo styling) */
+    padding: 4px 6px;
+}
+
+/* --- Just demo content styling --- */
+.dlg_Footer button {
+    padding: 6px 12px;
+    margin-left: 8px;
+}
+
+/* endregion: flexDialogDyanimic */
+
+/* region: flexColumnDyanimic */
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexbox Column Example</title>
+</head>
+<body>
+
+<dialog class="dialogExample.resize flexColumnFlexible " open>
+<header>The Dialog Title</header>
+
+<div class="dlg_topBar">
+                       This is a fixed top bar.
+</div>
+
+<div class="dlg_content">
+<p>This <strong>.dlg_content</strong> area is the flexible part.</p>
+<p>It will grow to fill the available space and will shrink.</p>
+<p>Try resizing the dialog (by dragging the bottom-right corner). You will see this white area adapt, while the header, top bar, and footer remain fixed in size.</p>
+<p>If you make the dialog short enough, a scrollbar will appear *only* for this content area.</p>
+<hr>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+<p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+<p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+<p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+<p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
+<p><strong>--- End of content ---</strong></p>
+</div>
+
+<div class="dlg_Footer">
+<button type="button">Cancel</button>
+<button type="button">OK</button>
+</div>
+</dialog>
+
+</body>
+</html>
+ */
+dialogExample.resize {
+    height: 80vh;
+    width: 450px;
+}
+
+.flexColumnFlexible {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #777;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    resize: both;
+    overflow: hidden;       /* Prevents the whole dialog from scrolling */
+}
+
+/* 1. Select the FIXED elements (header, topbar, footer) */
+.flexColumnFlexible > header,
+.flexColumnFlexible > .dlg_topBar,
+.flexColumnFlexible > .dlg_Footer {
+    flex-grow: 0;     /* Do NOT grow */
+    flex-shrink: 0;   /* Do NOT shrink */
+
+    /* (Demo styling) */
+    padding: 12px 15px;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.flexColumnFlexible > header {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.flexColumnFlexible > .dlg_Footer {
+    border-top: 1px solid #ddd;
+    border-bottom: none;
+    background: #f9f9f9;
+    text-align: right;
+}
+
+/* 2. Select the FLEXIBLE element (the content area) */
+.flexColumnFlexible > .dlg_content {
+    flex-grow: 1;     /* DO grow to fill available space */
+    flex-shrink: 1;   /* DO shrink if the dialog gets smaller */
+
+    /* * CRITICAL: Allows the element to shrink *smaller* than its
+     * default content size. This is what makes overflow-y work.
+    */
+    min-height: 0;
+
+    /* * CRITICAL: If content is too large for the shrunk space,
+     * add a scrollbar *inside* this div.
+    */
+    overflow-y: auto;
+
+    /* (Demo styling) */
+    padding: 15px;
+    background: #ffffff;
+}
+
+/* --- Just demo content styling --- */
+.dlg_Footer button {
+    padding: 6px 12px;
+    margin-left: 8px;
+}
+.dlg_content p {
+    margin: 0 0 1em 0;
+}
+/* endregion: flexColumnDyanimic */
+
+/* region: flexRowDyanimic */
+
+/**
+<div class="OcList">
+  <div class="flexRowDyanimic">
+    <div>
+      <span>This is a label</span>
+    </div>
+    <div>
+      <button type="button">E</button>
+      <button type="button">D</button>
+    </div>
+  </div>
+
+  <div class="flexRowDyanimic">
+    <div>
+      <input type="text" placeholder="This input will fill the space">
+    </div>
+    <div>
+      <button type="button">E</button>
+      <button type="button">D</button>
+    </div>
+    <div>
+      <button type="button">New</button>
+    </div>
+  </div>
+</div>
+ */
+/* --- Core Flexbox Solution --- */
+
+.flexRowDyanimic {
+    display: flex;
+    width: 100%;
+    align-items: center;    /* (Optional) Vertically aligns items */
+    gap: 8px;               /* (Optional) Adds nice spacing between all items */
+
+    /* Remove any margin/border for demo */
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+}
+
+/* 1. Select the FIRST child */
+.flexRowDyanimic > div:first-child {
+    flex-grow: 1;     /* Tells this item to GROW */
+    flex-shrink: 1;   /* (Default) Allows this item to SHRINK */
+    min-width: 10ch;  /* Your rule: prevents it from shrinking too much */
+}
+
+/* 2. Select ALL children EXCEPT the first child */
+.flexRowDyanimic > div:not(:first-child) {
+    flex-grow: 0;     /* (Default) Tells these items NOT to grow */
+    flex-shrink: 0;   /* Your rule: Tells these items NOT to shrink */
+}
+
+
+/* --- Recommended Helper --- */
+/* This makes the input field fill the first div that contains it */
+.flexRowDyanimic input[type="text"] {
+    width: 100%;min-width:0;
+    box-sizing: border-box;
+}
+
+/* (Just for demo) */
+.OcList {
+    width: 100%;
+    max-width: 500px;
+    border: 2px solid #004466;
+    padding: 5px;
+}
+
+/* endregion: flexRowDyanimic */
