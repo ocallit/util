@@ -5,7 +5,7 @@
 
 
 
-
+.ocdialog_content{padding: 0.1em 0.3em 0.7em 0.3em }
 /* Html page select & edit button */
 .OcCategoUI_wrapper {
     display: flex;
@@ -35,7 +35,7 @@
     justify-content: center;
 }
 
-
+.OcCategoUI_dialog {padding:0}
 /* Provide lightweight styling when jQuery UI is not present */
 .OcCategoUI_dialog .OcCategoUI_state-default {
     background: var(--color-neutral-bg, #f6f7f9);
@@ -63,12 +63,8 @@
 
 .OcCategoUI_dialog .OcCategoUI_widget-header {
     background: var(--color-neutral-bg, #f4f6f8);
+    background-color: transparent;
     border-bottom: 1px solid var(--color-border, #d4d4d4);
-}
-
-.OcCategoUI_dialog .OcCategoUI_widget-header {
-    background: lightgrey;
-    border-bottom: 1px solid #0000FF;
 }
 
 .OcCategoUI_dialog .OcCategoUI_corner-all {

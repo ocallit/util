@@ -8,7 +8,7 @@
 class OcCategoUI {
     constructor(selectElement, options = {}) {
         this.selectElement = selectElement;
-        catalogId: "",
+         catalogId: "",
         this.dialogId = null;
         this.currentOptions = new Map();
         this.editingValue = null;
@@ -24,6 +24,7 @@ class OcCategoUI {
             apiUrl: './api/categories.php',
             dialogTitle: 'Editar Categorias',
             confirmDelete: true,
+            readOnly: false,
             ...options
         };
 
@@ -31,6 +32,9 @@ class OcCategoUI {
     }
 
     init() {
+        if (this.selectElement.hasAttribute('data-occategoui-ro')) {
+            this.options.readOnly = true;
+        }
         // Generate unique IDs for this instance
         const timestamp = Date.now();
         const random = Math.floor(Math.random() * 1000);
@@ -104,7 +108,7 @@ class OcCategoUI {
         editButton.id = this.editButtonId;
         editButton.type = 'button';
         editButton.className = 'OcCategoUI_editButton OcCategoUI_state-default OcCategoUI_corner-all';
-        editButton.innerHTML = '✏️';
+        editButton.innerHTML = this.options.readOnly ? '📖' : '✏️';
         editButton.title = 'Editar Categorias';
 
         // Add button to wrapper
@@ -125,9 +129,9 @@ class OcCategoUI {
         // Add button to wrapper
         this.wrapperDiv.appendChild(editButton);
 
-        editButton.addEventListener('click', () => {
+        // editButton.addEventListener('click', () => {
             // this.openDialog();
-        });
+        // });
     }
 
     buildDialogContent() {
@@ -141,34 +145,45 @@ class OcCategoUI {
         container.innerHTML = `
             <div class="OcCategoUI_dialogContent OcCategoUI_widget-content">
                 <div class="OcCategoUI_searchToolbar OcCategoUI_widget-header OcCategoUI_corner-all">
-                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="🔍 Buscar ...">
+                    <input type="text" id="${this.dialogId}_search" class="OcCategoUI_searchInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="🔍 Buscar ..." enterkeyhint="search">
                     <button type="button" id="${this.dialogId}_searchClear" class="OcCategoUI_searchClear OcCategoUI_state-default OcCategoUI_corner-all">×</button>
                 </div>
                 <div class="OcCategoUI_optionsList OcCategoUI_widget-content" id="${this.dialogId}_list"></div>
+                ${!this.options.readOnly ? `
                 <div class="OcCategoUI_toolbar">
                     <button type="button" id="${this.dialogId}_addBtn" class="OcCategoUI_addButton OcCategoUI_state-default OcCategoUI_corner-all">Nueva Categoría</button>
                 </div>
                 <div class="OcCategoUI_addForm OcCategoUI_state-highlight OcCategoUI_corner-all" id="${this.dialogId}_addForm" style="display: none;">
-                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="Categoría...">
+                    <input type="text" id="${this.dialogId}_newText" class="OcCategoUI_addInput OcCategoUI_widget-content OcCategoUI_corner-all" placeholder="Categoría..." enterkeyhint="done">
                     <div class="OcCategoUI_addActions">
                         <button type="button" id="${this.dialogId}_saveNew" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all">✓</button>
                         <button type="button" id="${this.dialogId}_cancelNew" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all">✗</button>
                     </div>
-                </div>
+                </div>` : ''}
+                
             </div>`;
 
         this.dialogContent = container;
-        this.dialogElements = {
-            root: container,
-            searchInput: container.querySelector(`#${this.dialogId}_search`),
-            searchClear: container.querySelector(`#${this.dialogId}_searchClear`),
-            list: container.querySelector(`#${this.dialogId}_list`),
-            addBtn: container.querySelector(`#${this.dialogId}_addBtn`),
-            addForm: container.querySelector(`#${this.dialogId}_addForm`),
-            newText: container.querySelector(`#${this.dialogId}_newText`),
-            saveNew: container.querySelector(`#${this.dialogId}_saveNew`),
-            cancelNew: container.querySelector(`#${this.dialogId}_cancelNew`)
-        };
+        if(this.options.readOnly) {
+            this.dialogElements = {
+                root: container,
+                searchInput: container.querySelector(`#${this.dialogId}_search`),
+                searchClear: container.querySelector(`#${this.dialogId}_searchClear`),
+                list: container.querySelector(`#${this.dialogId}_list`),
+            };
+        } else {
+            this.dialogElements = {
+                root: container,
+                searchInput: container.querySelector(`#${this.dialogId}_search`),
+                searchClear: container.querySelector(`#${this.dialogId}_searchClear`),
+                list: container.querySelector(`#${this.dialogId}_list`),
+                addBtn: container.querySelector(`#${this.dialogId}_addBtn`),
+                addForm: container.querySelector(`#${this.dialogId}_addForm`),
+                newText: container.querySelector(`#${this.dialogId}_newText`),
+                saveNew: container.querySelector(`#${this.dialogId}_saveNew`),
+                cancelNew: container.querySelector(`#${this.dialogId}_cancelNew`)
+            };
+        }
 
         this.bindDialogEvents();
     }
@@ -289,13 +304,15 @@ class OcCategoUI {
                 <div class="OcCategoUI_optionItem OcCategoUI_widget-content OcCategoUI_corner-all" data-value="${escapedValue}">
                     <div class="OcCategoUI_optionDisplay" data-mode="view">
                         <span class="OcCategoUI_optionText">${escapedText}</span>
-                        <div class="OcCategoUI_optionActions">
-                            <button type="button" class="OcCategoUI_editBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
-                            <button type="button" class="OcCategoUI_deleteBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
-                        </div>
+                        ${!this.options.readOnly ? `
+                            <div class="OcCategoUI_optionActions">
+                                <button type="button" class="OcCategoUI_editBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Edit">✏️</button>
+                                <button type="button" class="OcCategoUI_deleteBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Delete">🗑️</button>
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="OcCategoUI_optionEdit OcCategoUI_state-highlight OcCategoUI_corner-all" data-mode="edit" style="display: none;">
-                        <input type="text" class="OcCategoUI_inlineInput OcCategoUI_widget-content OcCategoUI_corner-all" value="${escapedText}" data-original-value="${escapedText}">
+                        <input type="text" class="OcCategoUI_inlineInput OcCategoUI_widget-content OcCategoUI_corner-all" value="${escapedText}" data-original-value="${escapedText}" enterkeyhint="done">
                         <div class="OcCategoUI_inlineActions">
                             <button type="button" class="OcCategoUI_saveBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Save">✓</button>
                             <button type="button" class="OcCategoUI_cancelBtn OcCategoUI_state-default OcCategoUI_corner-all" data-value="${escapedValue}" title="Cancel">✗</button>
@@ -593,11 +610,11 @@ class OcCategoUI {
                     optionItem.querySelector('.OcCategoUI_optionText').textContent = newText;
                     this.cancelInlineEdit(value);
                 } else {
-                    this.showAlert('Error: ' + (response.error || 'Failed to update option'));
+                    this.showAlert('Error: ' + (response.error || 'No pude editarla'));
                 }
             },
             error: () => {
-                this.showAlert('Network error occurred while updating option');
+                this.showAlert('No pude contactar al servidor. ¿Sirve el internet?');
             }
         });
     }
@@ -647,11 +664,11 @@ class OcCategoUI {
                     this.renderOptionsList();
                     this.hideAllForms();
                 } else {
-                    this.showAlert('Error: ' + (response.error || 'Failed to add option'));
+                    this.showAlert('Error: ' + (response.error || 'Error al dar de alta'));
                 }
             },
             error: () => {
-                this.showAlert('Network error occurred while adding option');
+                this.showAlert('No pude contactar al servidor. ¿Sirve el internet?');
             }
         });
     }
@@ -704,7 +721,7 @@ class OcCategoUI {
         if (!trimmedText) {
             return {
                 valid: false,
-                error: 'Text cannot be empty'
+                error: 'Es un dato requerido'
             };
         }
 
@@ -732,7 +749,7 @@ class OcCategoUI {
             if (normalizedExistingText === normalizedNewText) {
                 return {
                     valid: false,
-                    error: `Text "${trimmedText}" already exists (as "${option.text}")`
+                    error: `Ya existe "${trimmedText}" como: "${option.text}"`
                 };
             }
         }

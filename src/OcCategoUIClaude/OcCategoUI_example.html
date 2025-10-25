@@ -40,9 +40,10 @@
                 <label for="categories">Categorías</label>
                 <select id="categories" multiple
                         data-occategoui
+                        data-occategoui-rw
                         data-occategoui-catalogid="1"
                         data-occategoui-table="producto_general_id"
-                        data-occategoui-title="Edit Categories"
+                        data-occategoui-title="Categorias de Productos"
                         data-occategoui-apiurl="./api/occategoui_api.php"
                 >
                     <option value="a1">Deportes</option>
@@ -52,10 +53,10 @@
                     <option value="e5">Invierno</option>
                 </select>
             </div>
-            <p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p>
+            <!-- p><em>This select automatically gets the edit functionality because of the <code>data-occategoui</code> attribute.</em></p -->
         </div>
     </div>
-    <!-- script>
+    <script>
 
         // Mock API for demo purposes (override jQuery.ajax)
         (function() {
@@ -67,41 +68,22 @@
                 {id: 'd4', text: 'Primavera'},
                 {id: 'e5', text: 'Invierno'}
             ];
-            
-            let mockTags = [
-                {id: 'wd', text: 'Experimento!'},
-                {id: 'mo', text: 'Franelas!'},
-                {id: 'de', text: 'Elegante'},
-                {id: 'ba', text: 'Verano'},
-                {id: 'fr', text: 'Otoño'}
-            ];
-            
-            let mockPriorities = [
-                {id: 'low', text: 'Low'},
-                {id: 'medium', text: 'Medium'},
-                {id: 'high', text: 'High'},
-                {id: 'critical', text: 'Critical'}
-            ];
-            
+
             // Override jQuery.ajax for demo
             const originalAjax = $.ajax;
             $.ajax = function(options) {
                 const url = options.url;
                 const data = options.data;
-                
+
                 // Simulate API delay
                 setTimeout(() => {
                     let response = { success: false, error: 'Unknown action', data: null };
                     let mockData;
-                    
+
                     // Determine which dataset to use
-                    if (url.includes('categories')) {
-                        mockData = mockCategories;
-                    } else if (url.includes('tags')) {
-                        mockData = mockTags;
-                    } else if (url.includes('priorities')) {
-                        mockData = mockPriorities;
-                    }
+
+                    mockData = mockCategories;
+
                     console.log("data", data)
                     console.log("asdf", url)
                     console.log("mockData", mockData)
@@ -114,7 +96,7 @@
                                     response = { success: false, error: 'Item already exists', data: null };
                                     break;
                                 }
-                                
+
                                 const newId = data.value || Date.now().toString();
                                 mockData.push({
                                     id: newId,
@@ -126,7 +108,7 @@
                                     data: { id: newId }
                                 };
                                 break;
-                                
+
                             case 'tagUpdate':
                                 const updateIndex = mockData.findIndex(item => item.id === data.id);
                                 if (updateIndex !== -1) {
@@ -136,7 +118,7 @@
                                     response = { success: false, error: 'Item not found', data: null };
                                 }
                                 break;
-                                
+
                             case 'tagDelete':
                                 const deleteIndex = mockData.findIndex(item => item.id === data.id);
                                 if (deleteIndex !== -1) {
@@ -148,15 +130,15 @@
                                 break;
                         }
                     }
-                    
+
                     // Call success or error callback
                     if (response.success && options.success) {
                         options.success(response);
                     } else if (!response.success && options.error) {
-                       // options.error();
+                        // options.error();
                     }
                 }, 500); // Simulate network delay
-                
+
                 // Return a mock jqXHR object
                 return {
                     done: function() { return this; },
@@ -165,6 +147,6 @@
                 };
             };
         })();
-    </script -->
+    </script>
 </body>
 </html>

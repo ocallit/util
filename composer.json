@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": ">=8.3",
-        "ocallit/sqler": "*"
+        "ocallit/sqler": "*",
+        "ext-mysqli": "*"
     },
     "suggest": {
         "ext-intl": "*"

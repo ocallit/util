@@ -3,7 +3,6 @@
 // Path: /ocCateogUI/api/crud_tags
 // Version: 1.1.0
 
-// require_once __DIR__ . '/../../config/config.php';
 global $gSoyWorker; $gSoyWorker=true;
 require_once 'C:\vamp\apache\htdocs\vitex\inc\config.php';
 global $gSqlExecutor;
@@ -49,10 +48,10 @@ function sendResponse($success, $error = "", $data = []) {
 try {
     $catalog_id = $_REQUEST['catalog_id'] ?? '';
 
-    $catalogExists = $gSqlExecutor->firstValue("SELECT COUNT(*) FROM ocCatalog WHERE ocCatalog_id = ?", [$catalog_id]);
-    if (!$catalogExists) {
-        sendResponse(false, 'Invalid catalog ID');
-    }
+    //$catalogExists = $gSqlExecutor->firstValue("SELECT COUNT(*) FROM ocCatalog WHERE ocCatalog_id = ?", [$catalog_id]);
+    //if (!$catalogExists) {
+    //    sendResponse(false, 'Invalid catalog ID');
+    //}
 
     $action = $_REQUEST['action'] ?? '';
     switch ($action) {
