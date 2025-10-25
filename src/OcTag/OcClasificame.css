@@ -1,0 +1,317 @@
+/* === OcClasificame Component === */
+
+/* Overall Dialog Structure (using flexColumnFlexible pattern) */
+.OcClasificame_dialog {
+    display: flex; /* Handled by flexColumnFlexible */
+    flex-direction: column; /* Handled by flexColumnFlexible */
+    height: 100%; /* Fill container height */
+    overflow: hidden; /* Prevent container scroll */
+    background-color: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #ccc); /* For standalone view */
+    border-radius: 8px; /* Optional rounding */
+}
+
+/* 1. Global Search Bar (Fixed Height - flexRowDyanimic pattern) */
+.OcClasificame_globalSearch {
+    flex-shrink: 0; /* Prevent shrinking */
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border, #ccc);
+    background-color: var(--color-neutral-bg, #f8f9fa);
+    gap: 4px; /* Smaller gap */
+}
+.OcClasificame_globalSearch > div:first-child { flex-grow: 1; } /* Input container grows */
+.OcClasificame_globalSearch > div:last-child { flex-shrink: 0; } /* Button container fixed */
+
+.OcClasificame_globalSearchInput {
+    width: 100%; /* Fill growing container */
+    padding: 6px 8px;
+    border: 1px solid var(--color-border-dark, #adb5bd);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+.OcClasificame_globalSearchClear {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    padding: 0 4px;
+    cursor: pointer;
+    color: var(--color-text-muted, #adb5bd);
+}
+.OcClasificame_globalSearchClear:hover {
+    color: var(--color-fail, #dc3545);
+}
+
+
+/* 2. Columns Container (Grow/Shrink Vertically, Scroll Horizontally) */
+.OcClasificame_columnsContainer {
+    flex-grow: 1; /* Take remaining vertical space */
+    min-height: 0; /* Allow shrinking */
+    display: flex;
+    flex-direction: row; /* Columns side-by-side */
+    gap: 16px; /* Space between columns */
+    padding: 12px;
+    overflow-x: auto; /* Allow horizontal scroll for many columns */
+    overflow-y: hidden; /* Prevent vertical scroll on container */
+}
+
+/* 3. Individual Column (Fixed Width, Vertical Flex - flexColumnFlexible pattern) */
+.OcClasificame_column {
+    /* --- This implements flexColumnFlexible --- */
+    display: flex;
+    flex-direction: column;
+    /* --- End flexColumnFlexible --- */
+
+    flex-shrink: 0; /* Prevent columns from shrinking horizontally */
+    width: 280px; /* Fixed width for each column */
+    min-width: 200px; /* Minimum width */
+    background-color: var(--color-tertiary-bg, #f5f5f5);
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 6px;
+    /* overflow: hidden;  <-- REMOVED THIS LINE */
+    box-shadow: var(--elevation-1);
+}
+
+/* 3a. Column Header (Fixed Height) */
+.OcClasificame_columnHeader {
+    flex-shrink: 0; /* Part of flexColumnFlexible */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: linear-gradient(to bottom, var(--color-secondary-bg, #f8f9fa), var(--color-tertiary-bg, #f5f5f5));
+    border-bottom: 1px solid var(--color-border, #ccc);
+    min-height: 36px;
+}
+.OcClasificame_columnHeader h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--color-primary, #00008b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 5px;
+}
+.OcClasificame_columnActions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    font-size: 0.9em;
+}
+.OcClasificame_allTo {
+    cursor: pointer;
+    font-size: 1.3em;
+    color: var(--color-secondary, #4682b4);
+    padding: 0 2px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.OcClasificame_allTo:hover {
+    background-color: var(--color-info-bg, #f0fdff);
+    color: var(--color-primary, #00008b);
+}
+
+/* 3b. Item List (Grow/Shrink Vertically, Scroll Internally) */
+.OcClasificame_itemList {
+    flex-grow: 1; /* Part of flexColumnFlexible - takes middle space */
+    min-height: 50px;
+    overflow-y: auto; /* Part of flexColumnFlexible - enables internal scroll */
+    padding: 8px;
+    margin: 0;
+    list-style: none;
+    background-color: var(--color-surface, #fff);
+}
+
+/* 3c. Item Count / Footer (Fixed Height, contains arrows and count) */
+.OcClasificame_itemCount {
+    flex-shrink: 0; /* Part of flexColumnFlexible */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    font-size: 0.8em;
+    color: var(--color-text-light, #6c757d);
+    border-top: 1px solid var(--color-border, #ccc);
+    background-color: var(--color-neutral-bg, #f8f9fa);
+    min-height: 32px;
+}
+.OcClasificame_itemCountText {
+    text-align: center;
+    flex-grow: 1;
+    padding: 0 4px;
+}
+.OcClasificame_itemCountText span {
+    font-weight: bold;
+    color: var(--color-text, #212529);
+}
+
+.OcClasificame_moveAllBtn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 0 4px;
+    font-size: 1.2em;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 3px;
+    color: var(--color-secondary, #4682b4);
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.OcClasificame_moveAllBtn:hover {
+    background-color: var(--color-info-bg, #f0fdff);
+    border-color: var(--color-border-dark, #adb5bd);
+    color: var(--color-primary, #00008b);
+}
+.OcClasificame_moveAllBtn--placeholder {
+    display: inline-block;
+    width: 1.5em;
+    visibility: hidden;
+    flex-shrink: 0;
+}
+
+
+/* === List Items === */
+.OcClasificame_item {
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    cursor: grab;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--elevation-glass-1);
+}
+.OcClasificame_item:hover {
+    background-color: var(--color-secondary-bg, #f8f9fa);
+    border-color: var(--color-secondary, #4682b4);
+    box-shadow: var(--elevation-glass-2);
+}
+
+.OcClasificame_itemLabel {
+    flex-grow: 1;
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text, #212529);
+}
+
+.OcClasificame_itemToolbar {
+    flex-shrink: 0;
+    display: flex;
+    gap: 3px;
+}
+.OcClasificame_itemToolbar button {
+    background-color: var(--color-neutral-bg, #f8f9fa);
+    border: 1px solid var(--color-border, #ccc);
+    color: var(--color-text-light, #6c757d);
+    padding: 2px 5px;
+    font-size: 0.8em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.OcClasificame_itemToolbar button:hover {
+    background-color: var(--color-secondary-bg, #f8f9fa);
+    color: var(--color-secondary, #4682b4);
+    border-color: var(--color-secondary, #4682b4);
+}
+.OcClasificame_itemToolbar button.pressed {
+    background-color: var(--color-primary, #00008b);
+    color: var(--color-primary-bg, #fff);
+    border-color: var(--color-primary, #00008b);
+    cursor: default;
+}
+
+/* Style for items placed via fallback */
+.oc-clasificame-item--fallback {
+    border-left: 3px solid var(--color-warning, #ffc107);
+}
+
+
+/* === SortableJS States === */
+.oc-clasificame-ghost { /* Class for the drag ghost */
+    opacity: 0.6;
+    background: var(--color-info-bg, #f0fdff);
+    border: 1px dashed var(--color-info, #17a2b8);
+    box-shadow: var(--elevation-2);
+}
+.sortable-chosen { /* Class for the item being dragged */
+    cursor: grabbing;
+}
+
+
+/* === Readonly State === */
+.oc-clasificame-readonly .OcClasificame_item {
+    cursor: default;
+}
+.oc-clasificame-readonly .OcClasificame_itemToolbar,
+.oc-clasificame-readonly .OcClasificame_allTo,
+.oc-clasificame-readonly .OcClasificame_moveAllBtn {
+    display: none !important;
+}
+.oc-clasificame-readonly .OcClasificame_moveAllBtn--placeholder {
+    display: none !important;
+}
+
+/* === Filtered State === */
+.oc-clasificame-filtered {
+    display: none !important;
+}
+
+
+/* === Responsive Touch Targets === */
+@media (pointer: coarse) {
+    .OcClasificame_globalSearchInput {
+        padding: 10px 12px;
+        min-height: 44px;
+    }
+    .OcClasificame_globalSearchClear {
+        font-size: 1.5em;
+        padding: 8px;
+    }
+
+    .OcClasificame_columnHeader {
+        padding: 10px 12px;
+        min-height: 44px;
+    }
+    .OcClasificame_columnHeader h3 {
+        font-size: 1.1em;
+    }
+    .OcClasificame_allTo {
+        font-size: 1.6em;
+        padding: 4px 6px;
+    }
+
+    .OcClasificame_item {
+        padding: 10px 12px;
+        min-height: 48px;
+    }
+    .OcClasificame_itemLabel {
+        font-size: 1em;
+    }
+    .OcClasificame_itemToolbar button {
+        padding: 6px 10px;
+        font-size: 0.9em;
+        min-width: 44px;
+        min-height: 36px;
+    }
+
+    /* Adjust item count/footer for touch */
+    .OcClasificame_itemCount {
+        min-height: 44px; /* Taller footer */
+        padding: 6px 10px; /* More padding */
+        font-size: 0.9em; /* Slightly larger text */
+    }
+    .OcClasificame_moveAllBtn {
+        font-size: 1.6em;
+        padding: 6px 8px; /* Adjust padding if needed */
+        min-height: 40px; /* Ensure button height */
+    }
+}
+

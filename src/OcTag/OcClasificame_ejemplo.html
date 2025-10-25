@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es-MX es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejemplo OcClasificame (Refactor)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+    <!-- NEW: SortableJS (replaces jQuery UI) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- OcDialog and Base CSS (as before) -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../OcDialog/OcDialog.css">
+
+    <!-- NEW: OcClasificame CSS -->
+    <link rel="stylesheet" href="OcClasificame.css">
+
+    <!-- OcDialog JS (as before) -->
+    <script src="../OcDialog/OcDialogDrag.js"></script>
+    <script src="../OcDialog/OcDialog.js"></script>
+
+    <!-- NEW: OcClasificame JS (replaces jquery, jquery-ui, and clasificame.js) -->
+    <script src="OcClasificame.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 2em;
+        }
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 4px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+        button:hover {
+            background: #eee;
+        }
+        .example-buttons {
+            margin: 2em;
+            padding: 1em;
+            border-bottom: 1px silver solid;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ejemplo de OcClasificame.js</h1>
+<p>
+    Esta demo usa la nueva clase <code>OcClasificame</code> que depende de
+    <code>OcDialog</code> y <code>SortableJS</code>.
+</p>
+
+<div class="example-buttons">
+    <button type="button" id="launchDemo">Lanzar Demo de Clasificación</button>
+    <button type="button" id="launchDemoRO">Lanzar Demo (Read Only)</button>
+</div>
+
+
+<script id="ejemplo_script">
+
+    // Store the instance so we can access it
+    let classificameInstance = null;
+
+    // --- Demo Data ---
+    const demoClassifications = [
+        {clasificaId:'Si', label:'Si', title:'Sin Ayudantes es Inconsistencia (Si)', userSortable:true},
+        {clasificaId:'No', label:'No', title:'Sin Ayudantes válido (No)',userSortable:true},
+        {clasificaId:'Informativo', label:'Info', title:'Informativo, SIN Inconsistencia',userSortable:true},
+        {clasificaId:'Hide', label:'Hide', title:'Ayudantes Oculto', userSortable: function(a,b) {
+                // Example of a custom sort function (Z-A)
+                const textA = a.querySelector('.OcClasificame_itemLabel').textContent.toUpperCase();
+                const textB = b.querySelector('.OcClasificame_itemLabel').textContent.toUpperCase();
+                return (textB > textA) ? 1 : (textB < textA) ? -1 : 0;
+            }
+        },
+    ];
+
+    const demoValues = [
+        {origen_id: '11ec6cb303b9847cad6b74867af2fe60', label: 'AL (T)', ayudantes: 'tka', atri:1},
+        {origen_id: '11ec6cb303b99f07ad6b74867af2fe60', label: 'CH (T)', ayudantes: 'No'},
+        {origen_id: '11ec6cb303b9a8a5ad6b74867af2fe60', label: 'GDL (T)', ayudantes: 'No'},
+        {origen_id: '11ec6cb303b9b1e4ad6b74867af2fe60', label: 'GT (T)'},
+        {origen_id: '11ec6cb303b9bfe0ad6b74867af2fe60', label: 'JM (T)'},
+        {origen_id: '11ec6cb303b9c80dad6b74867af2fe60', label: 'LV (T)'},
+        {origen_id: 'cc483a12801aa9bd11ee15042c83f133', label: 'PALACIOS (TIENDA) (T)'},
+        {origen_id: '11ec6cb303b9d7e4ad6b74867af2fe60', label: 'SIM (T)', ayudantes:'Hide'},
+        {origen_id: '11ec6cb303b9e7fdad6b74867af2fe60', label: 'UG (T)'},
+        {origen_id: '11ec99c36b101e29bb7074867af2fe60', label: 'CLAVEL (G)', title:'MORADA, NARANJA, VERDE'},
+        {origen_id: '11ec99c36b102a52bb7074867af2fe60', label: 'COYUYA (G)', title:'AMARILLA, CIELO, ROSA'},
+        {origen_id: '74867af2fe60903f11ec7e03a2823445', label: 'CORPORACION RC (B)'},
+        {origen_id: '74867af2fe60ad6b11ec6cb41a743328', label: 'GRIS (B)'},
+        {origen_id: 'cc483a12801aa9bd11ee150406c64444', label: 'PUEBLA (BODEGA) (B)', ayudantes: 'No'},
+        {origen_id: 'f8bc123029a8941811ed8c4b723f74f3', label: 'TEXCOCO (B)'},
+    ];
+
+    // --- Launch Button ---
+    document.getElementById('launchDemo').addEventListener('click', () => {
+
+        // This is the new way to launch the component
+        const { promise, instance } = OcClasificame.launch({
+                // OcClasificame options
+                classifications: demoClassifications,
+                values: demoValues,
+                title: 'Notas/Destino:',
+                label_sort: 'Destino/Origenes',
+                valueId: 'origen_id',
+                valueDisplay: 'label',
+                valueColumnKey: 'ayudantes',
+                nada: 'Si', // Default column for items with no 'ayudantes' key
+                editable: true
+            },
+            "Guardar",  // Custom OK label
+            "Cerrar"  // Custom Cancel label
+        );
+
+        // Store the instance for debugging
+        classificameInstance = instance;
+
+        // Handle the promise
+        promise.then(finalValue => {
+            console.log("Diálogo cerrado con OK. Valor final:", finalValue);
+            OcDialog.info(`
+                <p>Diálogo cerrado con "Aceptar".</p>
+                <p>Valores guardados (ver consola para el objeto).</p>
+                <pre style="background:#eee; padding: 10px; border-radius: 4px; max-height: 200px; overflow:auto;">${JSON.stringify(finalValue, null, 2)}</pre>
+            `, "Guardado");
+
+        }).catch(error => {
+            if (error && error.message === OcDialog.CANCELED) {
+                console.log("Diálogo cancelado.");
+            } else {
+                console.error("Error en el diálogo:", error);
+            }
+        });
+    });
+
+    // --- Read-Only Demo ---
+    document.getElementById('launchDemoRO').addEventListener('click', () => {
+        OcClasificame.launch({
+                classifications: demoClassifications,
+                values: demoValues,
+                title: 'Ver Clasificación (Read Only)',
+                label_sort: 'Destino/Origenes',
+                valueId: 'origen_id',
+                valueDisplay: 'label',
+                valueColumnKey: 'ayudantes',
+                nada: 'Si',
+                editable: false // <-- Set to false
+            },
+            "Cerrar" // Custom OK label
+        );
+        // We don't need to handle the promise for a read-only view
+    });
+
+</script>
+
+</body>
+</html>
