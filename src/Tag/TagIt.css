@@ -1,0 +1,289 @@
+/* ===================================================================
+ * TagIt.css
+ * Version: 2.2.0
+ * =================================================================== */
+
+/* =======================================
+ * Core Flexbox Patterns
+ * ======================================= */
+
+.flexColumnFlexible {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.flexColumnFlexible > .flexRowDyanimic,
+.flexColumnFlexible > .tagit_toolbar {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.flexColumnFlexible > .tagit_optionsList {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.flexRowDyanimic {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: fit-content;
+}
+
+.flexRowDyanimic > div:first-child {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 10ch;
+}
+
+.flexRowDyanimic > div:not(:first-child) {
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+}
+
+
+/* =======================================
+ * TagIt Wrapper (Main Page)
+ * ======================================= */
+
+.tagit_wrapper.flexRowDyanimic {
+    padding: 4px;
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: 6px;
+    background: var(--color-surface, #fff);
+    gap: 4px; /* Compact gap */
+}
+
+.tagit_wrapper.flexRowDyanimic:focus-within {
+    border-color: var(--color-primary, #00008b);
+    box-shadow: 0 0 0 3px rgba(0, 0, 139, 0.1);
+}
+
+.tagit_wrapper > div:first-child .ts-wrapper {
+    border: none!important;
+    padding: 0!important;
+    box-shadow: none!important;
+    background: transparent!important;
+}
+
+.tagit_wrapper > div:first-child .ts-control,
+.tagit_wrapper > div:first-child .ts-control input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tagit_wrapper > div:first-child .ts-control {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 32px; /* Match 'fine' button height */
+    display: flex; /* Helps with vertical alignment inside */
+    align-items: center;
+    padding-top: 2px; /* Small adjustment for TomSelect tags */
+    padding-bottom: 2px;
+}
+
+.tagit_wrapper .tagit_buttonContainer {
+    gap: 4px;
+}
+
+/* =======================================
+ * TagIt Dialog (Modal Content)
+ * ======================================= */
+
+/**
+ * This rule removes the parent DialogIt padding
+ */
+.ocdialog_content:has(> .tagit_dialog) {
+    padding: 0 !important;
+}
+
+/* Base styles are for 'pointer: fine' (mouse) */
+.tagit_dialog.flexColumnFlexible {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 8px; /* Compact padding */
+    gap: 8px;     /* Compact gap */
+}
+
+.tagit_dialog .flexRowDyanimic {
+    gap: 8px;
+}
+
+.tagit_dialog .flexRowDyanimic > div:not(:first-child) {
+    gap: 4px;
+}
+
+.tagit_dialog input[type="text"] {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    height: 32px; /* Compact height for mouse */
+    border: 2px solid var(--color-border, #dee2e6);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.tagit_dialog input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary, #00008b);
+    box-shadow: 0 0 0 3px rgba(0, 0, 139, 0.1);
+}
+
+.tagit_optionsList {
+    background: var(--color-neutral-bg, #f8f9fa);
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.tagit_optionItem {
+    margin-bottom: 4px;
+}
+
+.tagit_optionDisplay,
+.tagit_optionEdit {
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    min-height: 32px; /* Compact height */
+    box-sizing: border-box;
+}
+
+.tagit_optionDisplay {
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #dee2e6);
+}
+.tagit_optionDisplay:hover {
+    border-color: var(--color-secondary, #4682b4);
+    background: var(--color-info-bg, #f0fdff);
+}
+
+.tagit_optionEdit {
+    background: var(--color-warning-bg, #fffef5);
+    border-color: var(--color-warning, #ffc107);
+}
+
+.tagit_optionText {
+    font-size: 14px;
+    color: var(--color-text, #212529);
+    user-select: text;
+}
+
+
+/* =======================================
+ * TagIt Buttons (pointer: fine)
+ * ======================================= */
+
+.tagit_button--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;  /* Compact width */
+    height: 32px; /* Compact height */
+    padding: 4px;
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: 4px;
+    background: var(--color-surface, #fff);
+    color: var(--color-text-light, #6c757d);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+.tagit_button--icon:hover {
+    border-color: var(--color-primary, #00008b);
+    color: var(--color-primary, #00008b);
+    background: var(--color-neutral-bg, #f8f9fa);
+    transform: scale(1.05);
+}
+
+.tagit_button--icon.tagit_deleteBtn:hover,
+.tagit_button--icon.tagit_cancelNew:hover,
+.tagit_button--icon.tagit_cancelBtn:hover,
+#tagit_searchClear:hover {
+    background: var(--color-fail-bg, #fff8f8);
+    color: var(--color-fail, #dc3545);
+    border-color: var(--color-fail, #dc3545);
+}
+
+.tagit_button--icon.tagit_saveBtn:hover,
+.tagit_button--icon.tagit_saveNew:hover {
+    background: var(--color-success-bg, #f8fff9);
+    color: var(--color-success, #28a745);
+    border-color: var(--color-success, #28a745);
+}
+
+.tagit_button--fullWidth {
+    width: 100%;
+    padding: 10px 12px;
+    min-height: 34px; /* Compact height */
+    border: none;
+    border-radius: 4px;
+    background: var(--color-primary, #00008b);
+    color: var(--color-primary-bg, #fff);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tagit_button--fullWidth:hover {
+    background: var(--color-secondary, #4682b4);
+}
+
+
+/* ========================================================
+ * MEDIA QUERY: POINTER: COARSE (Touch Devices)
+ *
+ * Overrides base styles to make targets larger
+ * and easier to tap.
+ * ======================================================== */
+
+@media (pointer: coarse) {
+
+    .tagit_dialog.flexColumnFlexible {
+        padding: 12px; /* More padding */
+        gap: 12px;     /* More gap */
+    }
+
+    .tagit_dialog .flexRowDyanimic {
+        gap: 12px;
+    }
+
+    .tagit_dialog input[type="text"] {
+        padding: 12px 14px;
+        min-height: 48px; /* Touch target height */
+        font-size: 16px;  /* Easier to read */
+    }
+
+    .tagit_button--icon {
+        width: 48px;  /* Touch target width */
+        height: 48px; /* Touch target height */
+        font-size: 20px; /* Bigger icon */
+    }
+
+    .tagit_button--fullWidth {
+        padding: 14px 16px;
+        min-height: 48px; /* Touch target height */
+        font-size: 16px;
+    }
+
+    .tagit_optionDisplay,
+    .tagit_optionEdit {
+        padding: 10px 12px;
+        min-height: 48px; /* Touch target height */
+    }
+
+    .tagit_optionText {
+        font-size: 16px; /* Easier to read */
+    }
+}

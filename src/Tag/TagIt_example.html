@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TagIt Demo</title>
+    <style>
+        select {background-color: white;}
+    </style>
+
+
+    <link rel="stylesheet" href="DialogIt.css">
+    <link rel="stylesheet" href="TagIt.css">
+    <script src="DialogIt.js"></script>
+    <script src="DialogItDrag.js"></script>
+    <script src="TagIt.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+
+</head>
+<body>
+    <div class="demo-container">
+        <h1>Categorias Producto</h1>
+        <div class="demo-section">
+            <div class="form-group" style="width:30em">
+                <label for="categories">Categorías</label>
+                <select id="categories" multiple
+                        data-tagit
+                        data-tagit-rw
+                        data-tagit-catalogid="1"
+                        data-tagit-table="producto_general_id"
+                        data-tagit-title="Categorias de Productos"
+                        data-tagit-apiurl="./api/tagit_api.php"
+                >
+                    <option value="a1">Deportes</option>
+                    <option value="b2">Escolar</option>
+                    <option value="c3" selected="selected">Nuevo</option>
+                    <option value="d4" selected="selected">Primavera</option>
+                    <option value="e5">Invierno</option>
+                </select>
+            </div>
+            <!-- p><em>This select automatically gets the edit functionality because of the <code>data-tagit</code> attribute.</em></p -->
+        </div>
+    </div>
+    <script>
+
+        // Mock API for demo purposes (override jQuery.ajax)
+        (function() {
+            // Mock data storage
+            let mockCategories = [
+                {id: 'a1', text: 'Deportes'},
+                {id: 'b2', text: 'Escolar'},
+                {id: 'c3', text: 'Nuevo'},
+                {id: 'd4', text: 'Primavera'},
+                {id: 'e5', text: 'Invierno'}
+            ];
+
+            // Override jQuery.ajax for demo
+            const originalAjax = $.ajax;
+            $.ajax = function(options) {
+                const url = options.url;
+                const data = options.data;
+
+                // Simulate API delay
+                setTimeout(() => {
+                    let response = { success: false, error: 'Unknown action', data: null };
+                    let mockData;
+
+                    // Determine which dataset to use
+
+                    mockData = mockCategories;
+
+                    console.log("data", data)
+                    console.log("asdf", url)
+                    console.log("mockData", mockData)
+                    if (mockData) {
+                        switch (data.action) {
+                            case 'tagAdd':
+                                // Check for duplicates
+                                const exists = mockData.some(item => item.id === data.value);
+                                if (exists) {
+                                    response = { success: false, error: 'Item already exists', data: null };
+                                    break;
+                                }
+
+                                const newId = data.value || Date.now().toString();
+                                mockData.push({
+                                    id: newId,
+                                    text: data.text
+                                });
+                                response = {
+                                    success: true,
+                                    error: null,
+                                    data: { id: newId }
+                                };
+                                break;
+
+                            case 'tagUpdate':
+                                const updateIndex = mockData.findIndex(item => item.id === data.id);
+                                if (updateIndex !== -1) {
+                                    mockData[updateIndex].text = data.text;
+                                    response = { success: true, error: null, data: null };
+                                } else {
+                                    response = { success: false, error: 'Item not found', data: null };
+                                }
+                                break;
+
+                            case 'tagDelete':
+                                const deleteIndex = mockData.findIndex(item => item.id === data.id);
+                                if (deleteIndex !== -1) {
+                                    mockData.splice(deleteIndex, 1);
+                                    response = { success: true, error: null, data: null };
+                                } else {
+                                    response = { success: false, error: 'Item not found', data: null };
+                                }
+                                break;
+                        }
+                    }
+
+                    // Call success or error callback
+                    if (response.success && options.success) {
+                        options.success(response);
+                    } else if (!response.success && options.error) {
+                        // options.error();
+                    }
+                }, 500); // Simulate network delay
+
+                // Return a mock jqXHR object
+                return {
+                    done: function() { return this; },
+                    fail: function() { return this; },
+                    always: function() { return this; }
+                };
+            };
+        })();
+    </script>
+</body>
+</html>
