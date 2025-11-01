@@ -304,29 +304,37 @@ class ocActividadManager {
                 },
                 {
                     title: "Acciones",
-                    width: 100,
+                    width: 120,
                     hozAlign: "center",
                     headerSort: false,
                     formatter: (cell) => {
-                        if (!self.isEditMode) return '';
-                        
-                        return `
-                            <div class="ocActividad_actions_cell">
+                        let buttons = `
+                            <button class="ocActividad_action_button ocActividad_action_view" title="Ver">👁️</button>
+                        `;
+
+                        // Edit/Delete buttons are only visible in edit mode
+                        if (self.isEditMode) {
+                            buttons += `
                                 <button class="ocActividad_action_button ocActividad_action_edit" title="Editar">✏️</button>
                                 <button class="ocActividad_action_button ocActividad_action_delete" title="Eliminar">🗑️</button>
-                            </div>
-                        `;
+                            `;
+                        }
+                        return `<div class="ocActividad_actions_cell">${buttons}</div>`;
                     },
                     cellClick: (e, cell) => {
-                        if (!self.isEditMode) return;
-                        
                         const target = e.target;
                         const rowData = cell.getRow().getData();
 
-                        if (target.classList.contains('ocActividad_action_edit')) {
-                            self.openEditDialog(rowData);
-                        } else if (target.classList.contains('ocActividad_action_delete')) {
-                            self.openDeleteDialog(rowData);
+                        if (target.classList.contains('ocActividad_action_view')) {
+                            // Always allow viewing
+                            self.openEditDialog(rowData, true); // true = read-only
+                        } else if (self.isEditMode) {
+                            // Only allow edit/delete if in edit mode
+                            if (target.classList.contains('ocActividad_action_edit')) {
+                                self.openEditDialog(rowData, false); // false = not read-only
+                            } else if (target.classList.contains('ocActividad_action_delete')) {
+                                self.openDeleteDialog(rowData);
+                            }
                         }
                     }
                 },
@@ -336,13 +344,7 @@ class ocActividadManager {
                     minWidth: 180,
                     headerFilter: "input",
                     headerFilterPlaceholder: "Buscar...",
-                    cellClick: (e, cell) => {
-                        const rowData = cell.getRow().getData();
-                        self.openEditDialog(rowData);
-                    },
-                    formatter: (cell) => {
-                        return `<span style="cursor: pointer; color: var(--color-primary);">${cell.getValue()}</span>`;
-                    }
+
                 },
                 {
                     title: "Descripción",
@@ -369,10 +371,6 @@ class ocActividadManager {
                         const etiquetas = permisos.map(p => p.etiqueta).join(', ');
                         return `<span class="ocActividad_permissions_text" title="${etiquetas}">${etiquetas}</span>`;
                     },
-                    cellClick: (e, cell) => {
-                        const rowData = cell.getRow().getData();
-                        self.openEditDialog(rowData);
-                    }
                 },
                 {
                     title: "Registrado",
@@ -395,7 +393,7 @@ class ocActividadManager {
                 {
                     title: "ID",
                     field: "actividad_id",
-                    width: 60,
+                    width: 50,
                     hozAlign: "center",
                     formatter: (cell) => {
                         return `<span class="ocActividad_id_cell">${cell.getValue()}</span>`;
@@ -436,7 +434,7 @@ class ocActividadManager {
      */
     setupDialogs() {
         this.editDialog = new ocActividadEditDialog(this);
-        this.deleteDialog = new ocActividadDeleteDialog(this);
+
         
         // Initialize OcDialogDrag for both dialogs
         OcDialogDrag.initialize(document.getElementById('ocActividad_edit_dialog'));
@@ -456,20 +454,51 @@ class ocActividadManager {
     /**
      * Open edit dialog
      */
-    openEditDialog(activityData) {
-        if (!this.isEditMode && activityData) {
-            // Read-only mode, but show data
-            this.editDialog.open(activityData, true);
-        } else {
-            this.editDialog.open(activityData, false);
-        }
+    /**
+     * Open edit dialog
+     */
+    openEditDialog(activityData, readOnly = false) {
+        this.editDialog.open(activityData, readOnly);
     }
 
     /**
      * Open delete dialog
      */
-    openDeleteDialog(activityData) {
-        this.deleteDialog.open(activityData);
+    /**
+     * Open delete dialog
+     */
+    async openDeleteDialog(activityData) {
+        // Build the custom message content using existing CSS classes
+        const messageHtml = `
+            <p class="ocActividad_delete_message">¿Está seguro que desea eliminar esta actividad?</p>
+            <div class="ocActividad_delete_info">
+                <div class="ocActividad_delete_info_row">
+                    <span class="ocActividad_delete_info_label">ID:</span>
+                    <span class="ocActividad_delete_info_value">${activityData.actividad_id}</span>
+                </div>
+                <div class="ocActividad_delete_info_row">
+                    <span class="ocActividad_delete_info_label">Actividad:</span>
+                    <span class="ocActividad_delete_info_value">${activityData.actividad}</span>
+                </div>
+            </div>
+        `;
+
+        try {
+            // Use OcDialog.confirmDelete
+            // It returns a promise that resolves on OK, and rejects on Cancel
+            await OcDialog.confirmDelete(messageHtml);
+
+            // If we get here, the user clicked "Eliminar"
+            // The deleteActivity method will handle showing success/error
+            await this.deleteActivity(activityData.actividad_id);
+
+        } catch (error) {
+            // User clicked "Cancelar" or pressed ESC.
+            // OcDialog.js rejects with an Error(OcDialog.CANCELED), so we can safely ignore it.
+            if (error && error.message !== OcDialog.CANCELED) {
+                console.error("Error during delete confirmation:", error);
+            }
+        }
     }
 
     /**
@@ -535,58 +564,13 @@ class ocActividadManager {
     /**
      * Show success message
      */
-    showSuccess(message) {
-        this.showNotification(message, 'success');
-    }
+    showSuccess(message) {OcDialog.info(message, "Éxito", "✓");}
 
     /**
      * Show error message
      */
-    showError(message) {
-        this.showNotification(message, 'error');
-    }
+    showError(message) {OcDialog.error(message);}
 
-    /**
-     * Show notification using simple dialog
-     */
-    showNotification(message, type = 'info') {
-        const dialog = document.createElement('dialog');
-        dialog.className = 'ocdialog';
-        dialog.style.minWidth = '300px';
-        
-        const bgColor = type === 'success' ? 'var(--color-success)' : 
-                       type === 'error' ? 'var(--color-fail)' : 
-                       'var(--color-info)';
-        
-        dialog.innerHTML = `
-            <div class="ocdialog_grow_content">
-                <div class="ocdialog_header" style="background: ${bgColor};">
-                    <h2 class="ocdialog_title">${type === 'success' ? '✓ Éxito' : type === 'error' ? '✗ Error' : 'ℹ Info'}</h2>
-                    <button class="ocdialog_close">&times;</button>
-                </div>
-                <div class="ocdialog_content">
-                    <p style="margin: 0;">${message}</p>
-                </div>
-                <div class="ocdialog_footer">
-                    <button class="ocdialog_button ocdialog_button--primary">Aceptar</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(dialog);
-        
-        const closeDialog = () => {
-            dialog.close();
-            setTimeout(() => dialog.remove(), 300);
-        };
-        
-        dialog.querySelector('.ocdialog_close').addEventListener('click', closeDialog);
-        dialog.querySelector('.ocdialog_button').addEventListener('click', closeDialog);
-        
-        dialog.showModal();
-        OcDialogDrag.initialize(dialog);
-        OcDialogDrag.centerDialog(dialog);
-    }
 }
 
 /**
@@ -692,13 +676,7 @@ class ocActividadEditDialog {
         const inputs = this.dialog.querySelectorAll('.ocActividad_input:not(.ocActividad_input_readonly), .ocActividad_textarea, .ocActividad_permission_input');
         inputs.forEach(input => {
             input.readOnly = readOnly;
-            if (readOnly) {
-                input.style.background = 'var(--color-neutral-bg)';
-                input.style.cursor = 'not-allowed';
-            } else {
-                input.style.background = '';
-                input.style.cursor = '';
-            }
+
         });
 
         // Hide/show buttons
@@ -730,25 +708,26 @@ class ocActividadEditDialog {
         switch (macroType) {
             case 'wr_nada':
                 permissionsToAdd = [
-                    { permiso: `${basePrefix}.rw`, etiqueta: 'Editar' },
-                    { permiso: `${basePrefix}.ro`, etiqueta: 'Consultar' },
-                    { permiso: `${basePrefix}.nada`, etiqueta: 'Nada' }
+                    { permiso: `R/W`, etiqueta: 'Editar' },
+                    { permiso: `R/O`, etiqueta: 'Consultar' },
+                    { permiso: `Nada`, etiqueta: 'Nada' }
                 ];
                 break;
             
             case 'crud':
                 permissionsToAdd = [
-                    { permiso: `${basePrefix}.crear`, etiqueta: 'Crear' },
-                    { permiso: `${basePrefix}.leer`, etiqueta: 'Leer' },
-                    { permiso: `${basePrefix}.actualizar`, etiqueta: 'Actualizar' },
-                    { permiso: `${basePrefix}.eliminar`, etiqueta: 'Eliminar' }
+                    { permiso: `Listar`, etiqueta: 'Listar' },
+                    { permiso: `R/O`, etiqueta: 'Consultar' },
+                    { permiso: `Crear`, etiqueta: 'Crear' },
+                    { permiso: `Editar`, etiqueta: 'Editar' },
+                    { permiso: `Eliminar`, etiqueta: 'Eliminar' }
                 ];
                 break;
-            
-            case 'ver_editar':
+
+            case 'si_no':
                 permissionsToAdd = [
-                    { permiso: `${basePrefix}.ver`, etiqueta: 'Ver' },
-                    { permiso: `${basePrefix}.editar`, etiqueta: 'Editar' }
+                    { permiso: 'Si', etiqueta: 'Si' },
+                    { permiso: 'No', etiqueta: 'No' }
                 ];
                 break;
         }
@@ -798,9 +777,10 @@ class ocActividadEditDialog {
         permissionDiv.dataset.permissionId = permissionId;
         
         const displayId = permission.actividad_permiso_id || 'N';
-        
+
         permissionDiv.innerHTML = `
             <div class="ocActividad_permission_id">${displayId}</div>
+            
             <div class="ocActividad_permission_input_group">
                 <label class="ocActividad_permission_label">Permiso:</label>
                 <input type="text" 
@@ -808,8 +788,10 @@ class ocActividadEditDialog {
                        data-field="permiso" 
                        value="${permission.permiso || ''}" 
                        placeholder="ej: usuarios.ver"
-                       maxlength="16">
+                       maxlength="16"
+                       style="width: 16ch;">
             </div>
+            
             <div class="ocActividad_permission_input_group">
                 <label class="ocActividad_permission_label">Etiqueta:</label>
                 <input type="text" 
@@ -817,7 +799,8 @@ class ocActividadEditDialog {
                        data-field="etiqueta" 
                        value="${permission.etiqueta || ''}" 
                        placeholder="ej: Ver Usuarios"
-                       maxlength="16">
+                       maxlength="16"
+                       style="width: 32ch;">
             </div>
             <button class="ocActividad_remove_permission" title="Eliminar permiso">✖</button>
         `;
@@ -897,81 +880,6 @@ class ocActividadEditDialog {
     }
 }
 
-/**
- * Delete Dialog Manager
- */
-class ocActividadDeleteDialog {
-    constructor(manager) {
-        this.manager = manager;
-        this.dialog = document.getElementById('ocActividad_delete_dialog');
-        this.currentActivity = null;
-        
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        // Close button
-        document.getElementById('ocActividad_close_delete_dialog').addEventListener('click', () => {
-            this.close();
-        });
-
-        // Cancel button
-        document.getElementById('ocActividad_cancel_delete').addEventListener('click', () => {
-            this.close();
-        });
-
-        // Confirm button
-        document.getElementById('ocActividad_confirm_delete').addEventListener('click', () => {
-            this.confirm();
-        });
-
-        // Close on Escape key
-        this.dialog.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                e.preventDefault(); // Prevent default escape behavior
-                this.close();
-            }
-        });
-    }
-
-    open(activityData) {
-        this.currentActivity = activityData;
-
-        // Display activity info
-        const infoContainer = document.getElementById('ocActividad_delete_info');
-        infoContainer.innerHTML = `
-            <div class="ocActividad_delete_info_row">
-                <span class="ocActividad_delete_info_label">ID:</span>
-                <span class="ocActividad_delete_info_value">${activityData.actividad_id}</span>
-            </div>
-            <div class="ocActividad_delete_info_row">
-                <span class="ocActividad_delete_info_label">Actividad:</span>
-                <span class="ocActividad_delete_info_value">${activityData.actividad}</span>
-            </div>
-            <div class="ocActividad_delete_info_row">
-                <span class="ocActividad_delete_info_label">Permisos:</span>
-                <span class="ocActividad_delete_info_value">${activityData.permisos?.length || 0} permiso(s) asociado(s)</span>
-            </div>
-        `;
-
-        this.dialog.showModal();
-        OcDialogDrag.centerDialog(this.dialog);
-    }
-
-    close() {
-        this.dialog.close();
-    }
-
-    async confirm() {
-        if (!this.currentActivity) return;
-
-        const success = await this.manager.deleteActivity(this.currentActivity.actividad_id);
-        
-        if (success) {
-            this.close();
-        }
-    }
-}
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

@@ -129,18 +129,22 @@
 }
 
 .ocActividad_actions_cell {
+    padding:0;margin:0;
     display: flex;
-    gap: 8px;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    justify-content: space-between;
 }
 
 .ocActividad_action_button {
-    border: none;
+
     background: transparent;
     cursor: pointer;
-    font-size: 18px;
-    padding: 5px 10px;
+    font-size: 15px;
+    padding: 0;
+    margin:0;
     border-radius: 4px;
+    border: 1px red solid;
     transition: background-color 0.2s;
 }
 
@@ -242,17 +246,22 @@
 .ocActividad_delete_info_value {
     color: var(--color-text-light);
 }
+#ocActividad_edit_dialog {
+    width: 700px;
+    max-width: 90vw; /* Ensures it still scales down on small screens */
+}
 /* Override OcDialog content to use flexbox - following TagIt pattern */
 #ocActividad_edit_dialog .ocdialog_content {
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Critical for proper flex sizing */
     max-height: none;
+    gap:0;
 }
 
 /* Fixed sections don't grow or shrink */
 .ocActividad_section {
-    margin-bottom: 10px;
+
     padding: 10px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -356,14 +365,22 @@
 }
 
 .ocActividad_input_readonly {
-    background: var(--color-neutral-bg);
+    background: transparent;
     color: var(--color-text-light);
-    cursor: not-allowed;
+    cursor: pointer;
+    border:none;
+    outline:none;
+}
+.ocActividad_input[readonly] {
+    background: transparent;
+    cursor: pointer;
+    border:none;
+    outline:none;
 }
 
 .ocActividad_textarea {
     resize: vertical;
-    min-height: 60px;
+    min-height: 30px;
 }
 
 /* Permission Actions Row */
@@ -416,8 +433,8 @@
 }
 
 .ocActividad_permission_item {
-    display: grid;
-    grid-template-columns: 35px 1fr 1fr 35px;
+    display: flex;
+    flex-wrap: wrap; /* As requested */
     gap: 8px;
     align-items: center;
     padding: 8px;
@@ -458,7 +475,11 @@
     font-size: 0.9rem;
     transition: border-color 0.2s;
 }
-
+.ocActividad_permission_input[readonly] {
+    outline:none;
+    border:none;
+    background-color: transparent;
+}
 .ocActividad_permission_input:focus {
     outline: none;
     border-color: var(--color-primary);
@@ -600,4 +621,21 @@
         min-height: 44px;
         font-size: 16px; /* Prevents zoom on iOS */
     }
+}
+
+/* ADDED: New style for inline form rows */
+.ocActividad_form_row--inline {
+    flex-direction: row; /* Override the default 'column' */
+    flex-wrap: wrap; /* As requested */
+    align-items: center;
+    gap: 8px;
+}
+.ocActividad_form_row--inline > .ocActividad_label {
+    margin-bottom: 0; /* Remove the bottom margin */
+    flex-shrink: 0; /* Don't let label shrink */
+}
+.ocActividad_form_row--inline > .ocActividad_input,
+.ocActividad_form_row--inline > .ocActividad_textarea {
+    flex-grow: 1;
+    min-width: 16ch; /* Requested min-width */
 }

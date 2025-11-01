@@ -154,7 +154,7 @@
 
 /** region:Dialog content */
     .ocdialog_content {
-        padding: 24px;
+        padding: 12px;
         overflow-y: auto;
         flex-grow: 1; /* Allows content to grow and fill available space IMPORTANT or scroll*/
         max-height: calc(90vh - 200px);
@@ -464,6 +464,8 @@
  */
 .ocdialog_content:has(> .ocdialog_flex_column) {
     padding: 0 !important;
+    max-height: none !important; /* Override the default max-height */
+    overflow: hidden !important; /* Override the default scroll */
 }
 
 /**
