@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Asignar Permisos a Roles</title>
+
+    <!-- Base / Theme -->
+    <link rel="stylesheet" href="./base.css" />
+
+    <!-- Tabulator -->
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
+
+    <!-- Tom Select (for selects inside dialog) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
+
+    <!-- OcDialog CSS -->
+    <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
+
+    <!-- Page CSS (optional small helpers) -->
+    <style>
+        .asig_container { padding: 10px; }
+        .asig_toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+        .asig_left, .asig_right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        .asig_input { border:1px solid var(--color-border); border-radius:4px; padding:6px 8px; }
+        #gridAssign { border:1px solid var(--color-border); border-radius:6px; box-shadow: var(--elevation-1); }
+        .chip { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--color-border); margin:2px 4px 2px 0; font-size:.9rem; }
+        .chip.ok { background: var(--color-success-bg, #e6f7ed); }
+        .chip.missing { background: var(--color-neutral-bg, #f3f3f3); opacity:.9; }
+        .cell-chips { line-height: 1.9; }
+        .btn-icon { padding:4px 8px; border-radius:4px; border:1px solid var(--color-border); background: var(--color-surface); cursor:pointer; }
+        .btn-icon:hover { filter:brightness(.97); }
+    </style>
+</head>
+<body>
+<header class="sch_header">
+    <h1>Asignación de Permisos a Roles</h1>
+</header>
+
+<nav class="sch_nav">
+    <ul>
+        <li><a href="./index.html">Inicio</a></li>
+        <li><a href="./actividad.html">Actividades</a></li>
+        <li><a class="ocAsignar_nav_active" href="./asignar_permisos.html">Asignar Permisos</a></li>
+        <li><a href="./roles.html">Roles</a></li>
+        <li><a href="./usuarios.html">Usuarios</a></li>
+    </ul>
+</nav>
+
+<main class="asig_container">
+    <div class="asig_toolbar">
+        <div class="asig_left">
+            <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo</button>
+            <label>Buscar:
+                <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar…" />
+            </label>
+        </div>
+        <div class="asig_right">
+            <button id="btnImport" class="sch_button sch_button--secondary" title="Importar JSON">⬆️ Importar</button>
+            <button id="btnExport" class="sch_button sch_button--execute" title="Exportar JSON">⬇️ Exportar</button>
+            <button id="btnReset"  class="sch_button sch_button--cancel"   title="Borrar datos locales">🗑️ Reset</button>
+        </div>
+    </div>
+
+    <!-- Single grid (Tabulator) -->
+    <div id="gridAssign"></div>
+</main>
+
+<!-- Dialog to create/edit a (Rol, Actividad) assignment -->
+<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;">
+    <div class="ocdialog_header">
+        <h2 class="ocdialog_title" id="dlgTitle">Nuevo</h2>
+        <button class="ocdialog_close" data-action="close" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="ocdialog_content">
+        <div class="ocdialog_flex_column">
+            <section class="ocAsignar_section ocdialog_flex_fixed">
+                <div class="asig_left" style="margin-bottom:8px;">
+                    <label for="selRol"><strong>Rol:</strong></label>
+                    <select id="selRol" placeholder="Seleccione rol…"></select>
+
+                    <label for="selAct" style="margin-left:10px;"><strong>Actividad:</strong></label>
+                    <select id="selAct" placeholder="Seleccione actividad…"></select>
+
+                    <label for="permSearch" style="margin-left:auto;">Filtrar:</label>
+                    <input id="permSearch" class="asig_input" placeholder="buscar permiso…" />
+                </div>
+            </section>
+
+            <section class="ocAsignar_section ocdialog_flex_grow">
+                <ul id="permList" class="ocAsignar_perm_list" role="listbox" aria-label="Permisos de la actividad" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;"></ul>
+            </section>
+        </div>
+    </div>
+
+    <div class="ocdialog_footer">
+        <button class="ocdialog_button ocdialog_button--secondary" data-action="close">Cancelar</button>
+        <button class="ocdialog_button ocdialog_button--success" data-action="save">Guardar</button>
+    </div>
+</dialog>
+
+<!-- Libraries -->
+<script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+<!-- OcDialog behavior -->
+<script src="../OcDialog/OcDialog.js"></script>
+<script src="../OcDialog/OcDialogDrag.js"></script>
+
+<!-- Page JS -->
+<script src="./asignar_permisos.js"></script>
+</body>
+</html>

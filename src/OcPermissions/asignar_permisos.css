@@ -1,0 +1,162 @@
+/* File: asignar_permisos.css */
+/* Vanilla CSS to pair with the single-grid asignar_permisos.html
+   Uses your theme tokens when present; includes sensible fallbacks. */
+
+/* --------- Nav hint ---------- */
+.ocAsignar_nav_active {
+    background: rgba(255,255,255,.3);
+    border-radius: 4px;
+}
+
+/* --------- Layout ---------- */
+.asig_container {
+    padding: 10px;
+    max-width: 100%;
+}
+
+.asig_toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+}
+
+.asig_left,
+.asig_right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.asig_input {
+    border: 1px solid var(--color-border, #d0d5dd);
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #111827);
+    border-radius: 4px;
+    padding: 6px 8px;
+    min-width: 200px;
+}
+
+/* --------- Grid Shell ---------- */
+#gridAssign {
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+    overflow: clip;
+}
+
+/* --------- Tabulator tweaks ---------- */
+.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input,
+.tabulator .tabulator-header .tabulator-col .tabulator-header-filter select {
+    width: 100%;
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 4px;
+    padding: 4px 6px;
+    background: var(--color-surface, #fff);
+}
+
+.tabulator .tabulator-row:hover {
+    background: var(--color-info-bg, #eef6ff) !important;
+}
+
+.tabulator .tabulator-cell.cell-chips {
+    white-space: normal;           /* allow wrapping */
+    line-height: 1.9;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* --------- Chips (permissions) ---------- */
+.chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    margin: 2px 4px 2px 0;
+    font-size: .9rem;
+    background: var(--color-neutral-bg, #f3f4f6);
+}
+
+.chip.ok {
+    background: var(--color-success-bg, #e6f7ed);
+    border-color: var(--color-success-border, #b7ebc6);
+    color: var(--color-success-text, #0f5132);
+}
+
+.chip.missing {
+    background: var(--color-neutral-bg, #f3f4f6);
+    border-color: var(--color-border, #d0d5dd);
+    color: var(--color-text-light, #6b7280);
+    opacity: .95;
+}
+
+/* --------- Action buttons inside grid ---------- */
+.btn-icon {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #111827);
+    cursor: pointer;
+}
+.btn-icon:hover {
+    filter: brightness(.97);
+}
+
+/* --------- Dialog permission list ---------- */
+.ocAsignar_section {
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.ocAsignar_perm_list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+.ocAsignar_perm_item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    background: var(--color-neutral-bg, #f9fafb);
+}
+.ocAsignar_perm_item:hover {
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+    border-color: var(--color-secondary, #64748b);
+}
+
+.ocAsignar_perm_code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: var(--color-text-light, #6b7280);
+    font-size: .85rem;
+}
+
+.ocAsignar_hint {
+    color: var(--color-text-light, #6b7280);
+}
+
+/* --------- Touch targets ---------- */
+@media (pointer: coarse) {
+    .asig_input,
+    .btn-icon,
+    .sch_button {
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
