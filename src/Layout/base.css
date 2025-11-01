@@ -32,29 +32,18 @@
     --r4:4px; --r6:6px; --r8:8px; --rp:999px;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-html{color-scheme:light}
-body{
-    margin:0; background:var(--bg); color:var(--text);
-    font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;
-}
-a{color:inherit}
+
 
 /* ================================
    Row 1: Header (Branding + 3 ctrls + logout)
    ================================ */
 .sch_header{
-
-
-    position: static;
     background:var(--surface);
     height:var(--h-header);
     border-bottom:1px solid var(--border);
     box-shadow:var(--elev-1);
 }
 .sch_header_inner{
-    /* FULL WIDTH: no max-width */
     height:100%;
     display:flex; align-items:flex-start; justify-content:space-between;
     padding:6px var(--gx);       /* tight */
@@ -65,7 +54,6 @@ a{color:inherit}
 .sch_brand_text{display:inline-flex; gap:6px; align-items:baseline; white-space:nowrap}
 .sch_company{font-weight:600}
 .sch_system{color:var(--primary); font-weight:600}
-
 .sch_top_controls{display:inline-flex; align-items:flex-start; gap:6px}
 .ctl_btn{
     border:1px solid var(--border);

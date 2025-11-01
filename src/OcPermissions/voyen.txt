@@ -1,5 +1,3 @@
-Excellent
-
-1. what makes this screen very difficult to use, mainly in edit mode, is that any simple accidental click outside the edit dialog closes it! And what if I have written things all my work is lost! Can we have the user either close clicking on the close button or cancel or save? and ideally if the content was modified warn the user cancelando sin guardar, esta seguro de perder sus cambios?
-2. Can we do this with html 5 dialogs yes or no, if yes do it
-3. Would it be easy to change and use OcDialog attached? It already has drag and resize! as per the project! And has alert, confirm, error that we must not use alert nor confirm from javascript since the browsers have made them useless
+1. When in read mode the Activity column must have an eye as an icon to view the dialog
+2. Remove the other links in tabulator gird columns since we will use them later to link like a web as in world wide web, to a relevant page for that column. SO THE ONLY WAY TO OPEN THE DIALOG IS FROM THE Actions Column.
+3. To make it easier there can be 3 icons, edit and delete not painted in read mode. And even easier the page when loaded can be loaded in either read or edit mode to change the mode it must be re-rendered compeltely since it will rearely happen!

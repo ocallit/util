@@ -415,3 +415,82 @@
     .symbols-row span:hover {background-color: #ddd;color: #000;}
     .symbols-row span::selection {background: #ddd;color: inherit;}
     .symbols-scroll_tip {}
+
+
+/* =======================================
+* DialogIt Flex-Grow Pattern
+* (Add this to DialogIt.css)
+* ======================================= */
+/*
+<div class="ocdialog_flex_column">
+
+    <div class="ocdialog_flex_fixed sch_form_group">
+        <label for="my_search" class="sch_form_label">Search Items</label>
+        <input type="text" id="my_search" class="sch_form_input" placeholder="Search...">
+    </div>
+
+    <div class="ocdialog_flex_grow">
+        <p>Item 1</p>
+        <p>Item 2</p>
+        <p>Item 3</p>
+        <p>Item 100</p>
+    </div>
+
+    <div class="ocdialog_flex_fixed">
+        <button type="button" class="ocdialog_button" style="width: 100%;">
+            Add New Item
+        </button>
+    </div>
+
+</div>
+ */
+/**
+ * Use this class on the main container *inside* .ocdialog_content
+ * to create a vertical flex layout that fills the content area.
+ */
+.ocdialog_flex_column {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Fills the .ocdialog_content area */
+    overflow: hidden; /* Prevents parent from scrolling */
+    gap: 12px; /* A sensible default gap */
+    box-sizing: border-box; /* Include padding in height */
+    padding: 12px; /* A sensible default padding */
+}
+
+/**
+ * Removes the default .ocdialog_content padding when the
+ * flex_column is used, allowing it to manage its own padding.
+ */
+.ocdialog_content:has(> .ocdialog_flex_column) {
+    padding: 0 !important;
+}
+
+/**
+ * Apply this to the child of .ocdialog_flex_column
+ * that should grow, shrink, and scroll.
+ * (e.g., a list, a large text area)
+ */
+.ocdialog_flex_grow {
+    flex-grow: 1;   /* Take all available vertical space */
+    flex-shrink: 1; /* Allow shrinking */
+    min-height: 0;  /* CRITICAL for shrinking in flexbox */
+    overflow-y: auto; /* Add scrollbar if content overflows */
+    overflow-x: hidden;
+
+    /* Optional: Add some styling for the growing area */
+    background: var(--color-neutral-bg, #f8f9fa);
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+/**
+ * Apply this to children of .ocdialog_flex_column
+ * that should have a fixed, non-growing height.
+ * (e.g., search bars, toolbars, 'add new' forms)
+ */
+.ocdialog_flex_fixed {
+    flex-grow: 0;
+    flex-shrink: 0;
+}

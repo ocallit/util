@@ -14,6 +14,9 @@
     <!-- Tabulator CSS -->
     <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
     
+    <!-- OcDialog CSS -->
+    <link rel="stylesheet" href="../OcDialog/OcDialog.css">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./actividad.css">
 </head>
@@ -64,15 +67,15 @@
     </main>
 
     <!-- Edit Activity Dialog -->
-    <dialog id="ocActividad_edit_dialog" class="ocActividad_dialog">
-        <div class="ocActividad_dialog_content">
-            <div class="ocActividad_dialog_header">
-                <h2 class="ocActividad_dialog_title" id="ocActividad_dialog_title">Editar Actividad</h2>
-                <button class="ocActividad_dialog_close" id="ocActividad_close_edit_dialog">&times;</button>
+    <dialog id="ocActividad_edit_dialog" class="ocdialog">
+        <div class="ocdialog_grow_content">
+            <div class="ocdialog_header">
+                <h2 class="ocdialog_title" id="ocActividad_dialog_title">Editar Actividad</h2>
+                <button class="ocdialog_close" id="ocActividad_close_edit_dialog">&times;</button>
             </div>
             
-            <div class="ocActividad_dialog_body">
-                <!-- Activity Info Section - Compact Layout -->
+            <div class="ocdialog_content">
+                <!-- Activity Info Section - Fixed -->
                 <section class="ocActividad_section">
                     <!-- Readonly info in one row -->
                     <div class="ocActividad_info_row">
@@ -100,8 +103,8 @@
                     </div>
                 </section>
 
-                <!-- Permissions Section -->
-                <section class="ocActividad_section">
+                <!-- Permissions Section - This grows/shrinks -->
+                <section class="ocActividad_section ocActividad_grow_shrink">
                     <div class="ocActividad_section_header">
                         <h3 class="ocActividad_section_title">Permisos</h3>
                         <div class="ocActividad_permission_actions">
@@ -128,32 +131,36 @@
                 </section>
             </div>
 
-            <div class="ocActividad_dialog_footer">
-                <button class="sch_button sch_button--cancel" id="ocActividad_cancel_edit">Cancelar</button>
-                <button class="sch_button sch_button--save" id="ocActividad_save_edit">Guardar</button>
+            <div class="ocdialog_footer">
+                <button class="ocdialog_button ocdialog_button--secondary" id="ocActividad_cancel_edit">Cancelar</button>
+                <button class="ocdialog_button ocdialog_button--success" id="ocActividad_save_edit">Guardar</button>
             </div>
         </div>
     </dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <dialog id="ocActividad_delete_dialog" class="ocActividad_dialog ocActividad_dialog_small">
-        <div class="ocActividad_dialog_content">
-            <div class="ocActividad_dialog_header">
-                <h2 class="ocActividad_dialog_title">Confirmar Eliminación</h2>
-                <button class="ocActividad_dialog_close" id="ocActividad_close_delete_dialog">&times;</button>
+    <dialog id="ocActividad_delete_dialog" class="ocdialog">
+        <div class="ocdialog_grow_content">
+            <div class="ocdialog_header">
+                <h2 class="ocdialog_title">Confirmar Eliminación</h2>
+                <button class="ocdialog_close" id="ocActividad_close_delete_dialog">&times;</button>
             </div>
             
-            <div class="ocActividad_dialog_body">
+            <div class="ocdialog_content">
                 <p class="ocActividad_delete_message">¿Está seguro que desea eliminar esta actividad?</p>
                 <div class="ocActividad_delete_info" id="ocActividad_delete_info"></div>
             </div>
 
-            <div class="ocActividad_dialog_footer">
-                <button class="sch_button sch_button--cancel" id="ocActividad_cancel_delete">Cancelar</button>
-                <button class="sch_button ocActividad_delete_confirm_button" id="ocActividad_confirm_delete">Eliminar</button>
+            <div class="ocdialog_footer">
+                <button class="ocdialog_button ocdialog_button--secondary" id="ocActividad_cancel_delete">Cancelar</button>
+                <button class="ocdialog_button ocdialog_button--fail" id="ocActividad_confirm_delete">Eliminar</button>
             </div>
         </div>
     </dialog>
+
+    <!-- OcDialog Drag JS -->
+    <script src="../OcDialog/OcDialog.js"></script>
+    <script src="../OcDialog/OcDialogDrag.js"></script>
 
     <!-- Tabulator JS -->
     <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>

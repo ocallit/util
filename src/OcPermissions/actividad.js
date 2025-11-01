@@ -336,6 +336,13 @@ class ocActividadManager {
                     minWidth: 180,
                     headerFilter: "input",
                     headerFilterPlaceholder: "Buscar...",
+                    cellClick: (e, cell) => {
+                        const rowData = cell.getRow().getData();
+                        self.openEditDialog(rowData);
+                    },
+                    formatter: (cell) => {
+                        return `<span style="cursor: pointer; color: var(--color-primary);">${cell.getValue()}</span>`;
+                    }
                 },
                 {
                     title: "Descripción",
@@ -430,6 +437,10 @@ class ocActividadManager {
     setupDialogs() {
         this.editDialog = new ocActividadEditDialog(this);
         this.deleteDialog = new ocActividadDeleteDialog(this);
+        
+        // Initialize OcDialogDrag for both dialogs
+        OcDialogDrag.initialize(document.getElementById('ocActividad_edit_dialog'));
+        OcDialogDrag.initialize(document.getElementById('ocActividad_delete_dialog'));
     }
 
     /**
@@ -525,14 +536,56 @@ class ocActividadManager {
      * Show success message
      */
     showSuccess(message) {
-        alert('✓ ' + message);
+        this.showNotification(message, 'success');
     }
 
     /**
      * Show error message
      */
     showError(message) {
-        alert('✗ ' + message);
+        this.showNotification(message, 'error');
+    }
+
+    /**
+     * Show notification using simple dialog
+     */
+    showNotification(message, type = 'info') {
+        const dialog = document.createElement('dialog');
+        dialog.className = 'ocdialog';
+        dialog.style.minWidth = '300px';
+        
+        const bgColor = type === 'success' ? 'var(--color-success)' : 
+                       type === 'error' ? 'var(--color-fail)' : 
+                       'var(--color-info)';
+        
+        dialog.innerHTML = `
+            <div class="ocdialog_grow_content">
+                <div class="ocdialog_header" style="background: ${bgColor};">
+                    <h2 class="ocdialog_title">${type === 'success' ? '✓ Éxito' : type === 'error' ? '✗ Error' : 'ℹ Info'}</h2>
+                    <button class="ocdialog_close">&times;</button>
+                </div>
+                <div class="ocdialog_content">
+                    <p style="margin: 0;">${message}</p>
+                </div>
+                <div class="ocdialog_footer">
+                    <button class="ocdialog_button ocdialog_button--primary">Aceptar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        const closeDialog = () => {
+            dialog.close();
+            setTimeout(() => dialog.remove(), 300);
+        };
+        
+        dialog.querySelector('.ocdialog_close').addEventListener('click', closeDialog);
+        dialog.querySelector('.ocdialog_button').addEventListener('click', closeDialog);
+        
+        dialog.showModal();
+        OcDialogDrag.initialize(dialog);
+        OcDialogDrag.centerDialog(dialog);
     }
 }
 
@@ -579,16 +632,10 @@ class ocActividadEditDialog {
             });
         });
 
-        // Close on backdrop click
-        this.dialog.addEventListener('click', (e) => {
-            if (e.target === this.dialog) {
-                this.close();
-            }
-        });
-
         // Close on Escape key
         this.dialog.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                e.preventDefault(); // Prevent default escape behavior
                 this.close();
             }
         });
@@ -634,6 +681,7 @@ class ocActividadEditDialog {
 
         // Show dialog
         this.dialog.showModal();
+        OcDialogDrag.centerDialog(this.dialog);
     }
 
     close() {
@@ -824,7 +872,7 @@ class ocActividadEditDialog {
         const actividad = document.getElementById('ocActividad_edit_actividad').value.trim();
         
         if (!actividad) {
-            alert('El campo Actividad es obligatorio');
+            this.manager.showError('El campo Actividad es obligatorio');
             return;
         }
 
@@ -877,16 +925,10 @@ class ocActividadDeleteDialog {
             this.confirm();
         });
 
-        // Close on backdrop click
-        this.dialog.addEventListener('click', (e) => {
-            if (e.target === this.dialog) {
-                this.close();
-            }
-        });
-
         // Close on Escape key
         this.dialog.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                e.preventDefault(); // Prevent default escape behavior
                 this.close();
             }
         });
@@ -913,6 +955,7 @@ class ocActividadDeleteDialog {
         `;
 
         this.dialog.showModal();
+        OcDialogDrag.centerDialog(this.dialog);
     }
 
     close() {

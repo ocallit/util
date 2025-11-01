@@ -1,0 +1,226 @@
+/* ======================================================================
+   Generic System Layout & Components (sys-*)
+   Blocks:   sys-l-*  (layout)   |  sys-page-* (page)  |  sys-c-* (components)
+   Elements: __element           |  Modifiers: --mod   |  Utilities: u-*, is-*
+   ====================================================================== */
+/*
+
+:root {
+    --sys-primary: var(--primary, #1d3865);    if --primary exists (e.g. #00F), use it; else #1d3865
+    --sys-surface: var(--surface, #fff);
+    --sys-border:  var(--border,  #e1e4ea);
+}
+
+:root{
+  --bg: #f5f7fa; // body
+  --surface: #ffffff; // top header
+  --bg-band: color-mix(in oklab, var(--bg), black 4%);  ~3–6%  where animateMotion i hheader
+
+}
+ */
+/* ---------- Tokens (tight, full-width) ---------- */
+:root{
+    --bg:#f7f8fa;
+    --surface:#fff;
+    --surface-2:#f3f4f7;
+    --text:#2b2f38; --text-2:#5b6270;
+    --primary:#1d3865; --accent:#f15c27;
+    --border:#e1e4ea; --border-2:#c8cdda;
+    --elev-1:0 1px 2px rgba(0,0,0,.06); --elev-2:0 4px 10px rgba(0,0,0,.08);
+    --h-header:48px; --h-whereami:40px;
+    --gx:10px; --gy:10px; /* small gutters */
+    --r4:4px; --r6:6px; --r8:8px; --rp:999px;
+}
+
+
+/* ======================================================================
+   Row 1: Top Header (sys-l-header)
+   ====================================================================== */
+.sys-l-header{
+    position: static; /* Row 1 not sticky by default (saves vertical space) */
+    height: var(--h-header);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--elev-1);
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding: 6px var(--gx); gap: 8px;
+}
+.sys-l-header__brand{display:inline-flex; align-items:flex-start; gap:8px; text-decoration:none}
+.sys-l-header__logo{width:20px; height:20px; object-fit:contain; margin-top:1px}
+.sys-l-header__brandtext{display:inline-flex; gap:6px; align-items:baseline; white-space:nowrap}
+.sys-l-header__company{font-weight:600}
+.sys-l-header__system{color:var(--primary); font-weight:600}
+
+.sys-l-header__controls{display:inline-flex; align-items:flex-start; gap:6px}
+.sys-l-header__divider{width:1px; height:18px; background:var(--border)}
+.sys-l-header__logout{color:#c9203a; border-color:color-mix(in oklab,#c9203a,white 70%)}
+
+/* Generic small button */
+.sys-c-button{
+    border:1px solid var(--border); background:var(--surface);
+    border-radius:var(--r6); padding:4px 6px; cursor:pointer; line-height:1;
+}
+.sys-c-button:hover{ box-shadow: var(--elev-1); }
+.sys-c-button--primary{
+    background:color-mix(in oklab,var(--primary),white 86%);
+    border-color:color-mix(in oklab,var(--primary),white 70%);
+    color:var(--primary); font-weight:600;
+}
+
+/* ======================================================================
+   Row 2: Where-am-I (sys-l-whereami)
+   ====================================================================== */
+.sys-l-whereami{
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: flex-start; gap: 8px;
+    padding: 4px var(--gx);
+    height: var(--h-whereami);
+}
+.sys-l-whereami--sticky{ position: sticky; top: 0; z-index: 90; } /* recommended default */
+
+.sys-l-whereami__left{display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0;}
+.sys-l-whereami__controls{display:inline-flex; align-items:flex-start; gap:6px}
+
+/* Breadcrumbs */
+.sys-c-breadcrumbs ol{
+    list-style:none; margin:0; padding:0;
+    display:flex; gap:6px; align-items:center; color:var(--text-2);
+    overflow-x:auto; scrollbar-width:thin;
+}
+.sys-c-breadcrumbs li{display:inline-flex; align-items:center; white-space:nowrap}
+.sys-c-breadcrumbs li+li::before{content:"›"; margin:0 4px; color:var(--border-2)}
+.sys-c-breadcrumbs a{text-decoration:none; color:var(--text-2)}
+.sys-c-breadcrumbs a:hover{text-decoration:underline}
+
+/* Shortcuts: chips by default (distinct from breadcrumbs) */
+.sys-c-shortcuts{
+    display:flex; align-items:center; gap:6px;
+    flex-wrap:wrap; overflow-x:auto; scrollbar-width:thin;
+}
+.sys-c-shortcuts a{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:3px 8px; border:1px solid var(--border); border-radius:var(--rp);
+    background:var(--surface-2); color:var(--text);
+    text-decoration:none; white-space:nowrap; line-height:1.1;
+}
+.sys-c-shortcuts a:hover{ box-shadow:var(--elev-1); border-color:var(--border-2); }
+.sys-c-shortcuts a[aria-current="page"]{
+    background: color-mix(in oklab, var(--primary), white 88%);
+    border-color: color-mix(in oklab, var(--primary), white 70%);
+    color: var(--primary); font-weight: 600;
+}
+
+/* Optional: tabs variant
+   <nav class="sys-c-shortcuts sys-c-shortcuts--tabs">…</nav> */
+.sys-c-shortcuts--tabs{ gap:0; border-bottom:1px solid var(--border); }
+.sys-c-shortcuts--tabs a{
+    border:0; border-radius:0; background:transparent;
+    padding:6px 10px; margin:0; border-bottom:2px solid transparent;
+}
+.sys-c-shortcuts--tabs a:hover{ background:var(--surface-2); }
+.sys-c-shortcuts--tabs a[aria-current="page"]{
+    border-bottom-color: var(--primary); color: var(--primary); font-weight:600;
+}
+
+/* ======================================================================
+   Page header (sys-page-head)
+   ====================================================================== */
+.sys-page-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+    padding: 6px var(--gx) 6px;
+}
+.sys-page-head__title{ margin:0; font-size:1.35rem; color:var(--primary); letter-spacing:.2px; }
+.sys-page-head__subtitle{ margin:2px 0 0 0; color:var(--text); max-width:80ch; }
+.sys-c-toolbar{ display:flex; gap:6px; align-items:flex-start; }
+
+/* ======================================================================
+   Main work area (sys-page-main)
+   ====================================================================== */
+.sys-page-main{
+    padding: 0 var(--gx) var(--gy);
+    display:flex; flex-wrap:wrap; gap:var(--gy);
+    align-content: start;
+}
+/* Grid-only pages (huge single canvas) */
+.sys-page-main--grid-only{ display:block; }
+
+/* Utility for edge-to-edge on a given card/section */
+.u-fullbleed{
+    margin-left: -10px; margin-right: -10px;
+    border-left: 0; border-right: 0; border-radius: 0;
+}
+
+/* ======================================================================
+   Reusable Card (sys-c-card) – performance tuned
+   ====================================================================== */
+.sys-c-card{
+    flex: 1 1 520px;   /* target width ~520px; grows; wraps naturally */
+    min-width: 300px;  /* never shrink too narrow */
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r6);
+    box-shadow: var(--elev-1);
+    overflow: hidden;
+
+    /* Perf: isolate layout/paint */
+    contain: content;
+}
+
+/* Progressive rendering (supported in Chromium/Firefox) */
+@supports (content-visibility: auto){
+    .sys-c-card{
+        content-visibility: auto;             /* skip work until scrolled into view */
+        contain-intrinsic-size: 600px 400px;  /* reserve space to avoid CLS (tune per card) */
+    }
+}
+
+/* Card regions */
+.sys-c-card__header{
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+.sys-c-card__title{ margin:0; font-size:1rem; color:var(--primary); }
+.sys-c-card__body{ padding:10px; }
+
+/* Big canvases: paint frame immediately, fill later via JS */
+.sys-c-grid{   min-height: 440px; }
+.sys-c-chart{  min-height: 320px; }
+.sys-c-report{ min-height: 260px; }
+
+.sys-c-emptystate{ text-align:center; color:var(--text-2); padding:16px 8px; }
+
+/* Media / images inside cards (lazy + intrinsic sizing) */
+.sys-c-card img{
+    display:block; max-width:100%; height:auto;
+    background:#fafafa; border-radius:4px;
+}
+/* Reserve aspect ratio box even before the image downloads */
+.sys-c-media{
+    --ar: 4/3;
+    aspect-ratio: var(--ar);
+    width: 100%;
+    background: #f2f3f5;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: grid; place-items: center;
+}
+.sys-c-media > img{ width:100%; height:100%; object-fit: cover; }
+
+/* ======================================================================
+   Footer (sys-l-footer)
+   ====================================================================== */
+.sys-l-footer{
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+.sys-l-footer__inner{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding: 6px var(--gx);
+}
+.sys-l-footer a{ color:var(--text-2); text-decoration:none; }
+.sys-l-footer a:hover{ text-decoration:underline; }
