@@ -1,20 +1,27 @@
 /* File: asignar_permisos.js */
-/* Vanilla JS — Tabulator + Tom Select + native <dialog>. No jQuery. */
+/* Changes:
+   1) Removed Import/Reset
+   2) Export now CSV (Excel-friendly)
+   3) Hidden IDs in dialog list
+   4) Cancel button closes reliably
+   5) Fixed-size selects via .fixed-select
+   6) Click on Rol/Actividad shows small info dialog with description
+*/
 
 (function () {
-    var LS_KEY = "asignarPermisos.singleGrid.v1";
+    var LS_KEY = "asignarPermisos.singleGrid.v2";
 
     // -------------------- Sample Data (replace with backend later) --------------------
     var SAMPLE = {
         roles: [
-            { rol_id: 1, rol: "Administrador", descripcion: "Acceso completo" },
-            { rol_id: 2, rol: "Operador", descripcion: "Opera pedidos" },
-            { rol_id: 3, rol: "Analista", descripcion: "Lee reportes" }
+            { rol_id: 1, rol: "Administrador", descripcion: "Acceso completo a todo el sistema" },
+            { rol_id: 2, rol: "Operador", descripcion: "Opera pedidos: lectura y actualización de estado" },
+            { rol_id: 3, rol: "Analista", descripcion: "Consulta reportes y exportaciones" }
         ],
         actividades: [
             { actividad_id: 10, actividad: "pedidos", descripcion: "Gestión de pedidos" },
-            { actividad_id: 11, actividad: "productos", descripcion: "Catálogo" },
-            { actividad_id: 12, actividad: "reportes", descripcion: "Reportes y KPIs" }
+            { actividad_id: 11, actividad: "productos", descripcion: "Catálogo de productos" },
+            { actividad_id: 12, actividad: "reportes", descripcion: "Reportes y KPIs del negocio" }
         ],
         actividad_permisos: [
             // pedidos
@@ -30,7 +37,6 @@
             { actividad_permiso_id: 1201, actividad_id: 12, permiso: "leer", etiqueta: "Ver" },
             { actividad_permiso_id: 1202, actividad_id: 12, permiso: "exportar", etiqueta: "Exportar" }
         ],
-        // asignaciones: Map<rol_id, Set<actividad_permiso_id>>
         asignaciones: {
             1: new Set([1001, 1002, 1003, 1004, 1101, 1102, 1103, 1201, 1202]), // Admin
             2: new Set([1002, 1003, 1101, 1201]), // Operador
@@ -46,16 +52,18 @@
         grid: document.getElementById("gridAssign"),
         txtSearch: document.getElementById("txtSearch"),
         btnNew: document.getElementById("btnNew"),
-        btnImport: document.getElementById("btnImport"),
         btnExport: document.getElementById("btnExport"),
-        btnReset: document.getElementById("btnReset"),
         // dialog
         dlg: document.getElementById("dlgAssign"),
         dlgTitle: document.getElementById("dlgTitle"),
         selRol: document.getElementById("selRol"),
         selAct: document.getElementById("selAct"),
         permSearch: document.getElementById("permSearch"),
-        permList: document.getElementById("permList")
+        permList: document.getElementById("permList"),
+        // info dialog
+        dlgInfo: document.getElementById("dlgInfo"),
+        dlgInfoTitle: document.getElementById("dlgInfoTitle"),
+        dlgInfoText: document.getElementById("dlgInfoText")
     };
 
     var grid;
@@ -75,6 +83,13 @@
         }
     }
 
+    function findRol(rol_id) {
+        return state.roles.find(function (r) { return r.rol_id === rol_id; });
+    }
+    function findActividad(actividad_id) {
+        return state.actividades.find(function (a) { return a.actividad_id === actividad_id; });
+    }
+
     function getPermsByActividad(actividad_id) {
         return state.actividad_permisos.filter(function (p) {
             return p.actividad_id === actividad_id;
@@ -87,9 +102,7 @@
 
     function getAssignedPermsForRoleActividad(rol_id, actividad_id) {
         var set = getAssignedSetForRole(rol_id);
-        var all = getPermsByActividad(actividad_id).map(function (p) {
-            return p.actividad_permiso_id;
-        });
+        var all = getPermsByActividad(actividad_id).map(function (p) { return p.actividad_permiso_id; });
         var out = [];
         for (var i = 0; i < all.length; i++) {
             var id = all[i];
@@ -99,13 +112,11 @@
     }
 
     function labelForPermId(id) {
-        var p = state.actividad_permisos.find(function (x) {
-            return x.actividad_permiso_id === id;
-        });
+        var p = state.actividad_permisos.find(function (x) { return x.actividad_permiso_id === id; });
         return p ? p.etiqueta : String(id);
     }
 
-    // Build rows only for (rol, actividad) pairs that have at least one assigned permiso
+    // Build rows only for (rol, actividad) pairs with at least one assigned permiso
     function buildRows() {
         var rows = [];
         for (var r = 0; r < state.roles.length; r++) {
@@ -126,11 +137,8 @@
                 var actTieneMissing = [];
                 for (var j = 0; j < allPerms.length; j++) {
                     var p = allPerms[j];
-                    if (set.has(p.actividad_permiso_id)) {
-                        actTieneAssigned.push(p.etiqueta);
-                    } else {
-                        actTieneMissing.push(p.etiqueta);
-                    }
+                    if (set.has(p.actividad_permiso_id)) actTieneAssigned.push(p.etiqueta);
+                    else actTieneMissing.push(p.etiqueta);
                 }
 
                 rows.push({
@@ -169,17 +177,56 @@
                     var d = cell.getRow().getData();
                     var key = d._rowKey;
                     return (
-                        '<button class="btn-icon" data-cmd="edit" data-key="' +
-                        key +
-                        '">✏️ Editar</button> ' +
-                        '<button class="btn-icon" data-cmd="del" data-key="' +
-                        key +
-                        '">🗑️ Borrar</button>'
+                        '<button class="btn-icon" data-cmd="edit" data-key="' + key + '">✏️ Editar</button> ' +
+                        '<button class="btn-icon" data-cmd="del" data-key="' + key + '">🗑️ Borrar</button>'
                     );
                 }
             },
-            { title: "Rol", field: "rol", sorter: "string", headerFilter: "input", widthGrow: 1 },
-            { title: "Actividad", field: "actividad", sorter: "string", headerFilter: "input", widthGrow: 1 },
+            {
+                title: "Rol",
+                field: "rol",
+                sorter: "string",
+                headerFilter: "input",
+                widthGrow: 1,
+                formatter: function (cell) {
+                    var d = cell.getRow().getData();
+                    return (
+                        '<span class="info-badge" data-kind="rol" title="Ver descripción">i</span>' +
+                        '<span class="rol-text">' + escapeHtml(d.rol) + '</span>'
+                    );
+                },
+                // Only the blue "i" opens the dialog (explicit affordance)
+                cellClick: function (e, cell) {
+                    if (!e.target.closest(".info-badge")) return;
+                    onRolCellClick(e, cell);
+                },
+                // If you ever use Tabulator's CSV export, force plain text
+                formatterExport: function (cell) {
+                    return cell.getRow().getData().rol || "";
+                }
+            },
+            {
+                title: "Actividad",
+                field: "actividad",
+                sorter: "string",
+                headerFilter: "input",
+                widthGrow: 1,
+                formatter: function (cell) {
+                    var d = cell.getRow().getData();
+                    return (
+                        '<span class="info-badge" data-kind="actividad" title="Ver descripción">i</span>' +
+                        '<span class="actividad-text">' + escapeHtml(d.actividad) + '</span>'
+                    );
+                },
+                cellClick: function (e, cell) {
+                    if (!e.target.closest(".info-badge")) return;
+                    onActividadCellClick(e, cell);
+                },
+                formatterExport: function (cell) {
+                    return cell.getRow().getData().actividad || "";
+                }
+            },
+
             {
                 title: "Rol Puede",
                 field: "rolPuedeText",
@@ -231,14 +278,20 @@
             return;
         }
         grid.setFilter(function (data) {
-            var hay =
+            return (
                 (data.rol || "").toLowerCase().indexOf(q) >= 0 ||
                 (data.actividad || "").toLowerCase().indexOf(q) >= 0 ||
                 (data.rolPuedeText || "").toLowerCase().indexOf(q) >= 0 ||
-                (data.actTieneText || "").toLowerCase().indexOf(q) >= 0;
-            return hay;
+                (data.actTieneText || "").toLowerCase().indexOf(q) >= 0
+            );
         });
     });
+
+
+
+
+
+
 
     // Actions (edit / delete)
     el.grid.addEventListener("click", function (ev) {
@@ -276,38 +329,10 @@
         openDialogNew();
     });
 
+    // Export CSV (Excel-friendly)
     el.btnExport.addEventListener("click", function () {
-        var json = exportState();
-        downloadText("asignaciones_" + Date.now() + ".json", json);
-    });
-
-    el.btnImport.addEventListener("click", async function () {
-        var text = await pickFileAsText();
-        if (!text) return;
-        try {
-            var obj = JSON.parse(text);
-            if (obj && obj.asignaciones) {
-                var keys = Object.keys(obj.asignaciones);
-                for (var i = 0; i < keys.length; i++) {
-                    var k = keys[i];
-                    obj.asignaciones[k] = new Set(obj.asignaciones[k]);
-                }
-            }
-            Object.assign(state, obj);
-            persist();
-            refreshGrid(true);
-            alert("Importado");
-        } catch (e) {
-            console.error(e);
-            alert("JSON inválido");
-        }
-    });
-
-    el.btnReset.addEventListener("click", function () {
-        if (confirm("Esto borrará los datos locales. ¿Continuar?")) {
-            localStorage.removeItem(LS_KEY);
-            location.reload();
-        }
+        var csv = buildAssignmentsCSV();
+        downloadText("asignaciones_" + Date.now() + ".csv", csv, "text/csv");
     });
 
     // -------------------- Dialog (New / Edit) --------------------
@@ -338,13 +363,23 @@
         }
     });
 
-    // Dialog footer buttons
-    el.dlg.querySelector('[data-action="close"]').onclick = function () {
+    // Dialog footer & header close buttons — ensure cancel works
+    var closeBtns = el.dlg.querySelectorAll('[data-action="close"]');
+    for (var i = 0; i < closeBtns.length; i++) {
+        closeBtns[i].addEventListener("click", function (e) {
+            e.preventDefault();
+            closeDialog();
+        });
+    }
+    // ESC key support
+    el.dlg.addEventListener("cancel", function (e) {
+        e.preventDefault();
         closeDialog();
-    };
-    el.dlg.querySelector('[data-action="save"]').onclick = function () {
+    });
+
+    el.dlg.querySelector('[data-action="save"]').addEventListener("click", function () {
         saveDialog();
-    };
+    });
 
     function openDialogNew() {
         dialogMode = "new";
@@ -360,9 +395,8 @@
         el.permSearch.value = "";
         el.permList.innerHTML = ""; // waits until both selects chosen
 
-        // When user selects rol/actividad, build list
-        tsRol.off("change");
-        tsAct.off("change");
+        // Rebuild list when selects change
+        tsRol.off("change"); tsAct.off("change");
         tsRol.on("change", rebuildPermListFromDialogSelects);
         tsAct.on("change", rebuildPermListFromDialogSelects);
 
@@ -383,9 +417,7 @@
         el.permSearch.value = "";
         buildPermList(actividad_id, getAssignedPermsForRoleActividad(rol_id, actividad_id));
 
-        // In edit we don't need change handlers on selects
-        tsRol.off("change");
-        tsAct.off("change");
+        tsRol.off("change"); tsAct.off("change");
 
         openDialog();
     }
@@ -393,10 +425,7 @@
     function rebuildPermListFromDialogSelects() {
         var rid = tsRol.getValue();
         var aid = tsAct.getValue();
-        if (!rid || !aid) {
-            el.permList.innerHTML = "";
-            return;
-        }
+        if (!rid || !aid) { el.permList.innerHTML = ""; return; }
         var rol_id = Number(rid);
         var actividad_id = Number(aid);
         var assigned = getAssignedPermsForRoleActividad(rol_id, actividad_id);
@@ -411,58 +440,35 @@
             var p = perms[i];
             var checked = assignedSet.has(p.actividad_permiso_id) ? "checked" : "";
             html +=
-                '<li class="ocAsignar_perm_item" data-id="' +
-                p.actividad_permiso_id +
-                '">' +
+                '<li class="ocAsignar_perm_item" data-id="' + p.actividad_permiso_id + '">' +
                 '<label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer;">' +
-                '<input type="checkbox" ' +
-                checked +
-                ' data-id="' +
-                p.actividad_permiso_id +
-                '"/>' +
-                "<div>" +
-                "<div><strong>" +
-                escapeHtml(p.etiqueta) +
-                "</strong> <span class=\"ocAsignar_perm_code\">(" +
-                escapeHtml(p.permiso) +
-                ")</span></div>" +
-                '<div class="ocAsignar_hint">ID: ' +
-                p.actividad_permiso_id +
-                "</div>" +
-                "</div>" +
-                "</label>" +
-                "</li>";
+                '<input type="checkbox" ' + checked + ' data-id="' + p.actividad_permiso_id + '"/>' +
+                '<div>' +
+                '<div><strong>' + escapeHtml(p.etiqueta) + '</strong> ' +
+                '<span class="ocAsignar_perm_code">(' + escapeHtml(p.permiso) + ')</span>' +
+                '</div>' +
+                /* (3) HIDING the ID from user view: removed the "ID: xxx" line */
+                '</div>' +
+                '</label>' +
+                '</li>';
         }
         el.permList.innerHTML = html;
     }
 
     function openDialog() {
-        try {
-            el.dlg.showModal();
-        } catch (e) {
-            el.dlg.setAttribute("open", "");
-        }
+        try { el.dlg.showModal(); } catch (e) { el.dlg.setAttribute("open", ""); }
     }
     function closeDialog() {
-        try {
-            el.dlg.close();
-        } catch (e) {
-            el.dlg.removeAttribute("open");
-        }
+        try { el.dlg.close(); } catch (e) { el.dlg.removeAttribute("open"); }
     }
 
     function saveDialog() {
-        // Determine pair
         var rid = dialogMode === "edit" ? String(dialogPair.rol_id) : tsRol.getValue();
         var aid = dialogMode === "edit" ? String(dialogPair.actividad_id) : tsAct.getValue();
-        if (!rid || !aid) {
-            alert("Seleccione Rol y Actividad");
-            return;
-        }
+        if (!rid || !aid) { alert("Seleccione Rol y Actividad"); return; }
         var rol_id = Number(rid);
         var actividad_id = Number(aid);
 
-        // Gather checked
         var checks = el.permList.querySelectorAll('input[type="checkbox"][data-id]');
         var nextIds = [];
         for (var i = 0; i < checks.length; i++) {
@@ -470,11 +476,8 @@
             if (ch.checked) nextIds.push(Number(ch.getAttribute("data-id")));
         }
 
-        // Update set for role (only for this activity)
         var set = getAssignedSetForRole(rol_id);
-        var allIds = getPermsByActividad(actividad_id).map(function (p) {
-            return p.actividad_permiso_id;
-        });
+        var allIds = getPermsByActividad(actividad_id).map(function (p) { return p.actividad_permiso_id; });
 
         // Remove all for this activity
         for (var j = 0; j < allIds.length; j++) set.delete(allIds[j]);
@@ -487,13 +490,65 @@
         closeDialog();
     }
 
+    // -------------------- CSV Export --------------------
+    // Exports assigned permissions ONLY, one row per (rol, actividad, permiso)
+    function buildAssignmentsCSV() {
+        var lines = [];
+        // Header: include both names & IDs for robustness
+        lines.push(csvRow(["rol_id","rol","actividad_id","actividad","actividad_permiso_id","permiso","etiqueta"]));
+
+        for (var r = 0; r < state.roles.length; r++) {
+            var role = state.roles[r];
+            var set = getAssignedSetForRole(role.rol_id);
+            if (!set || set.size === 0) continue;
+
+            // expand each permiso id
+            set.forEach(function (apid) {
+                var p = state.actividad_permisos.find(function (x) { return x.actividad_permiso_id === apid; });
+                if (!p) return;
+                var a = findActividad(p.actividad_id);
+                lines.push(csvRow([
+                    role.rol_id, role.rol,
+                    a ? a.actividad_id : "", a ? a.actividad : "",
+                    p.actividad_permiso_id, p.permiso, p.etiqueta
+                ]));
+            });
+        }
+        return lines.join("\r\n");
+    }
+
+    function csvRow(arr) {
+        return arr.map(csvEscape).join(",");
+    }
+    function csvEscape(v) {
+        var s = String(v == null ? "" : v);
+        // escape " by doubling, wrap whole field in quotes if needed
+        if (/[",\r\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+        return s;
+    }
+
+    // -------------------- Info dialog --------------------
+    function openInfoDialog(title, text) {
+        el.dlgInfoTitle.textContent = title || "Información";
+        el.dlgInfoText.textContent = text || "";
+        try { el.dlgInfo.showModal(); } catch(e) { el.dlgInfo.setAttribute("open",""); }
+    }
+    (function bindInfoClose(){
+        var btns = document.querySelectorAll('[data-action="close-info"]');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener("click", function(e){ e.preventDefault(); closeInfoDialog(); });
+        }
+        el.dlgInfo.addEventListener("cancel", function(e){ e.preventDefault(); closeInfoDialog(); });
+        function closeInfoDialog(){
+            try { el.dlgInfo.close(); } catch(e) { el.dlgInfo.removeAttribute("open"); }
+        }
+    })();
+
     // -------------------- Persistence --------------------
     function persist() {
-        var serializable = JSON.parse(
-            JSON.stringify(state, function (k, v) {
-                return v instanceof Set ? Array.from(v) : v;
-            })
-        );
+        var serializable = JSON.parse(JSON.stringify(state, function (k, v) {
+            return v instanceof Set ? Array.from(v) : v;
+        }));
         localStorage.setItem(LS_KEY, JSON.stringify(serializable));
     }
 
@@ -507,18 +562,6 @@
         }
     }
 
-    function exportState() {
-        return JSON.stringify(
-            JSON.parse(
-                JSON.stringify(state, function (k, v) {
-                    return v instanceof Set ? Array.from(v) : v;
-                })
-            ),
-            null,
-            2
-        );
-    }
-
     // -------------------- Utilities --------------------
     function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, function (c) {
@@ -526,8 +569,8 @@
         });
     }
 
-    function downloadText(filename, text) {
-        var blob = new Blob([text], { type: "application/json" });
+    function downloadText(filename, text, mime) {
+        var blob = new Blob([text], { type: mime || "text/plain" });
         var url = URL.createObjectURL(blob);
         var a = document.createElement("a");
         a.href = url;
@@ -536,25 +579,28 @@
         URL.revokeObjectURL(url);
     }
 
-    function pickFileAsText() {
-        return new Promise(function (resolve) {
-            var input = document.createElement("input");
-            input.type = "file";
-            input.accept = ".json,application/json";
-            input.onchange = async function () {
-                var file = input.files && input.files[0];
-                if (!file) return resolve(null);
-                var text = await file.text();
-                resolve(text);
-            };
-            input.click();
-        });
-    }
-
     function refreshGrid() {
         if (!tableReady) return; // avoid calling setData before built
         grid.setData(buildRows());
     }
 
-    // No final refreshAll() call needed; initial data is in the constructor.
+    function onRolCellClick(e, cell) {
+        var d = cell.getRow().getData();
+        var r = state.roles.find(function (x) { return x.rol_id === d.rol_id; });
+        openInfoDialog(
+            "Rol: " + (r ? r.rol : d.rol),
+            r && r.descripcion ? r.descripcion : "Sin descripción"
+        );
+    }
+
+    function onActividadCellClick(e, cell) {
+        var d = cell.getRow().getData();
+        var a = state.actividades.find(function (x) { return x.actividad_id === d.actividad_id; });
+        openInfoDialog(
+            "Actividad: " + (a ? a.actividad : d.actividad),
+            a && a.descripcion ? a.descripcion : "Sin descripción"
+        );
+    }
+
+
 })();
