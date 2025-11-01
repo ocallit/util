@@ -1,0 +1,332 @@
+/* SCH Color Scheme - Base CSS */
+:root {
+    /* Primary - Main brand color */
+    --color-primary: #00008b;        /* darkblue */
+    --color-primary-bg: #ffffff;     /* white */
+    
+    /* Secondary - Complementary to primary */
+    --color-secondary: #4682b4;      /* steelblue */
+    --color-secondary-bg: #f8f9fa;   /* very light gray */
+    
+    /* Tertiary - Supporting color */
+    --color-tertiary: #708090;       /* slategray */
+    --color-tertiary-bg: #f5f5f5;    /* light gray */
+    
+    /* Accent - Eye-catching highlights */
+    --color-accent: #ff6b35;         /* vibrant orange */
+    --color-accent-bg: #fff8f5;      /* very light orange tint */
+    
+    /* Neutral - Text and backgrounds */
+    --color-neutral: #495057;        /* dark gray */
+    --color-neutral-bg: #f8f9fa;     /* light gray */
+    
+    /* Success - Positive actions */
+    --color-success: #28a745;        /* medium green */
+    --color-success-bg: #f8fff9;     /* very light green tint */
+    
+    /* Fail/Error - Critical issues */
+    --color-fail: #dc3545;           /* medium red */
+    --color-fail-bg: #fff8f8;        /* very light red tint */
+    
+    /* Info - Informational messages */
+    --color-info: #17a2b8;           /* teal */
+    --color-info-bg: #f0fdff;        /* very light cyan tint */
+    
+    /* Warning - Caution messages */
+    --color-warning: #ffc107;        /* amber yellow */
+    --color-warning-bg: #fffef5;     /* very light yellow tint */
+    
+    /* Error - Same as fail for consistency */
+    --color-error: #dc3545;          /* medium red */
+    --color-error-bg: #fff8f8;       /* very light red tint */
+
+    /* Additional utility colors */
+    --color-text: #212529;           /* dark gray for body text */
+    --color-text-light: #6c757d;     /* lighter gray for secondary text */
+    --color-text-muted: #adb5bd;     /* muted gray for disabled text */
+    --color-shadow: rgba(0, 0, 0, 0.15);  /* semi-transparent black for shadows */
+    --color-border: #dee2e6;         /* light gray for borders */
+    --color-border-dark: #adb5bd;    /* darker gray for emphasized borders */
+    --color-surface: #ffffff;        /* white surface for cards, modals, etc. */
+
+    /* Elevation levels - normal shadows */
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+    --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+    --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+    
+    /* Tinted elevation levels - all around */
+    --elevation-1-primary: 0 1px 3px rgba(0, 0, 139, 0.2), 0 1px 2px rgba(0, 0, 139, 0.15);
+    --elevation-2-primary: 0 3px 6px rgba(0, 0, 139, 0.25), 0 2px 4px rgba(0, 0, 139, 0.2);
+    --elevation-3-primary: 0 10px 20px rgba(0, 0, 139, 0.25), 0 3px 6px rgba(0, 0, 139, 0.15);
+    
+    --elevation-1-accent: 0 1px 3px rgba(255, 107, 53, 0.2), 0 1px 2px rgba(255, 107, 53, 0.15);
+    --elevation-2-accent: 0 3px 6px rgba(255, 107, 53, 0.25), 0 2px 4px rgba(255, 107, 53, 0.2);
+    --elevation-3-accent: 0 10px 20px rgba(255, 107, 53, 0.25), 0 3px 6px rgba(255, 107, 53, 0.15);
+
+    /* Glass/Embossed elevation - bottom and right only */
+    --elevation-glass-1-primary: 2px 2px 4px rgba(0, 0, 139, 0.3);
+    --elevation-glass-2-primary: 3px 3px 8px rgba(0, 0, 139, 0.4);
+    --elevation-glass-3-primary: 5px 5px 15px rgba(0, 0, 139, 0.5);
+    
+    --elevation-glass-1-accent: 2px 2px 4px rgba(255, 107, 53, 0.3);
+    --elevation-glass-2-accent: 3px 3px 8px rgba(255, 107, 53, 0.4);
+    --elevation-glass-3-accent: 5px 5px 15px rgba(255, 107, 53, 0.5);
+    
+    --elevation-glass-1: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    --elevation-glass-2: 3px 3px 8px rgba(0, 0, 0, 0.25);
+    --elevation-glass-3: 5px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Base body styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--color-neutral-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* SCH Layout Component Classes */
+.sch_header {
+    background: var(--color-primary);
+    color: var(--color-primary-bg);
+    padding: 8px 20px;
+    box-shadow: var(--elevation-2);
+    margin: 0;
+}
+
+.sch_header h1 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.sch_nav {
+    background: var(--color-secondary);
+    color: var(--color-secondary-bg);
+    padding: 8px 20px;
+    margin: 0;
+}
+
+.sch_nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.sch_nav a {
+    color: var(--color-secondary-bg);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.sch_nav a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sch_section {
+    background: var(--color-surface);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--elevation-1);
+}
+
+.sch_article {
+    background: var(--color-surface);
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 4px 4px 0;
+    box-shadow: var(--elevation-1);
+}
+
+.sch_aside {
+    background: var(--color-tertiary-bg);
+    padding: 15px;
+    margin: 15px 0;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text-light);
+    box-shadow: var(--elevation-1);
+}
+
+/* SCH Table Classes */
+.sch_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: var(--color-surface);
+    box-shadow: var(--elevation-2);
+}
+
+.sch_table_caption {
+    background: var(--color-primary);
+    color: var(--color-primary-bg);
+    padding: 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.sch_table th {
+    background: var(--color-secondary);
+    color: var(--color-secondary-bg);
+    padding: 12px;
+    border: 1px solid var(--color-border-dark);
+    text-align: left;
+}
+
+.sch_table td {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+}
+
+.sch_table thead th {
+    background: var(--color-primary);
+    color: var(--color-primary-bg);
+}
+
+.sch_table tfoot td {
+    background: var(--color-tertiary-bg);
+    font-weight: bold;
+    border: 1px solid var(--color-border-dark);
+}
+
+.sch_table tbody tr:nth-child(even) {
+    background: var(--color-neutral-bg);
+}
+
+.sch_table tbody tr:hover {
+    background: var(--color-info-bg);
+}
+
+/* SCH List Classes */
+.sch_list {
+    padding-left: 20px;
+    margin: 15px 0;
+}
+
+.sch_list li {
+    margin: 5px 0;
+    color: var(--color-text);
+}
+
+.sch_list--unordered li::marker {
+    color: var(--color-primary);
+}
+
+.sch_list--ordered li::marker {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* SCH Definition List Classes */
+.sch_definition_list {
+    margin: 15px 0;
+}
+
+.sch_definition_term {
+    font-weight: bold;
+    color: var(--color-primary);
+    margin: 10px 0 5px 0;
+}
+
+.sch_definition_description {
+    margin: 0 0 10px 20px;
+    color: var(--color-text);
+}
+
+/* SCH Button Classes */
+.sch_button {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+    margin: 5px;
+    box-shadow: var(--elevation-1);
+}
+
+.sch_button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-2);
+}
+
+.sch_button--save {
+    background: var(--color-success);
+    color: var(--color-success-bg);
+}
+
+.sch_button--save:hover {
+    background: #218838;
+}
+
+.sch_button--cancel {
+    background: var(--color-tertiary);
+    color: var(--color-tertiary-bg);
+}
+
+.sch_button--cancel:hover {
+    background: #5a6268;
+}
+
+.sch_button--execute {
+    background: var(--color-accent);
+    color: var(--color-accent-bg);
+}
+
+.sch_button--execute:hover {
+    background: #e55a2b;
+}
+
+/* Elevation utility classes */
+.sch_elevation--1 { box-shadow: var(--elevation-1); }
+.sch_elevation--2 { box-shadow: var(--elevation-2); }
+.sch_elevation--3 { box-shadow: var(--elevation-3); }
+
+.sch_elevation--1-primary { box-shadow: var(--elevation-1-primary); }
+.sch_elevation--2-primary { box-shadow: var(--elevation-2-primary); }
+.sch_elevation--3-primary { box-shadow: var(--elevation-3-primary); }
+
+.sch_elevation--1-accent { box-shadow: var(--elevation-1-accent); }
+.sch_elevation--2-accent { box-shadow: var(--elevation-2-accent); }
+.sch_elevation--3-accent { box-shadow: var(--elevation-3-accent); }
+
+/* Glass/Embossed elevation utility classes */
+.sch_elevation--glass-1 { box-shadow: var(--elevation-glass-1); }
+.sch_elevation--glass-2 { box-shadow: var(--elevation-glass-2); }
+.sch_elevation--glass-3 { box-shadow: var(--elevation-glass-3); }
+
+.sch_elevation--glass-1-primary { box-shadow: var(--elevation-glass-1-primary); }
+.sch_elevation--glass-2-primary { box-shadow: var(--elevation-glass-2-primary); }
+.sch_elevation--glass-3-primary { box-shadow: var(--elevation-glass-3-primary); }
+
+.sch_elevation--glass-1-accent { box-shadow: var(--elevation-glass-1-accent); }
+.sch_elevation--glass-2-accent { box-shadow: var(--elevation-glass-2-accent); }
+.sch_elevation--glass-3-accent { box-shadow: var(--elevation-glass-3-accent); }
+
+/* Surface utility class */
+.sch_surface {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Heading utility classes */
+.sch_heading--primary {
+    color: var(--color-primary);
+    margin-top: 0;
+}
+
+.sch_heading--secondary {
+    color: var(--color-secondary);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 5px;
+}

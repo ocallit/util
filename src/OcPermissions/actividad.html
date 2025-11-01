@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- File: actividad.html -->
+    <!-- Path: /actividad/actividad.html -->
+    <!-- Version: 1.0.0 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Actividades y Permisos</title>
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="./base.css">
+    
+    <!-- Tabulator CSS -->
+    <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./actividad.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="sch_header">
+        <h1>Sistema de Actividades y Permisos</h1>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sch_nav">
+        <ul>
+            <li><a href="./index.html">Inicio</a></li>
+            <li><a href="./actividad.html" class="ocActividad_nav_active">Actividades</a></li>
+            <li><a href="./asignar_permisos.html">Asignar Permisos</a></li>
+            <li><a href="./roles.html">Roles</a></li>
+            <li><a href="./usuarios.html">Usuarios</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="ocActividad_main_container">
+        <!-- Toolbar -->
+        <div class="ocActividad_toolbar">
+            <div class="ocActividad_toolbar_left">
+                <h2 class="ocActividad_title">Actividades y Permisos</h2>
+            </div>
+            <div class="ocActividad_toolbar_right">
+                <!-- Mode Toggle -->
+                <div class="ocActividad_mode_toggle">
+                    <label class="ocActividad_toggle_label">
+                        <input type="checkbox" class="ocActividad_mode_checkbox" id="ocActividad_mode_toggle">
+                        <span class="ocActividad_toggle_slider"></span>
+                        <span class="ocActividad_toggle_text">Modo Edición</span>
+                    </label>
+                </div>
+                <!-- Add Button (only visible in edit mode) -->
+                <button class="sch_button sch_button--save ocActividad_add_button" id="ocActividad_add_button" style="display: none;">
+                    ➕ Nueva Actividad
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabulator Grid Container -->
+        <div class="ocActividad_grid_container">
+            <div id="ocActividad_tabulator_grid"></div>
+        </div>
+    </main>
+
+    <!-- Edit Activity Dialog -->
+    <dialog id="ocActividad_edit_dialog" class="ocActividad_dialog">
+        <div class="ocActividad_dialog_content">
+            <div class="ocActividad_dialog_header">
+                <h2 class="ocActividad_dialog_title" id="ocActividad_dialog_title">Editar Actividad</h2>
+                <button class="ocActividad_dialog_close" id="ocActividad_close_edit_dialog">&times;</button>
+            </div>
+            
+            <div class="ocActividad_dialog_body">
+                <!-- Activity Info Section - Compact Layout -->
+                <section class="ocActividad_section">
+                    <!-- Readonly info in one row -->
+                    <div class="ocActividad_info_row">
+                        <span class="ocActividad_info_item">
+                            <strong>ID:</strong> <span id="ocActividad_edit_id">Nuevo</span>
+                        </span>
+                        <span class="ocActividad_info_item">
+                            <strong>Registrado el:</strong> <span id="ocActividad_edit_registrado_el">-</span>
+                        </span>
+                        <span class="ocActividad_info_item">
+                            <strong>Por:</strong> <span id="ocActividad_edit_registrado_por">-</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Actividad input -->
+                    <div class="ocActividad_form_row">
+                        <label class="ocActividad_label">Actividad: *</label>
+                        <input type="text" class="ocActividad_input" id="ocActividad_edit_actividad" maxlength="64" required>
+                    </div>
+                    
+                    <!-- Descripcion textarea -->
+                    <div class="ocActividad_form_row">
+                        <label class="ocActividad_label">Descripción:</label>
+                        <textarea class="ocActividad_textarea" id="ocActividad_edit_descripcion" rows="2"></textarea>
+                    </div>
+                </section>
+
+                <!-- Permissions Section -->
+                <section class="ocActividad_section">
+                    <div class="ocActividad_section_header">
+                        <h3 class="ocActividad_section_title">Permisos</h3>
+                        <div class="ocActividad_permission_actions">
+                            <div class="ocActividad_macro_buttons">
+                                <button class="ocActividad_macro_button" data-macro="wr_nada" title="Agrega: R/W Editar, R/O Consultar, Nada Nada">
+                                    W/R/Nada
+                                </button>
+                                <button class="ocActividad_macro_button" data-macro="crud" title="Agrega: crear, leer, actualizar, eliminar">
+                                    CRUD
+                                </button>
+                                <button class="ocActividad_macro_button" data-macro="ver_editar" title="Agrega: ver, editar">
+                                    Ver/Editar
+                                </button>
+                            </div>
+                            <button class="sch_button sch_button--save ocActividad_add_permission_button" id="ocActividad_add_permission">
+                                ➕ Agregar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="ocActividad_permissions_container" id="ocActividad_permissions_list">
+                        <!-- Permissions will be dynamically added here -->
+                    </div>
+                </section>
+            </div>
+
+            <div class="ocActividad_dialog_footer">
+                <button class="sch_button sch_button--cancel" id="ocActividad_cancel_edit">Cancelar</button>
+                <button class="sch_button sch_button--save" id="ocActividad_save_edit">Guardar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <dialog id="ocActividad_delete_dialog" class="ocActividad_dialog ocActividad_dialog_small">
+        <div class="ocActividad_dialog_content">
+            <div class="ocActividad_dialog_header">
+                <h2 class="ocActividad_dialog_title">Confirmar Eliminación</h2>
+                <button class="ocActividad_dialog_close" id="ocActividad_close_delete_dialog">&times;</button>
+            </div>
+            
+            <div class="ocActividad_dialog_body">
+                <p class="ocActividad_delete_message">¿Está seguro que desea eliminar esta actividad?</p>
+                <div class="ocActividad_delete_info" id="ocActividad_delete_info"></div>
+            </div>
+
+            <div class="ocActividad_dialog_footer">
+                <button class="sch_button sch_button--cancel" id="ocActividad_cancel_delete">Cancelar</button>
+                <button class="sch_button ocActividad_delete_confirm_button" id="ocActividad_confirm_delete">Eliminar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Tabulator JS -->
+    <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+    
+    <!-- Application JS -->
+    <script src="./actividad.js"></script>
+</body>
+</html>

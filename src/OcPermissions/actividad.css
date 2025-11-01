@@ -1,0 +1,618 @@
+/* File: actividad.css */
+/* Path: /actividad/actividad.css */
+/* Version: 1.0.0 */
+
+/* Main Container */
+.ocActividad_main_container {
+    max-width: 100%;
+    margin: 0;
+    padding: 10px;
+}
+
+/* Navigation Active State */
+.ocActividad_nav_active {
+    background: rgba(255, 255, 255, 0.3) !important;
+    font-weight: bold;
+}
+
+/* Toolbar */
+.ocActividad_toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: var(--color-surface);
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_toolbar_left {
+    flex: 1;
+}
+
+.ocActividad_toolbar_right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.ocActividad_title {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+}
+
+/* Mode Toggle Switch */
+.ocActividad_mode_toggle {
+    display: flex;
+    align-items: center;
+}
+
+.ocActividad_toggle_label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ocActividad_mode_checkbox {
+    display: none;
+}
+
+.ocActividad_toggle_slider {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    background: var(--color-border-dark);
+    border-radius: 13px;
+    transition: background-color 0.3s;
+}
+
+.ocActividad_toggle_slider::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: var(--color-surface);
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_mode_checkbox:checked + .ocActividad_toggle_slider {
+    background: var(--color-success);
+}
+
+.ocActividad_mode_checkbox:checked + .ocActividad_toggle_slider::before {
+    transform: translateX(24px);
+}
+
+.ocActividad_toggle_text {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Add Button */
+.ocActividad_add_button {
+    white-space: nowrap;
+}
+
+/* Grid Container */
+.ocActividad_grid_container {
+    background: var(--color-surface);
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--elevation-2);
+    padding: 10px;
+}
+
+/* Tabulator Customizations */
+#ocActividad_tabulator_grid .tabulator-cell {
+    padding: 10px;
+}
+
+#ocActividad_tabulator_grid .tabulator-row.tabulator-row-even {
+    background: var(--color-neutral-bg);
+}
+
+#ocActividad_tabulator_grid .tabulator-row:hover {
+    background: var(--color-info-bg) !important;
+}
+
+.ocActividad_actions_cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.ocActividad_action_button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.ocActividad_action_button:hover {
+    background: var(--color-neutral-bg);
+}
+
+.ocActividad_action_edit {
+    color: var(--color-primary);
+}
+
+.ocActividad_action_delete {
+    color: var(--color-fail);
+}
+
+.ocActividad_permissions_badge {
+    display: inline-block;
+    background: var(--color-secondary);
+    color: var(--color-secondary-bg);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ocActividad_permissions_badge:hover {
+    background: var(--color-primary);
+    transform: scale(1.05);
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_permissions_text {
+    cursor: pointer;
+    color: var(--color-text);
+    font-size: 0.9em;
+}
+
+.ocActividad_permissions_text:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.ocActividad_id_cell {
+    color: var(--color-text-light);
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+/* Dialog Styles */
+.ocActividad_dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    max-width: 900px;
+    width: 90vw;
+    max-height: 90vh;
+}
+
+.ocActividad_dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.ocActividad_dialog_small {
+    max-width: 500px;
+}
+
+.ocActividad_dialog_content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.ocActividad_dialog_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-secondary-bg);
+    border-radius: 12px 12px 0 0;
+}
+
+.ocActividad_dialog_title {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+}
+
+.ocActividad_dialog_close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--color-text-light);
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.ocActividad_dialog_close:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+.ocActividad_dialog_body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 15px;
+}
+
+.ocActividad_dialog_footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 15px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: 0 0 12px 12px;
+}
+
+/* Section Styles */
+.ocActividad_section {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_section_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ocActividad_section_title {
+    margin: 0;
+    color: var(--color-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Compact Info Row */
+.ocActividad_info_row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    background: var(--color-neutral-bg);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.ocActividad_info_item {
+    color: var(--color-text-light);
+}
+
+.ocActividad_info_item strong {
+    color: var(--color-text);
+    margin-right: 4px;
+}
+
+/* Form Row Styles */
+.ocActividad_form_row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+/* Form Styles */
+.ocActividad_form_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.ocActividad_form_group {
+    display: flex;
+    flex-direction: column;
+}
+
+.ocActividad_form_group_full {
+    grid-column: 1 / -1;
+}
+
+.ocActividad_label {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.ocActividad_input,
+.ocActividad_textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ocActividad_input:focus,
+.ocActividad_textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 0, 139, 0.1);
+}
+
+.ocActividad_input_readonly {
+    background: var(--color-neutral-bg);
+    color: var(--color-text-light);
+    cursor: not-allowed;
+}
+
+.ocActividad_textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Permission Actions Row */
+.ocActividad_permission_actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Macro Buttons */
+.ocActividad_macro_buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ocActividad_macro_button {
+    background: var(--color-info);
+    color: var(--color-surface);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.ocActividad_macro_button:hover {
+    background: #138496;
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_macro_button:active {
+    transform: translateY(0);
+}
+
+/* Permissions List */
+.ocActividad_permissions_container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ocActividad_permission_item {
+    display: grid;
+    grid-template-columns: 35px 1fr 1fr 35px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    background: var(--color-neutral-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ocActividad_permission_item:hover {
+    border-color: var(--color-secondary);
+    box-shadow: var(--elevation-1);
+}
+
+.ocActividad_permission_id {
+    color: var(--color-text-light);
+    font-family: monospace;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.ocActividad_permission_input_group {
+    display: flex;
+    flex-direction: column;
+}
+
+.ocActividad_permission_label {
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.ocActividad_permission_input {
+    padding: 6px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.ocActividad_permission_input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.ocActividad_remove_permission {
+    border: none;
+    background: var(--color-fail);
+    color: var(--color-fail-bg);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.ocActividad_remove_permission:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.ocActividad_add_permission_button {
+    align-self: flex-start;
+}
+
+/* Delete Dialog Styles */
+.ocActividad_delete_message {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: var(--color-text);
+}
+
+.ocActividad_delete_info {
+    padding: 15px;
+    background: var(--color-fail-bg);
+    border: 1px solid var(--color-fail);
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.ocActividad_delete_info_row {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.ocActividad_delete_info_row:last-child {
+    margin-bottom: 0;
+}
+
+.ocActividad_delete_info_label {
+    font-weight: 600;
+    color: var(--color-text);
+    min-width: 100px;
+}
+
+.ocActividad_delete_info_value {
+    color: var(--color-text-light);
+}
+
+.ocActividad_delete_confirm_button {
+    background: var(--color-fail);
+    color: var(--color-fail-bg);
+}
+
+.ocActividad_delete_confirm_button:hover {
+    background: #c82333;
+}
+
+/* Empty State */
+.ocActividad_empty_state {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-text-light);
+}
+
+.ocActividad_empty_state_icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.ocActividad_empty_state_text {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Read-only Mode Adjustments */
+.ocActividad_readonly .ocActividad_action_button {
+    display: none;
+}
+
+.ocActividad_readonly .ocActividad_add_button {
+    display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ocActividad_toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ocActividad_toolbar_left,
+    .ocActividad_toolbar_right {
+        width: 100%;
+    }
+
+    .ocActividad_toolbar_right {
+        justify-content: space-between;
+    }
+
+    .ocActividad_form_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ocActividad_permission_item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .ocActividad_permission_id {
+        text-align: left;
+    }
+
+    .ocActividad_dialog {
+        width: 95vw;
+        max-height: 95vh;
+    }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (pointer: coarse) {
+    .ocActividad_action_button,
+    .sch_button,
+    .ocActividad_dialog_close,
+    .ocActividad_remove_permission {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .ocActividad_input,
+    .ocActividad_textarea,
+    .ocActividad_permission_input {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}

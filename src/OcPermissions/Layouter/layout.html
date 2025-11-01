@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Actividades — The Shopper System</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="actividad.css" />
+</head>
+
+<!-- Add/remove `layout--sidebar` if you want the left rail on desktop -->
+<body class="layout--sidebar">
+<!-- System Branding -->
+<header class="sch_header" role="banner">
+    <div class="sch_header_inner">
+        <div class="sch_brand">
+            <span class="sch_brand_logo" aria-hidden="true">🛒</span>
+            <span class="sch_brand_name">The Shopper System</span>
+        </div>
+    </div>
+</header>
+
+<!-- Global / Module Navigation -->
+<nav class="sch_nav" aria-label="Roles, Users & Permissions navigation">
+    <ul>
+        <li><a href="./index.html">Inicio</a></li>
+        <li><h2 class="sch_nav_section">Roles, Users &amp; Permissions</h2></li>
+        <li><a href="./actividad.html" class="ocActividad_nav_active" aria-current="page">Actividades</a></li>
+        <li><a href="./asignar_permisos.html">Asignar Permisos</a></li>
+        <li><a href="./roles.html">Roles</a></li>
+        <li><a href="./usuarios.html">Usuarios</a></li>
+        <li><a href="./reportes.html">Reportes</a></li>
+    </ul>
+</nav>
+
+<!-- Page Header: breadcrumbs + title + quick links + how-to -->
+<header class="sch_pageheader ocActividad_pageheader" role="region" aria-label="Contexto de página">
+    <!-- Breadcrumbs -->
+    <nav class="sch_breadcrumbs" aria-label="Ruta de navegación">
+        <ol>
+            <li><a href="./index.html">The Shopper System</a></li>
+            <li><a href="./roles.html">Roles, Users &amp; Permissions</a></li>
+            <li aria-current="page">Actividades</li>
+        </ol>
+    </nav>
+
+    <!-- Title + Subtitle -->
+    <div class="sch_pageheader_headings">
+        <h1 class="ocActividad_title">Actividades</h1>
+        <p class="ocActividad_subtitle">
+            Defina y gestione las <strong>actividades</strong> usadas en asignaciones de permisos.
+            Use el <em>Modo Edición</em> para crear o modificar; luego asigne permisos desde
+            <em>Asignar Permisos</em>.
+        </p>
+    </div>
+
+    <!-- Quick Links: Home + common tasks in this module -->
+    <nav class="sch_quicklinks" aria-label="Accesos rápidos">
+        <a class="sch_link" href="./index.html">🏠 Home</a>
+        <a class="sch_link" href="./usuarios.html">👤 Usuarios</a>
+        <a class="sch_link" href="./roles.html">🧩 Crear Rol</a>
+        <a class="sch_link" href="./asignar_permisos.html">🔗 Asignar Permisos</a>
+        <a class="sch_link" href="./reportes.html">📄 Reportes</a>
+    </nav>
+
+    <!-- “How to use it” (collapsible) -->
+    <details class="sch_howto">
+        <summary>Cómo usar esta página</summary>
+        <ol>
+            <li>Active <strong>Modo Edición</strong> en la barra de acciones.</li>
+            <li>Pulse <em>Nueva Actividad</em> o edite una existente desde la grilla.</li>
+            <li>Complete <em>Actividad</em> y <em>Descripción</em>; guarde.</li>
+            <li>Vaya a <em>Asignar Permisos</em> para asociarla a roles/usuarios.</li>
+        </ol>
+        <p>Consejo: use el buscador/orden de columnas para encontrar actividades rápido.</p>
+    </details>
+</header>
+
+<!-- Main Content -->
+<main class="ocActividad_main_container" role="main">
+    <!-- Action Toolbar (actions only; title lives in the Page Header) -->
+    <section class="ocActividad_toolbar" role="region" aria-label="Acciones de Actividades">
+        <div class="ocActividad_toolbar_left">
+            <!-- Optional: keep a small visual title for continuity -->
+            <h3 class="ocActividad_toolbar_heading">Actividades</h3>
+        </div>
+
+        <div class="ocActividad_toolbar_right">
+            <!-- Modo Edición toggle -->
+            <div class="ocActividad_toggle">
+                <input
+                    type="checkbox"
+                    id="ocActividad_mode_toggle"
+                    role="switch"
+                    aria-checked="false"
+                    aria-label="Modo Edición"
+                />
+                <label for="ocActividad_mode_toggle" class="ocActividad_toggle_label">Modo Edición</label>
+                <span class="ocActividad_toggle_visual" aria-hidden="true"></span>
+            </div>
+
+            <!-- Nueva Actividad button -->
+            <button type="button" class="ocActividad_button ocActividad_button--primary">
+                + Nueva Actividad
+            </button>
+        </div>
+    </section>
+
+    <!-- Grid Container (Tabulator or your table goes here) -->
+    <section class="ocActividad_grid_container" aria-label="Listado de actividades">
+        <div id="ocActividad_tabulator_grid" class="ocActividad_grid"></div>
+
+        <!-- Example empty state (render when no rows) -->
+        <div class="ocActividad_empty_state" hidden>
+            <p>No hay actividades aún. Use <strong>+ Nueva Actividad</strong> para crear la primera.</p>
+        </div>
+    </section>
+</main>
+
+<!-- Dialog: Crear / Editar Actividad -->
+<dialog class="ocActividad_dialog" id="ocActividad_editor" aria-labelledby="ocActividad_editor_title">
+    <form method="dialog" class="ocActividad_form">
+        <header class="ocActividad_dialog_header">
+            <h2 id="ocActividad_editor_title">Nueva Actividad</h2>
+        </header>
+
+        <section class="ocActividad_form_grid">
+            <div class="ocActividad_form_field">
+                <label for="act_nombre">Actividad</label>
+                <input id="act_nombre" name="actividad" type="text" required />
+            </div>
+            <div class="ocActividad_form_field ocActividad_form_field--full">
+                <label for="act_desc">Descripción</label>
+                <textarea id="act_desc" name="descripcion" rows="3"></textarea>
+            </div>
+        </section>
+
+        <footer class="ocActividad_dialog_footer">
+            <button type="submit" class="ocActividad_button ocActividad_button--primary">Guardar</button>
+            <button type="button" class="ocActividad_button" onclick="this.closest('dialog').close()">Cancelar</button>
+        </footer>
+    </form>
+</dialog>
+
+<!-- Dialog: Mensaje pequeño / confirmación -->
+<dialog class="ocActividad_dialog ocActividad_dialog_small" id="ocActividad_msg" aria-labelledby="ocActividad_msg_title">
+    <header class="ocActividad_dialog_header">
+        <h2 id="ocActividad_msg_title">Acción realizada</h2>
+    </header>
+    <p>La operación se completó correctamente.</p>
+    <footer class="ocActividad_dialog_footer">
+        <form method="dialog">
+            <button type="submit" class="ocActividad_button ocActividad_button--primary">Aceptar</button>
+        </form>
+    </footer>
+</dialog>
+
+<!-- (Optional) Scripts for interactions would go here -->
+</body>
+</html>

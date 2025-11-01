@@ -1,0 +1,5 @@
+Excellent
+
+1. what makes this screen very difficult to use, mainly in edit mode, is that any simple accidental click outside the edit dialog closes it! And what if I have written things all my work is lost! Can we have the user either close clicking on the close button or cancel or save? and ideally if the content was modified warn the user cancelando sin guardar, esta seguro de perder sus cambios?
+2. Can we do this with html 5 dialogs yes or no, if yes do it
+3. Would it be easy to change and use OcDialog attached? It already has drag and resize! as per the project! And has alert, confirm, error that we must not use alert nor confirm from javascript since the browsers have made them useless
