@@ -1,0 +1,252 @@
+/* ================================
+   Design Tokens (tight layout)
+   ================================ */
+:root{
+    /* Palette */
+    --bg:#f7f8fa;
+    --surface:#fff;
+    --surface-2:#f3f4f7;
+
+    --text:#2b2f38;
+    --text-2:#5b6270;
+
+    --primary:#1d3865;  /* blue */
+    --accent:#f15c27;   /* orange */
+
+    --border:#e1e4ea;
+    --border-2:#c8cdda;
+
+    /* Elevation */
+    --elev-1:0 1px 2px rgba(0,0,0,.06);
+    --elev-2:0 4px 10px rgba(0,0,0,.08);
+
+    /* Sizing */
+    --h-header:48px;        /* tighter header */
+    --h-whereami:40px;      /* tighter breadcrumbs row */
+
+    /* Gutters (small but non-zero) */
+    --gx:10px;              /* horizontal page gutter */
+    --gy:10px;              /* vertical gaps */
+
+    /* Radii */
+    --r4:4px; --r6:6px; --r8:8px; --rp:999px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+html{color-scheme:light}
+body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;
+}
+a{color:inherit}
+
+/* ================================
+   Row 1: Header (Branding + 3 ctrls + logout)
+   ================================ */
+.sch_header{
+
+
+    position: static;
+    background:var(--surface);
+    height:var(--h-header);
+    border-bottom:1px solid var(--border);
+    box-shadow:var(--elev-1);
+}
+.sch_header_inner{
+    /* FULL WIDTH: no max-width */
+    height:100%;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:6px var(--gx);       /* tight */
+    gap:8px;
+}
+.sch_brand{display:inline-flex; align-items:flex-start; gap:8px; text-decoration:none}
+.sch_brand_logo{width:20px; height:20px; object-fit:contain; margin-top:1px}
+.sch_brand_text{display:inline-flex; gap:6px; align-items:baseline; white-space:nowrap}
+.sch_company{font-weight:600}
+.sch_system{color:var(--primary); font-weight:600}
+
+.sch_top_controls{display:inline-flex; align-items:flex-start; gap:6px}
+.ctl_btn{
+    border:1px solid var(--border);
+    background:var(--surface);
+    border-radius:var(--r6);
+    padding:4px 6px; cursor:pointer; line-height:1;
+}
+.ctl_btn:hover{box-shadow:var(--elev-1)}
+.ctl_divider{width:1px; height:18px; background:var(--border)}
+.ctl_logout{color:#c9203a; border-color:color-mix(in oklab,#c9203a,white 70%)}
+
+/* ================================
+   Row 2: Where-am-I (Breadcrumbs + info + module ctrls)
+   ================================ */
+.sch_whereami{
+    position: sticky; top: 0; z-index: 90;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+}
+.sch_whereami_inner{
+    display:grid; grid-template-columns:1fr auto auto;
+    align-items:flex-start; gap:8px;
+    height:var(--h-whereami);
+    padding:4px var(--gx);      /* tight */
+}
+
+/* Breadcrumbs (scroll if crowded; no media queries) */
+.sch_breadcrumbs ol{
+    list-style:none; margin:0; padding:0;
+    display:flex; gap:6px; align-items:center; color:var(--text-2);
+    overflow-x:auto; scrollbar-width:thin;
+}
+.sch_breadcrumbs li{display:inline-flex; align-items:center; white-space:nowrap}
+.sch_breadcrumbs li+li::before{content:"›"; margin:0 4px; color:var(--border-2)}
+.sch_breadcrumbs a{text-decoration:none; color:var(--text-2)}
+.sch_breadcrumbs a:hover{text-decoration:underline}
+
+/* Module/info controls */
+.sch_info_btn{
+    border:1px dashed var(--border-2); background:var(--surface);
+    border-radius:var(--r6); padding:3px 6px; cursor:pointer; color:var(--text-2);
+}
+.sch_module_controls{display:inline-flex; align-items:flex-start; gap:6px}
+
+/* Info dialog (light) */
+.sch_info_dialog{
+    width:min(720px, 96vw); padding:0; border:1px solid var(--border);
+    border-radius:var(--r6); box-shadow:var(--elev-2); background:var(--surface);
+}
+.sch_info_dialog::backdrop{background:color-mix(in oklab,black,transparent 72%)}
+.dlg_header,.dlg_footer{padding:8px 10px; background:var(--surface-2); border-bottom:1px solid var(--border)}
+.dlg_footer{border-top:1px solid var(--border); border-bottom:0}
+.dlg_body{padding:10px}
+.btn{border:1px solid var(--border); background:var(--surface); border-radius:var(--r6); padding:6px 8px; cursor:pointer}
+.btn:hover{box-shadow:var(--elev-1)}
+.btn-primary{
+    background:color-mix(in oklab,var(--primary),white 86%);
+    border-color:color-mix(in oklab,var(--primary),white 70%);
+    color:var(--primary); font-weight:600;
+}
+
+/* Left cluster container: tight row with wrap, zero bloat */
+.sch_whereami_left{
+    display:flex; align-items:center; gap:8px;
+    min-width:0; flex-wrap:wrap;
+}
+
+/* Shortcuts = compact chips by default (distinct from breadcrumbs) */
+.sch_shortcuts{
+    display:flex; align-items:center; gap:6px;
+    flex-wrap:wrap; overflow-x:auto; scrollbar-width:thin;
+}
+.sch_shortcuts a{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:3px 8px;
+    border:1px solid var(--border);
+    border-radius:var(--rp);
+    background:var(--surface-2);
+    color:var(--text);
+    text-decoration:none; white-space:nowrap; line-height:1.1;
+}
+.sch_shortcuts a:hover{ box-shadow:var(--elev-1); border-color:var(--border-2); }
+.sch_shortcuts a[aria-current="page"]{
+    background: color-mix(in oklab, var(--primary), white 88%);
+    border-color: color-mix(in oklab, var(--primary), white 70%);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ---------- Optional: Tabs style variant ----------
+   Switch look by adding class="sch_shortcuts sch_shortcuts--tabs"
+   (keeps same markup; still tight, no media queries) */
+.sch_shortcuts--tabs{
+    gap:0; border-bottom:1px solid var(--border);
+}
+.sch_shortcuts--tabs a{
+    border:0; border-radius:0; background:transparent;
+    padding:6px 10px; margin:0;
+    border-bottom:2px solid transparent;
+}
+.sch_shortcuts--tabs a:hover{ background:var(--surface-2); }
+.sch_shortcuts--tabs a[aria-current="page"]{
+    border-bottom-color: var(--primary);
+    color: var(--primary); font-weight:600;
+    background: transparent;
+}
+
+
+/* ================================
+   Row 3: Title + page toolbar (tight)
+   ================================ */
+.sch_titlebar{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:6px var(--gx) 6px; gap:8px;
+}
+.page_title{margin:0; font-size:1.35rem; color:var(--primary)}
+.page_subtitle{margin:2px 0 0 0; color:var(--text); max-width:80ch}
+
+.sch_titlebar_right{display:flex; gap:6px; align-items:flex-start}
+button{font:inherit}
+.btn{padding:6px 8px}
+
+/* ================================
+   Row 4: Canvas (CONTENT)
+   ================================ */
+/* Small side gutters, otherwise FULL WIDTH */
+.sch_canvas{
+    padding:0 var(--gx) var(--gy);
+    display:flex; flex-wrap:wrap; gap:var(--gy);
+}
+
+/* Grid-only pages: body or main can add class="grid-only" */
+.sch_canvas.grid-only{
+    display:block;
+}
+
+/* Panels: use flex WITHOUT media queries */
+.card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--r6);
+    box-shadow:var(--elev-1); overflow:hidden;
+    /* Flex sizing: two or three columns naturally as space allows */
+    flex:1 1 520px;        /* grows, wraps as needed */
+    min-width:300px;       /* never too small */
+}
+.card_header{padding:8px 10px; background:var(--surface-2); border-bottom:1px solid var(--border)}
+.card_title{margin:0; font-size:1rem; color:var(--primary)}
+.card_body{padding:10px}
+
+/* Placeholders / canvases */
+.grid_placeholder{min-height:440px}
+.chart_placeholder{min-height:320px}
+.report_placeholder{min-height:260px}
+.empty_state{text-align:center; color:var(--text-2); padding:16px 8px}
+
+/* If you truly want the grid to go edge-to-edge, drop the card shell: */
+.fullbleed{
+    margin:0 calc(-1 * var(--gx));       /* remove the small gutters */
+    border-left:0; border-right:0; border-radius:0;
+}
+
+/* ================================
+   Row 5: Footer (tight)
+   ================================ */
+.sch_footer{
+    background:var(--surface); border-top:1px solid var(--border);
+}
+.sch_footer_inner{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:6px var(--gx);
+}
+.sch_footer a{color:var(--text-2); text-decoration:none}
+.sch_footer a:hover{text-decoration:underline}
+
+/* ================================
+   Active states in navs (no side bar version)
+   ================================ */
+.sch_nav a[aria-current="page"], .ocActividad_nav_active{
+    color:var(--primary);
+    background:color-mix(in oklab,var(--primary),white 90%);
+    border:1px solid color-mix(in oklab,var(--primary),white 70%);
+    border-radius:var(--rp);
+    font-weight:600;
+    padding:3px 8px;
+}
