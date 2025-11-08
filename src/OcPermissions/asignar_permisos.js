@@ -1,7 +1,11 @@
-/* File: asignar_permisos.js  */
+// File: asignar_permisos.js
+// Shared data & helpers + READ-ONLY grid.
+// Modified: Uses fetch instead of localStorage
 
-(function () {
-    var LS_KEY = "asignarPermisos.singleGrid.v5";
+(function (global) {
+    "use strict";
+
+    var API_URL = "./api/asignar_permisos_api.php";
 
     var SAMPLE = {
         roles: [
@@ -25,494 +29,97 @@
             { actividad_permiso_id: 1201, actividad_id: 12, permiso: "leer",       etiqueta: "Ver" },
             { actividad_permiso_id: 1202, actividad_id: 12, permiso: "exportar",   etiqueta: "Exportar" }
         ],
-        // Map<rol_id, Set<actividad_permiso_id>>
+        // Map<rol_id, Array<actividad_permiso_id>> - Arrays will be converted to Sets by reviveSets()
         asignaciones: {
-            1: new Set([1001, 1002, 1003, 1004, 1101, 1102, 1103, 1201, 1202]),
-            2: new Set([1002, 1003, 1101, 1201]),
-            3: new Set([1201])
+            1: [1001, 1002, 1003, 1004, 1101, 1102, 1103, 1201, 1202],
+            2: [1002, 1003, 1101, 1201],
+            3: [1201]
         },
-        // List of {rol_id, actividad_id} pairs that must have a row, even if 0 permisos:
+        // Lista de pares (rol, actividad) que deben existir como fila aunque tengan 0 permisos
         rowPairs: []
     };
 
-    var state = loadState() || SAMPLE;
-    reviveSets();
-    initRowPairsFromAsignaciones(); // ensure rowPairs exists & is populated
+    var state = null;
+    var originalFetch = global.fetch;
 
-    var el = {
-        grid:       document.getElementById("gridAssign"),
-        txtSearch:  document.getElementById("txtSearch"),
-        btnNew:     document.getElementById("btnNew"),
-        btnExport:  document.getElementById("btnExport"),
-        dlg:        document.getElementById("dlgAssign"),
-        dlgTitle:   document.getElementById("dlgTitle"),
-        selRol:     document.getElementById("selRol"),
-        selAct:     document.getElementById("selAct"),
-        permSearch: document.getElementById("permSearch"),
-        permList:   document.getElementById("permList"),
-        dlgInfo:      document.getElementById("dlgInfo"),
-        dlgInfoTitle: document.getElementById("dlgInfoTitle"),
-        dlgInfoText:  document.getElementById("dlgInfoText")
-    };
-
-    var grid;
-    var tableReady = false;
-    var tsRol, tsAct;
-    var dialogMode = "new";
-    var dialogPair = { rol_id: null, actividad_id: null };
-    var isEditMode = getInitialModeFromUrl(); // ?mode=edit
-
-    grid = new Tabulator(el.grid, {
-        data: buildRows(),
-        layout: "fitColumns",
-        reactiveData: false,
-        height: "calc(70vh)",
-        index: "_rowKey",
-        columns: [
-            { title: "#", formatter: "rownum", width: 50, hozAlign: "center", headerSort: false },
-
-            {
-                title: "Rol",
-                field: "rol",
-                sorter: "string",
-                headerFilter: "input",
-                widthGrow: 1,
-                formatter: function (cell) {
-                    var d = cell.getRow().getData();
-                    return (
-                        '<span class="info-badge" data-kind="rol" title="Ver descripción">i</span>' +
-                        '<span class="rol-text">' + escapeHtml(d.rol) + '</span>'
-                    );
-                },
-                cellClick: function (e, cell) {
-                    if (!e.target.closest(".info-badge")) return;
-                    onRolCellClick(e, cell);
-                },
-                formatterExport: function (cell) { return cell.getRow().getData().rol || ""; }
-            },
-
-            {
-                title: "Actividad",
-                field: "actividad",
-                sorter: "string",
-                headerFilter: "input",
-                widthGrow: 1,
-                formatter: function (cell) {
-                    var d = cell.getRow().getData();
-                    return (
-                        '<span class="info-badge" data-kind="actividad" title="Ver descripción">i</span>' +
-                        '<span class="actividad-text">' + escapeHtml(d.actividad) + '</span>'
-                    );
-                },
-                cellClick: function (e, cell) {
-                    if (!e.target.closest(".info-badge")) return;
-                    onActividadCellClick(e, cell);
-                },
-                formatterExport: function (cell) { return cell.getRow().getData().actividad || ""; }
-            },
-
-            {
-                title: "Rol Puede",
-                field: "rolPuedeText",
-                sorter: "string",
-                headerFilter: "input",
-                widthGrow: 2,
-                cssClass: "cell-chips",
-                formatter: function (cell) {
-                    var d = cell.getRow().getData();
-                    if (!d.rolPuede || !d.rolPermIds) return "";
-
-                    if (!isEditMode) {
-                        // READ-ONLY: plain text "Crear, Leer, Actualizar"
-                        return escapeHtml(d.rolPuede.join(", "));
-                    }
-
-                    // EDIT: clickable chips (click => remove permiso)
-                    var html = "";
-                    for (var i = 0; i < d.rolPuede.length; i++) {
-                        var label = d.rolPuede[i];
-                        var apid  = d.rolPermIds[i];
-                        if (!apid) continue;
-                        html +=
-                            '<span class="chip ok" ' +
-                            'data-type="rol" data-assigned="1" ' +
-                            'data-rol-id="' + d.rol_id + '" ' +
-                            'data-act-id="' + d.actividad_id + '" ' +
-                            'data-apid="' + apid + '">' +
-                            escapeHtml(label) +
-                            "</span>";
-                    }
-                    return html;
-                }
-            },
-
-            {
-                title: "Actividad tiene",
-                field: "actTieneText",
-                sorter: "string",
-                headerFilter: "input",
-                widthGrow: 3,
-                cssClass: "cell-chips",
-                formatter: function (cell) {
-                    var d = cell.getRow().getData();
-
-                    if (!isEditMode) {
-                        // READ-ONLY: assigned in bold, missing normal
-                        var parts = [];
-                        for (var i = 0; i < d.actTieneAssigned.length; i++) {
-                            parts.push("<strong>" + escapeHtml(d.actTieneAssigned[i]) + "</strong>");
-                        }
-                        for (var j = 0; j < d.actTieneMissing.length; j++) {
-                            parts.push(escapeHtml(d.actTieneMissing[j]));
-                        }
-                        return parts.join(", ");
-                    }
-
-                    // EDIT: clickable chips (click => toggle)
-                    var html = "";
-                    // assigned
-                    for (var k = 0; k < d.actTieneAssigned.length; k++) {
-                        var labelA = d.actTieneAssigned[k];
-                        var apidA  = d.actTieneAssignedIds[k];
-                        html +=
-                            '<span class="chip ok" ' +
-                            'data-type="act" data-assigned="1" ' +
-                            'data-rol-id="' + d.rol_id + '" ' +
-                            'data-act-id="' + d.actividad_id + '" ' +
-                            'data-apid="' + apidA + '">' +
-                            escapeHtml(labelA) +
-                            "</span>";
-                    }
-                    // missing
-                    for (var m = 0; m < d.actTieneMissing.length; m++) {
-                        var labelM = d.actTieneMissing[m];
-                        var apidM  = d.actTieneMissingIds[m];
-                        html +=
-                            '<span class="chip missing" ' +
-                            'data-type="act" data-assigned="0" ' +
-                            'data-rol-id="' + d.rol_id + '" ' +
-                            'data-act-id="' + d.actividad_id + '" ' +
-                            'data-apid="' + apidM + '">' +
-                            escapeHtml(labelM) +
-                            "</span>";
-                    }
-                    return html;
-                }
+    // ---------- Fetch Override ----------
+    function setupFetchOverride() {
+        global.fetch = function(url, options) {
+            // Only intercept our API calls
+            if (url.includes('asignar_permisos_api.php')) {
+                return mockAPIResponse(url, options);
             }
-        ]
-    });
+            return originalFetch(url, options);
+        };
+    }
 
-    grid.on("tableBuilt", function () { tableReady = true; });
+    async function mockAPIResponse(url, options) {
+        var body = options?.body ? JSON.parse(options.body) : {};
+        var action = body.action || '';
 
-    // -------------------- Grid interactions: chips only --------------------
-    el.grid.addEventListener("click", function (ev) {
-        if (!isEditMode) return;
-        var chip = ev.target.closest(".chip");
-        if (chip) handleChipClick(chip);
-    });
+        console.log('Mock API Call:', action, body);
 
-    function handleChipClick(chip) {
-        var rolId = Number(chip.getAttribute("data-rol-id"));
-        var actId = Number(chip.getAttribute("data-act-id"));
-        var apid  = Number(chip.getAttribute("data-apid"));
-        if (!rolId || !actId || !apid) return;
+        // Simulate network delay
+        await new Promise(function(resolve) { setTimeout(resolve, 200); });
 
-        var type = chip.getAttribute("data-type") || "";
-        var assignedAttr = chip.getAttribute("data-assigned");
-        var currentlyAssigned = assignedAttr === "1";
+        var response;
 
-        var newAssigned;
-        if (type === "rol") {
-            // (2) Rol Puede -> clicking removes permiso
-            newAssigned = false;
-        } else {
-            // Actividad tiene -> toggle
-            newAssigned = !currentlyAssigned;
+        switch (action) {
+            case 'load':
+                response = mockLoad();
+                break;
+            case 'save':
+                response = mockSave(body.data);
+                break;
+            default:
+                response = {
+                    success: false,
+                    error: 'Acción desconocida: ' + action,
+                    data: null
+                };
         }
 
-        applyPermissionToggle(chip, rolId, actId, apid, newAssigned);
+        return {
+            ok: response.success,
+            json: function() { return Promise.resolve(response); }
+        };
     }
 
-    // -------------------- Toolbar --------------------
-    el.txtSearch.addEventListener("input", function () {
-        var q = (el.txtSearch.value || "").trim().toLowerCase();
-        if (!q) {
-            grid.clearFilter(true);
-            return;
-        }
-        grid.setFilter(function (data) {
-            return (
-                (data.rol || "").toLowerCase().indexOf(q) >= 0 ||
-                (data.actividad || "").toLowerCase().indexOf(q) >= 0 ||
-                (data.rolPuedeText || "").toLowerCase().indexOf(q) >= 0 ||
-                (data.actTieneText || "").toLowerCase().indexOf(q) >= 0
-            );
-        });
-    });
-
-    el.btnNew.addEventListener("click", function () {
-        if (!isEditMode) return;
-        openDialogNew();
-    });
-
-    el.btnExport.addEventListener("click", function () {
-        var csv = buildAssignmentsCSV();
-        downloadText("asignaciones_" + Date.now() + ".csv", csv, "text/csv");
-    });
-
-    // -------------------- Edit/New dialog --------------------
-    tsRol = new TomSelect(el.selRol, {
-        maxItems: 1,
-        persist: false,
-        options: state.roles.map(function (r) {
-            return { value: String(r.rol_id), text: r.rol };
-        })
-    });
-
-    tsAct = new TomSelect(el.selAct, {
-        maxItems: 1,
-        persist: false,
-        options: state.actividades.map(function (a) {
-            return { value: String(a.actividad_id), text: a.actividad };
-        })
-    });
-
-    el.permSearch.addEventListener("input", function () {
-        var q = (el.permSearch.value || "").trim().toLowerCase();
-        var items = el.permList.children;
-        for (var i = 0; i < items.length; i++) {
-            var li = items[i];
-            var txt = (li.textContent || "").toLowerCase();
-            li.style.display = txt.indexOf(q) >= 0 ? "" : "none";
-        }
-    });
-
-    var closeBtns = el.dlg.querySelectorAll('[data-action="close"]');
-    for (var i = 0; i < closeBtns.length; i++) {
-        closeBtns[i].addEventListener("click", function (e) {
-            e.preventDefault();
-            closeMainDialog();
-        });
-    }
-    el.dlg.addEventListener("cancel", function (e) {
-        e.preventDefault();
-        closeMainDialog();
-    });
-
-    el.dlg.querySelector('[data-action="save"]').addEventListener("click", function () {
-        saveDialog();
-    });
-
-    function openDialogNew() {
-        dialogMode = "new";
-        dialogPair.rol_id = null;
-        dialogPair.actividad_id = null;
-
-        el.dlgTitle.textContent = "Nuevo";
-        tsRol.clear(true);
-        tsAct.clear(true);
-        tsRol.enable();
-        tsAct.enable();
-
-        el.permSearch.value = "";
-        el.permList.innerHTML = "";
-
-        tsRol.off("change"); tsAct.off("change");
-        tsRol.on("change", rebuildPermListFromSelects);
-        tsAct.on("change", rebuildPermListFromSelects);
-
-        openMainDialog();
-    }
-
-    function openDialogEdit(rol_id, actividad_id) {
-        dialogMode = "edit";
-        dialogPair.rol_id = rol_id;
-        dialogPair.actividad_id = actividad_id;
-
-        el.dlgTitle.textContent = "Editar";
-        tsRol.setValue(String(rol_id), true);
-        tsAct.setValue(String(actividad_id), true);
-        tsRol.disable();
-        tsAct.disable();
-
-        el.permSearch.value = "";
-        buildPermList(actividad_id, getAssignedPermsForRoleActividad(rol_id, actividad_id));
-
-        tsRol.off("change"); tsAct.off("change");
-
-        openMainDialog();
-    }
-
-    function rebuildPermListFromSelects() {
-        var rid = tsRol.getValue();
-        var aid = tsAct.getValue();
-        if (!rid || !aid) {
-            el.permList.innerHTML = "";
-            return;
-        }
-        var rol_id = Number(rid);
-        var actividad_id = Number(aid);
-        var assigned = getAssignedPermsForRoleActividad(rol_id, actividad_id);
-        buildPermList(actividad_id, assigned);
-    }
-
-    function buildPermList(actividad_id, assignedIdsArray) {
-        var assignedSet = new Set(assignedIdsArray || []);
-        var perms = getPermsByActividad(actividad_id);
-        var html = "";
-        for (var i = 0; i < perms.length; i++) {
-            var p = perms[i];
-            var checked = assignedSet.has(p.actividad_permiso_id) ? "checked" : "";
-            html +=
-                '<li class="ocAsignar_perm_item" data-id="' + p.actividad_permiso_id + '">' +
-                '<label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer;">' +
-                '<input type="checkbox" ' + checked + ' data-id="' + p.actividad_permiso_id + '"/>' +
-                '<div>' +
-                '<div><strong>' + escapeHtml(p.etiqueta) + '</strong> ' +
-                '<span class="ocAsignar_perm_code">(' + escapeHtml(p.permiso) + ')</span>' +
-                '</div>' +
-                '</div>' +
-                '</label>' +
-                '</li>';
-        }
-        el.permList.innerHTML = html;
-    }
-
-    function openMainDialog() {
-        try { el.dlg.showModal(); } catch (e) { el.dlg.setAttribute("open", ""); }
-    }
-    function closeMainDialog() {
-        try { el.dlg.close(); } catch (e) { el.dlg.removeAttribute("open"); }
-    }
-
-    function saveDialog() {
-        var rid = dialogMode === "edit" ? String(dialogPair.rol_id) : tsRol.getValue();
-        var aid = dialogMode === "edit" ? String(dialogPair.actividad_id) : tsAct.getValue();
-        if (!rid || !aid) {
-            alert("Seleccione Rol y Actividad");
-            return;
-        }
-        var rol_id = Number(rid);
-        var actividad_id = Number(aid);
-
-        var checks = el.permList.querySelectorAll('input[type="checkbox"][data-id]');
-        var nextIds = [];
-        for (var i = 0; i < checks.length; i++) {
-            var ch = checks[i];
-            if (ch.checked) nextIds.push(Number(ch.getAttribute("data-id")));
+    function mockLoad() {
+        // Initialize mock data if not exists
+        if (!global.mockAsignarPermisosData) {
+            global.mockAsignarPermisosData = JSON.parse(JSON.stringify(SAMPLE));
         }
 
-        callResponder({
-            accion: "guardar_permiso_actividad",
-            rol_id: rol_id,
-            actividad_id: actividad_id,
-            permisos: nextIds.slice()
-        }).then(function () {
-            var set = getAssignedSetForRole(rol_id);
-            var allIds = getPermsByActividad(actividad_id).map(function (p) { return p.actividad_permiso_id; });
-            for (var j = 0; j < allIds.length; j++) set.delete(allIds[j]);
-            for (var k = 0; k < nextIds.length; k++) set.add(nextIds[k]);
-
-            state.asignaciones[rol_id] = set;
-            addRowPair(rol_id, actividad_id);        // (1) keep row even if no permisos
-            persist();
-            refreshGrid();
-            closeMainDialog();
-        }).catch(function (err) {
-            console.error(err);
-            alert("No se pudo guardar los permisos.");
-        });
+        return {
+            success: true,
+            error: null,
+            data: global.mockAsignarPermisosData
+        };
     }
 
-    // -------------------- Inline chip + responder --------------------
-    function applyPermissionToggle(chipEl, rolId, actId, apid, newAssigned) {
-        chipEl.classList.add("chip--pending");
-
-        callResponder({
-            accion: "toggle_perm",
-            rol_id: rolId,
-            actividad_id: actId,
-            actividad_permiso_id: apid,
-            nuevo_estado: newAssigned ? 1 : 0
-        }).then(function () {
-            chipEl.classList.remove("chip--pending");
-
-            var set = getAssignedSetForRole(rolId);
-            if (newAssigned) set.add(apid);
-            else set.delete(apid);
-
-            state.asignaciones[rolId] = set;
-            addRowPair(rolId, actId);               // (1) never drop the row
-            persist();
-            refreshGrid();
-        }).catch(function (err) {
-            console.error(err);
-            chipEl.classList.remove("chip--pending");
-            alert("No se pudo actualizar el permiso.");
-        });
-    }
-
-    function callResponder(payload) {
-        // Only front-end stub for now.
-        // payload.accion ∈ { "toggle_perm", "guardar_permiso_actividad" }
-        return new Promise(function (resolve) {
-            setTimeout(resolve, 120);
-        });
-    }
-
-    // -------------------- Info dialog --------------------
-    function findRol(rol_id) {
-        return state.roles.find(function (r) { return r.rol_id === rol_id; });
-    }
-    function findActividad(actividad_id) {
-        return state.actividades.find(function (a) { return a.actividad_id === actividad_id; });
-    }
-
-    function onRolCellClick(e, cell) {
-        var d = cell.getRow().getData();
-        var r = findRol(d.rol_id);
-        openInfoDialog(
-            "Rol: " + (r ? r.rol : d.rol),
-            r && r.descripcion ? r.descripcion : "Sin descripción"
-        );
-    }
-
-    function onActividadCellClick(e, cell) {
-        var d = cell.getRow().getData();
-        var a = findActividad(d.actividad_id);
-        openInfoDialog(
-            "Actividad: " + (a ? a.actividad : d.actividad),
-            a && a.descripcion ? a.descripcion : "Sin descripción"
-        );
-    }
-
-    function openInfoDialog(title, text) {
-        el.dlgInfoTitle.textContent = title || "Información";
-        el.dlgInfoText.textContent = text || "";
-        try { el.dlgInfo.showModal(); } catch (e) { el.dlgInfo.setAttribute("open", ""); }
-    }
-
-    (function bindInfoDialogClose() {
-        var btns = document.querySelectorAll('[data-action="close-info"]');
-        for (var i = 0; i < btns.length; i++) {
-            btns[i].addEventListener("click", function (e) {
-                e.preventDefault();
-                closeInfoDialog();
-            });
+    function mockSave(data) {
+        if (!data) {
+            return {
+                success: false,
+                error: 'No data provided',
+                data: null
+            };
         }
-        el.dlgInfo.addEventListener("cancel", function (e) {
-            e.preventDefault();
-            closeInfoDialog();
-        });
 
-        function closeInfoDialog() {
-            try { el.dlgInfo.close(); } catch (e) { el.dlgInfo.removeAttribute("open"); }
-        }
-    })();
+        global.mockAsignarPermisosData = JSON.parse(JSON.stringify(data));
 
-    // -------------------- Data helpers --------------------
+        return {
+            success: true,
+            error: null,
+            data: global.mockAsignarPermisosData
+        };
+    }
+
+    // ---------- Helpers de estado ----------
     function reviveSets() {
-        var keys = Object.keys(state.asignaciones || {});
+        if (!state.asignaciones) state.asignaciones = {};
+        var keys = Object.keys(state.asignaciones);
         for (var i = 0; i < keys.length; i++) {
             var k = keys[i];
             if (!(state.asignaciones[k] instanceof Set)) {
@@ -532,18 +139,28 @@
     }
 
     function initRowPairsFromAsignaciones() {
-        if (!state.rowPairs || state.rowPairs.length === 0) {
-            state.rowPairs = [];
-            var roleIds = Object.keys(state.asignaciones);
-            for (var i = 0; i < roleIds.length; i++) {
-                var rid = Number(roleIds[i]);
-                var set = state.asignaciones[rid];
-                set.forEach(function (apid) {
-                    var p = state.actividad_permisos.find(function (x) { return x.actividad_permiso_id === apid; });
-                    if (p) addRowPair(rid, p.actividad_id);
+        if (state.rowPairs && state.rowPairs.length > 0) return;
+        state.rowPairs = [];
+        var roleIds = Object.keys(state.asignaciones || {});
+        for (var i = 0; i < roleIds.length; i++) {
+            var rid = Number(roleIds[i]);
+            var set = state.asignaciones[rid];
+            if (!set) continue;
+            set.forEach(function (apid) {
+                var p = state.actividad_permisos.find(function (x) {
+                    return x.actividad_permiso_id === apid;
                 });
-            }
+                if (p) addRowPair(rid, p.actividad_id);
+            });
         }
+    }
+
+    function findRol(rol_id) {
+        return state.roles.find(function (r) { return r.rol_id === rol_id; });
+    }
+
+    function findActividad(actividad_id) {
+        return state.actividades.find(function (a) { return a.actividad_id === actividad_id; });
     }
 
     function getPermsByActividad(actividad_id) {
@@ -553,12 +170,19 @@
     }
 
     function getAssignedSetForRole(rol_id) {
-        return state.asignaciones[rol_id] || new Set();
+        var set = state.asignaciones[rol_id];
+        if (!set) {
+            set = new Set();
+            state.asignaciones[rol_id] = set;
+        }
+        return set;
     }
 
     function getAssignedPermsForRoleActividad(rol_id, actividad_id) {
         var set = getAssignedSetForRole(rol_id);
-        var all = getPermsByActividad(actividad_id).map(function (p) { return p.actividad_permiso_id; });
+        var all = getPermsByActividad(actividad_id).map(function (p) {
+            return p.actividad_permiso_id;
+        });
         var out = [];
         for (var i = 0; i < all.length; i++) {
             var id = all[i];
@@ -568,7 +192,9 @@
     }
 
     function labelForPermId(id) {
-        var p = state.actividad_permisos.find(function (x) { return x.actividad_permiso_id === id; });
+        var p = state.actividad_permisos.find(function (x) {
+            return x.actividad_permiso_id === id;
+        });
         return p ? p.etiqueta : String(id);
     }
 
@@ -576,7 +202,6 @@
         var rows = [];
         var pairs = (state.rowPairs || []).slice();
 
-        // sort by rol_id then actividad_id for a stable order
         pairs.sort(function (a, b) {
             if (a.rol_id === b.rol_id) return a.actividad_id - b.actividad_id;
             return a.rol_id - b.rol_id;
@@ -588,9 +213,9 @@
             var act  = findActividad(pair.actividad_id);
             if (!role || !act) continue;
 
-            var assignedIds = getAssignedPermsForRoleActividad(role.rol_id, act.actividad_id);
-            var allPerms    = getPermsByActividad(act.actividad_id);
-            var assignedLabels = assignedIds.map(labelForPermId);
+            var assignedIds   = getAssignedPermsForRoleActividad(role.rol_id, act.actividad_id);
+            var allPerms      = getPermsByActividad(act.actividad_id);
+            var assignedLbls  = assignedIds.map(labelForPermId);
 
             var actTieneAssigned    = [];
             var actTieneAssignedIds = [];
@@ -615,8 +240,8 @@
                 actividad_id: act.actividad_id,
                 actividad: act.actividad,
                 rolPermIds: assignedIds.slice(),
-                rolPuede: assignedLabels.slice(),
-                rolPuedeText: assignedLabels.join(", "),
+                rolPuede: assignedLbls.slice(),
+                rolPuedeText: assignedLbls.join(", "),
                 actTieneAssigned:    actTieneAssigned.slice(),
                 actTieneAssignedIds: actTieneAssignedIds.slice(),
                 actTieneMissing:     actTieneMissing.slice(),
@@ -627,12 +252,6 @@
         return rows;
     }
 
-    function refreshGrid() {
-        if (!tableReady) return;
-        grid.setData(buildRows());
-    }
-
-    // -------------------- CSV --------------------
     function buildAssignmentsCSV() {
         var lines = [];
         lines.push(csvRow(["rol_id", "rol", "actividad_id", "actividad", "actividad_permiso_id", "permiso", "etiqueta"]));
@@ -643,7 +262,9 @@
             if (!set || set.size === 0) continue;
 
             set.forEach(function (apid) {
-                var p = state.actividad_permisos.find(function (x) { return x.actividad_permiso_id === apid; });
+                var p = state.actividad_permisos.find(function (x) {
+                    return x.actividad_permiso_id === apid;
+                });
                 if (!p) return;
                 var a = findActividad(p.actividad_id);
                 lines.push(
@@ -662,27 +283,53 @@
         return lines.join("\r\n");
     }
 
-    function csvRow(arr) { return arr.map(csvEscape).join(","); }
+    function csvRow(arr) {
+        return arr.map(csvEscape).join(",");
+    }
+
     function csvEscape(v) {
         var s = String(v == null ? "" : v);
         if (/[",\r\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
         return s;
     }
 
-    // -------------------- Persistence & misc --------------------
-    function persist() {
+    async function persist() {
         var serializable = JSON.parse(JSON.stringify(state, function (k, v) {
             return v instanceof Set ? Array.from(v) : v;
         }));
-        localStorage.setItem(LS_KEY, JSON.stringify(serializable));
+        
+        try {
+            var response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'save',
+                    data: serializable
+                })
+            });
+            var result = await response.json();
+            if (!result.success) {
+                console.error('Error persisting data:', result.error);
+            }
+        } catch (e) {
+            console.error('Error persisting data:', e);
+        }
     }
 
-    function loadState() {
+    async function loadState() {
         try {
-            var text = localStorage.getItem(LS_KEY);
-            if (!text) return null;
-            return JSON.parse(text);
+            var response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'load' })
+            });
+            var result = await response.json();
+            if (result.success && result.data) {
+                return result.data;
+            }
+            return null;
         } catch (e) {
+            console.error('Error loading state:', e);
             return null;
         }
     }
@@ -695,28 +342,247 @@
 
     function downloadText(filename, text, mime) {
         var blob = new Blob([text], { type: mime || "text/plain" });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement("a");
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement("a");
         a.href = url;
         a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
     }
 
-    function getInitialModeFromUrl() {
-        try {
-            var params = new URLSearchParams(window.location.search);
-            var m = (params.get("mode") || "").toLowerCase();
-            if (m === "edit" || m === "edicion") return true;
-        } catch (e) {}
-        return false;
+    // ---------- Wait for state helper ----------
+    function waitForState() {
+        return new Promise(function(resolve) {
+            if (state && state.roles) {
+                resolve();
+            } else {
+                var checkInterval = setInterval(function() {
+                    if (state && state.roles) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
     }
 
-    function updateModeUI() {
-        document.body.classList.toggle("mode-edit", isEditMode);
-        document.body.classList.toggle("mode-read", !isEditMode);
-        el.btnNew.style.display = isEditMode ? "" : "none";
+    // ---------- READ ONLY UI ----------
+    function initReadOnly() {
+        var el = {
+            grid:      document.getElementById("gridAssign"),
+            txtSearch: document.getElementById("txtSearch"),
+            btnExport: document.getElementById("btnExport"),
+            dlgInfo:      document.getElementById("dlgInfo"),
+            dlgInfoTitle: document.getElementById("dlgInfoTitle"),
+            dlgInfoText:  document.getElementById("dlgInfoText")
+        };
+        if (!el.grid || typeof global.Tabulator === "undefined") return;
+
+        // Wait for state to be initialized before building grid
+        waitForState().then(function() {
+            setupReadOnlyGrid(el);
+        });
     }
 
-    updateModeUI();
-})();
+    function setupReadOnlyGrid(el) {
+        var grid = new Tabulator(el.grid, {
+            data: buildRows(),
+            layout: "fitColumns",
+            reactiveData: false,
+            height: "calc(70vh)",
+            index: "_rowKey",
+            columns: [
+                { title: "#", formatter: "rownum", width: 50, hozAlign: "center", headerSort: false },
+
+                {
+                    title: "Rol",
+                    field: "rol",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 1,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        return (
+                            '<span class="info-badge" data-kind="rol" title="Ver descripción">i</span>' +
+                            '<span class="rol-text">' + escapeHtml(d.rol) + '</span>'
+                        );
+                    },
+                    cellClick: function (e, cell) {
+                        if (!e.target.closest(".info-badge")) return;
+                        var d = cell.getRow().getData();
+                        var r = findRol(d.rol_id);
+                        openInfoDialog(
+                            "Rol: " + (r ? r.rol : d.rol),
+                            r && r.descripcion ? r.descripcion : "Sin descripción"
+                        );
+                    },
+                    formatterExport: function (cell) {
+                        return cell.getRow().getData().rol || "";
+                    }
+                },
+
+                {
+                    title: "Actividad",
+                    field: "actividad",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 1,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        return (
+                            '<span class="info-badge" data-kind="actividad" title="Ver descripción">i</span>' +
+                            '<span class="actividad-text">' + escapeHtml(d.actividad) + '</span>'
+                        );
+                    },
+                    cellClick: function (e, cell) {
+                        if (!e.target.closest(".info-badge")) return;
+                        var d = cell.getRow().getData();
+                        var a = findActividad(d.actividad_id);
+                        openInfoDialog(
+                            "Actividad: " + (a ? a.actividad : d.actividad),
+                            a && a.descripcion ? a.descripcion : "Sin descripción"
+                        );
+                    },
+                    formatterExport: function (cell) {
+                        return cell.getRow().getData().actividad || "";
+                    }
+                },
+
+                {
+                    title: "Rol Puede",
+                    field: "rolPuedeText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 2,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        if (!d.rolPuede || d.rolPuede.length === 0) return "";
+                        return escapeHtml(d.rolPuede.join(", "));
+                    }
+                },
+
+                {
+                    title: "Actividad tiene",
+                    field: "actTieneText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 3,
+                    cssClass: "cell-chips",
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        var parts = [];
+                        for (var i = 0; i < d.actTieneAssigned.length; i++) {
+                            parts.push("<strong>" + escapeHtml(d.actTieneAssigned[i]) + "</strong>");
+                        }
+                        for (var j = 0; j < d.actTieneMissing.length; j++) {
+                            parts.push(escapeHtml(d.actTieneMissing[j]));
+                        }
+                        return parts.join(", ");
+                    }
+                }
+            ]
+        });
+
+        // Búsqueda global
+        if (el.txtSearch) {
+            el.txtSearch.addEventListener("input", function () {
+                var q = (el.txtSearch.value || "").trim().toLowerCase();
+                if (!q) {
+                    grid.clearFilter(true);
+                    return;
+                }
+                grid.setFilter(function (data) {
+                    return (
+                        (data.rol || "").toLowerCase().indexOf(q) >= 0 ||
+                        (data.actividad || "").toLowerCase().indexOf(q) >= 0 ||
+                        (data.rolPuedeText || "").toLowerCase().indexOf(q) >= 0 ||
+                        (data.actTieneText || "").toLowerCase().indexOf(q) >= 0
+                    );
+                });
+            });
+        }
+
+        // Exportar CSV
+        if (el.btnExport) {
+            el.btnExport.addEventListener("click", function () {
+                var csv = buildAssignmentsCSV();
+                downloadText("asignaciones_" + Date.now() + ".csv", csv, "text/csv");
+            });
+        }
+
+        // Info dialog
+        if (el.dlgInfo) {
+            var closeBtns = document.querySelectorAll('[data-action="close-info"]');
+            for (var i = 0; i < closeBtns.length; i++) {
+                closeBtns[i].addEventListener("click", function (e) {
+                    e.preventDefault();
+                    closeInfoDialog();
+                });
+            }
+            el.dlgInfo.addEventListener("cancel", function (e) {
+                e.preventDefault();
+                closeInfoDialog();
+            });
+        }
+
+        function openInfoDialog(title, text) {
+            if (!el.dlgInfo) return;
+            el.dlgInfoTitle.textContent = title || "Información";
+            el.dlgInfoText.textContent = text || "";
+            try {
+                el.dlgInfo.showModal();
+            } catch (e) {
+                el.dlgInfo.setAttribute("open", "");
+            }
+        }
+
+        function closeInfoDialog() {
+            if (!el.dlgInfo) return;
+            try {
+                el.dlgInfo.close();
+            } catch (e) {
+                el.dlgInfo.removeAttribute("open");
+            }
+        }
+    }
+
+    // ---------- Initialize state ----------
+    async function initState() {
+        var loadedState = await loadState();
+        state = loadedState || SAMPLE;
+        reviveSets();
+        initRowPairsFromAsignaciones();
+    }
+
+    // ---------- Exponer objeto compartido ----------
+    global.AsignarPermisosShared = {
+        API_URL: API_URL,
+        state: state,
+        reviveSets: reviveSets,
+        initRowPairsFromAsignaciones: initRowPairsFromAsignaciones,
+        addRowPair: addRowPair,
+        findRol: findRol,
+        findActividad: findActividad,
+        getPermsByActividad: getPermsByActividad,
+        getAssignedSetForRole: getAssignedSetForRole,
+        getAssignedPermsForRoleActividad: getAssignedPermsForRoleActividad,
+        labelForPermId: labelForPermId,
+        buildRows: buildRows,
+        buildAssignmentsCSV: buildAssignmentsCSV,
+        persist: persist,
+        escapeHtml: escapeHtml,
+        downloadText: downloadText,
+        initReadOnly: initReadOnly,
+        initState: initState,
+        waitForState: waitForState
+    };
+
+    // Setup fetch override when script loads
+    setupFetchOverride();
+
+    // Initialize state asynchronously
+    initState().then(function() {
+        console.log('AsignarPermisosShared state initialized');
+    });
+
+})(window);

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scal     e=1" />
+    <title>Asignar Permisos a Roles (Edición)</title>
+
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
+    <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
+    <link rel="stylesheet" href="./asignar_permisos.css" />
+</head>
+<body>
+<header class="sch_header">
+    <h1>Asignación de Permisos a Roles (Edición)</h1>
+</header>
+
+<nav class="sch_nav">
+    <ul>
+        <li><a href="./index.html">Inicio</a></li>
+        <li><a href="./actividad.html">Actividades</a></li>
+        <li><a class="ocAsignar_nav_active" href="./asignar_permisos_edit.html">Asignar Permisos</a></li>
+        <li><a href="./roles.html">Roles</a></li>
+        <li><a href="./usuarios.html">Usuarios</a></li>
+    </ul>
+</nav>
+
+<main class="asig_container">
+    <div class="asig_toolbar">
+        <div class="asig_left">
+            <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo</button>
+            <label>Buscar:
+                <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar…" />
+            </label>
+        </div>
+        <div class="asig_right">
+            <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
+        </div>
+    </div>
+
+    <div id="gridAssign"></div>
+</main>
+
+<!-- Dialog para asignar permisos a un (Rol, Actividad) -->
+<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;">
+    <div class="ocdialog_header">
+        <h2 class="ocdialog_title" id="dlgTitle">Asignar permisos</h2>
+        <button class="ocdialog_close" data-action="close" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="ocdialog_content">
+        <div class="ocdialog_flex_column">
+            <section class="ocAsignar_section ocdialog_flex_fixed">
+                <div class="asig_left" style="margin-bottom:8px;">
+                    <div class="fixed-select">
+                        <label for="selRol"><strong>Rol:</strong></label>
+                        <select id="selRol" placeholder="Seleccione rol…"></select>
+                    </div>
+
+                    <div class="fixed-select" style="margin-left:10px;">
+                        <label for="selAct"><strong>Actividad:</strong></label>
+                        <select id="selAct" placeholder="Seleccione actividad…"></select>
+                    </div>
+
+                    <label for="permSearch" style="margin-left:auto;">Filtrar:</label>
+                    <input id="permSearch" class="asig_input" placeholder="buscar permiso…" />
+                </div>
+            </section>
+
+            <section class="ocAsignar_section ocdialog_flex_grow">
+                <ul id="permList" class="ocAsignar_perm_list" role="listbox" aria-label="Permisos de la actividad"></ul>
+            </section>
+        </div>
+    </div>
+
+    <div class="ocdialog_footer">
+        <button class="ocdialog_button ocdialog_button--secondary" data-action="close" type="button">Cancelar</button>
+        <button class="ocdialog_button ocdialog_button--success"  data-action="save"  type="button">Guardar</button>
+    </div>
+</dialog>
+
+<!-- Info dialog (descripciones) -->
+<dialog id="dlgInfo" class="ocdialog" style="max-width:520px;">
+    <div class="ocdialog_header">
+        <h3 class="ocdialog_title" id="dlgInfoTitle">Información</h3>
+        <button class="ocdialog_close" data-action="close-info" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="ocdialog_content">
+        <p id="dlgInfoText" class="ocAsignar_hint" style="white-space:pre-wrap;margin:0;"></p>
+    </div>
+    <div class="ocdialog_footer">
+        <button class="ocdialog_button" data-action="close-info" type="button">Cerrar</button>
+    </div>
+</dialog>
+
+<!-- Scripts: EDIT PAGE (this one CAN edit) -->
+<script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="../OcDialog/OcDialog.js"></script>
+<script src="../OcDialog/OcDialogDrag.js"></script>
+
+<script src="./asignar_permisos.js"></script>
+<script src="./asignar_permisos_edit.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.AsignarPermisosEdit) {
+            AsignarPermisosEdit.init();
+        }
+    });
+</script>
+</body>
+</html>
