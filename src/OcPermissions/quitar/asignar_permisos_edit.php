@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
     <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
-    <link rel="stylesheet" href="./asignar_permisos.css" />
+    <link rel="stylesheet" href="../asignar_permisos.css" />
 </head>
 <body>
 <header class="sch_header">

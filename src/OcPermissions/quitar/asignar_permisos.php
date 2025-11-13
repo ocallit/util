@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="sch_header">
-    <h1>Roles Permisos</h1>
+    <h1>Asignar Permisos a Roles</h1>
 </header>
 
 <nav class="sch_nav">
@@ -54,11 +54,10 @@
     </div>
 </dialog>
 
-<!-- Scripts: READ ONLY (NO edit JS here) -->
 <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
 <script src="../OcDialog/OcDialog.js"></script>
 <script src="../OcDialog/OcDialogDrag.js"></script>
-<script src="./asignar_permisos.js"></script>
+<script src="./asignar_permisos_all.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         if (window.AsignarPermisosShared) {
