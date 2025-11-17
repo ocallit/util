@@ -5,58 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Asignar Permisos a Roles</title>
 
-    <!-- Base / Theme -->
     <link rel="stylesheet" href="./base.css" />
-
-    <!-- Tabulator -->
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
-
-    <!-- Tom Select (for selects inside dialog) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
-
-    <!-- OcDialog CSS -->
     <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
-
-    <!-- Page CSS -->
-    <link rel="stylesheet" href="../asignar_permisos.css" />
+    <link rel="stylesheet" href="asignar_permisos.css" />
+    <link rel="stylesheet" href="chip.css" />
 </head>
 <body>
 <header class="sch_header">
-    <h1>Asignación de Permisos a Roles</h1>
+    <h1>Usuarios, Roles y Permisos: Asignación de Permisos a Roles</h1>
 </header>
-
 <nav class="sch_nav">
     <ul>
         <li><a href="./index.html">Inicio</a></li>
-        <li><a href="./actividad.html">Actividades</a></li>
-        <li><a class="ocAsignar_nav_active" href="./asignar_permisos.html">Asignar Permisos</a></li>
-        <li><a href="./roles.html">Roles</a></li>
         <li><a href="./usuarios.html">Usuarios</a></li>
+        <li><a href="./roles.html">Roles</a></li>
+        <li><a class="ocAsignar_nav_active" href="quitar/asignar_permisos.html">Permisos</a></li>
+        <li><a href="./actividad.html">Actividades</a></li>
     </ul>
 </nav>
 
 <main class="asig_container">
     <div class="asig_toolbar">
         <div class="asig_left">
-            <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo</button>
+            <button id="btnNew" class="sch_button sch_button--save" style="display:none;">➕ Nuevo</button>
             <label>Buscar:
                 <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar…" />
             </label>
         </div>
         <div class="asig_right">
-            <!-- Removed Import and Reset -->
             <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
         </div>
     </div>
 
-    <!-- Single grid (Tabulator) -->
     <div id="gridAssign"></div>
 </main>
 
-<!-- Dialog to create/edit a (Rol, Actividad) assignment -->
-<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;">
+<!-- Dialog para asignar permisos a un (Rol, Actividad) -->
+<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;display:none;">
     <div class="ocdialog_header">
-        <h2 class="ocdialog_title" id="dlgTitle">Nuevo</h2>
+        <h2 class="ocdialog_title" id="dlgTitle">Asignar permisos</h2>
         <button class="ocdialog_close" data-action="close" type="button" aria-label="Cerrar">&times;</button>
     </div>
 
@@ -74,8 +63,7 @@
                         <select id="selAct" placeholder="Seleccione actividad…"></select>
                     </div>
 
-                    <label for="permSearch" style="margin-left:auto;">Filtrar:</label>
-                    <input id="permSearch" class="asig_input" placeholder="buscar permiso…" />
+                    <input id="permSearch" class="asig_input" placeholder="buscar permiso…" style="margin-left:auto;" />
                 </div>
             </section>
 
@@ -87,11 +75,11 @@
 
     <div class="ocdialog_footer">
         <button class="ocdialog_button ocdialog_button--secondary" data-action="close" type="button">Cancelar</button>
-        <button class="ocdialog_button ocdialog_button--success" data-action="save" type="button">Guardar</button>
+        <button class="ocdialog_button ocdialog_button--success"  data-action="save"  type="button">Guardar</button>
     </div>
 </dialog>
 
-<!-- Small info dialog (for descriptions) -->
+<!-- Info dialog (descripciones) -->
 <dialog id="dlgInfo" class="ocdialog" style="max-width:520px;">
     <div class="ocdialog_header">
         <h3 class="ocdialog_title" id="dlgInfoTitle">Información</h3>
@@ -105,15 +93,27 @@
     </div>
 </dialog>
 
-<!-- Libraries -->
 <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
-<!-- OcDialog behavior -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="../OcDialog/OcDialog.js"></script>
 <script src="../OcDialog/OcDialogDrag.js"></script>
-
-<!-- Page JS -->
 <script src="./asignar_permisos.js"></script>
+
+<script>
+// Show/hide edit button based on URL mode parameter
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    var isEditMode = params.get("mode") === "edit";
+    var btnNew = document.getElementById("btnNew");
+    var dlgAssign = document.getElementById("dlgAssign");
+    if (isEditMode && btnNew) {
+        btnNew.style.display = "";
+    }
+    if (isEditMode && dlgAssign) {
+        dlgAssign.style.display = "";
+    }
+})();
+</script>
 </body>
 </html>

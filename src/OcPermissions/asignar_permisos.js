@@ -77,6 +77,13 @@
     var dialogMode = "new";
     var dialogPair = { rol_id: null, actividad_id: null };
     var isEditMode = getInitialModeFromUrl();
+    
+    // Column visibility
+    var columnVisibility = {
+        rolPuede: true,
+        sinPermiso: true,
+        actividadTiene: true
+    };
 
     // Initialize
     document.addEventListener("DOMContentLoaded", function() {
@@ -87,6 +94,7 @@
             initRowPairsFromAsignaciones();
             initGrid();
             initEventHandlers();
+            createColumnVisibilityControls();
         });
     });
 
@@ -108,7 +116,7 @@
         };
     }
 
-    function initGrid() {
+    function initGridOld() {
         if (!el.grid || typeof Tabulator === "undefined") return;
 
         grid = new Tabulator(el.grid, {
@@ -191,7 +199,31 @@
                 },
 
                 {
-                    title: "Actividad tiene",
+                    title: "Sin Permiso",
+                    field: "sinPermisoText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 2,
+                    cssClass: "cell-chips",
+                    visible: columnVisibility.sinPermiso,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        if (!d.actTieneMissing || d.actTieneMissing.length === 0) return "";
+                        
+                        if (!isEditMode) {
+                            return escapeHtml(d.actTieneMissing.join(", "));
+                        }
+                        
+                        var html = "";
+                        for (var i = 0; i < d.actTieneMissing.length; i++) {
+                            html += '<span class="chip missing">' + escapeHtml(d.actTieneMissing[i]) + '</span>';
+                        }
+                        return html;
+                    }
+                },
+
+                {
+                    title: "Permisos de la actividad",
                     field: "actTieneText",
                     sorter: "string",
                     headerFilter: "input",
@@ -237,6 +269,190 @@
         });
 
         tableReady = true;
+        updateColumnVisibility();
+    }
+
+    function initGrid() {
+        if (!el.grid || typeof Tabulator === "undefined") return;
+
+        grid = new Tabulator(el.grid, {
+            data: buildRows(),
+            layout: "fitColumns",
+            reactiveData: false,
+            height: "calc(70vh)",
+            index: "_rowKey",
+            columns: [
+                { title: "#", formatter: "rownum", width: 50, hozAlign: "center", headerSort: false },
+
+                {
+                    title: "Rol",
+                    field: "rol",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 1,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        return (
+                            '<span class="info-badge" data-kind="rol" title="Ver descripción">i</span>' +
+                            '<span class="rol-text">' + escapeHtml(d.rol) + '</span>'
+                        );
+                    },
+                    cellClick: function (e, cell) {
+                        if (!e.target.closest(".info-badge")) return;
+                        onRolCellClick(e, cell);
+                    },
+                    formatterExport: function (cell) { return cell.getRow().getData().rol || ""; }
+                },
+
+                {
+                    title: "Actividad",
+                    field: "actividad",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 1,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        return (
+                            '<span class="info-badge" data-kind="actividad" title="Ver descripción">i</span>' +
+                            '<span class="actividad-text">' + escapeHtml(d.actividad) + '</span>'
+                        );
+                    },
+                    cellClick: function (e, cell) {
+                        if (!e.target.closest(".info-badge")) return;
+                        onActividadCellClick(e, cell);
+                    },
+                    formatterExport: function (cell) { return cell.getRow().getData().actividad || ""; }
+                },
+
+                {
+                    title: "Rol Puede",
+                    field: "rolPuedeText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 2,
+                    cssClass: "cell-chips",
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        if (!isEditMode) {
+                            if (!d.rolPuede || d.rolPuede.length === 0) return "";
+                            return escapeHtml(d.rolPuede.join(", "));
+                        }
+                        if (!d.rolPuede || !d.rolPermIds) return "";
+                        var html = "";
+                        for (var i = 0; i < d.rolPuede.length; i++) {
+                            var label = d.rolPuede[i];
+                            var apid = d.rolPermIds[i];
+                            if (!apid) continue;
+                            html +=
+                                '<span class="perm-toggle perm-assigned" data-assigned="1" ' +
+                                'data-rol-id="' + d.rol_id + '" data-act-id="' + d.actividad_id + '" ' +
+                                'data-apid="' + apid + '">' +
+                                escapeHtml(label) +
+                                '</span>';
+                        }
+                        return html;
+                    }
+                },
+
+                {
+                    title: "Sin Permiso",
+                    field: "sinPermisoText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 2,
+                    cssClass: "cell-chips",
+                    visible: columnVisibility.sinPermiso,
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+                        if (!d.actTieneMissing || d.actTieneMissing.length === 0) return "";
+
+                        if (!isEditMode) {
+                            return escapeHtml(d.actTieneMissing.join(", "));
+                        }
+
+                        var html = "";
+                        for (var i = 0; i < d.actTieneMissing.length; i++) {
+                            var labelM = d.actTieneMissing[i];
+                            var apidM = d.actTieneMissingIds[i];
+                            html +=
+                                '<span class="perm-toggle perm-unassigned" data-assigned="0" ' +
+                                'data-rol-id="' + d.rol_id + '" data-act-id="' + d.actividad_id + '" ' +
+                                'data-apid="' + apidM + '">' +
+                                escapeHtml(labelM) +
+                                '</span>';
+                        }
+                        return html;
+                    }
+                },
+
+                {
+                    title: "Permisos de la actividad",
+                    field: "actTieneText",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 3,
+                    cssClass: "cell-chips",
+                    formatter: function (cell) {
+                        var d = cell.getRow().getData();
+
+                        // --- Non-Edit Mode (Read-only) ---
+                        if (!isEditMode) {
+                            if (!d.actTieneAllSorted || d.actTieneAllSorted.length === 0) return "";
+                            var parts = [];
+                            // Loop sorted list
+                            for (var i = 0; i < d.actTieneAllSorted.length; i++) {
+                                var p = d.actTieneAllSorted[i];
+                                if (p.isAssigned) {
+                                    // Show assigned as bold
+                                    parts.push("<strong>" + escapeHtml(p.label) + "</strong>");
+                                } else {
+                                    // Show unassigned as plain text
+                                    parts.push(escapeHtml(p.label));
+                                }
+                            }
+                            return parts.join(", "); // Returns sorted, mixed list
+                        }
+
+                        // --- Edit Mode (Clickable) ---
+                        if (!d.actTieneAllSorted) return "";
+
+                        var html = "";
+                        // Loop sorted list
+                        for (var i = 0; i < d.actTieneAllSorted.length; i++) {
+                            var perm = d.actTieneAllSorted[i];
+                            var assignedClass = perm.isAssigned ? "perm-assigned" : "perm-unassigned";
+                            var assignedData = perm.isAssigned ? "1" : "0";
+
+                            html +=
+                                '<span class="perm-toggle ' + assignedClass + '" data-assigned="' + assignedData + '" ' +
+                                'data-rol-id="' + d.rol_id + '" data-act-id="' + d.actividad_id + '" ' +
+                                'data-apid="' + perm.apid + '">' +
+                                escapeHtml(perm.label) +
+                                '</span>';
+                        }
+                        return html; // Returns sorted, clickable chips
+                    }
+                }
+            ]
+        });
+
+        tableReady = true;
+        updateColumnVisibility();
+    }
+
+    function handleChipClick(chip) {
+        var rolId = Number(chip.getAttribute("data-rol-id"));
+        var actId = Number(chip.getAttribute("data-act-id"));
+        var apid = Number(chip.getAttribute("data-apid"));
+        if (!rolId || !actId || !apid) return;
+
+        // 🔽 MODIFIED: Simplified toggle logic
+        var assignedAttr = chip.getAttribute("data-assigned");
+        var currentlyAssigned = assignedAttr === "1";
+        var newAssigned = !currentlyAssigned; // Always toggle
+        // 🔼 End of modification
+
+        applyPermissionToggle(chip, rolId, actId, apid, newAssigned);
     }
 
     function initEventHandlers() {
@@ -252,6 +468,7 @@
                         (data.rol || "").toLowerCase().indexOf(q) >= 0 ||
                         (data.actividad || "").toLowerCase().indexOf(q) >= 0 ||
                         (data.rolPuedeText || "").toLowerCase().indexOf(q) >= 0 ||
+                        (data.sinPermisoText || "").toLowerCase().indexOf(q) >= 0 ||
                         (data.actTieneText || "").toLowerCase().indexOf(q) >= 0
                     );
                 });
@@ -260,8 +477,7 @@
 
         if (el.btnExport) {
             el.btnExport.addEventListener("click", function () {
-                var csv = buildAssignmentsCSV();
-                downloadText("asignaciones_" + Date.now() + ".csv", csv, "text/csv");
+                exportVisibleColumns();
             });
         }
 
@@ -273,7 +489,8 @@
 
         if (el.grid && isEditMode) {
             el.grid.addEventListener("click", function (e) {
-                var chip = e.target.closest(".chip");
+                // 🔽 MODIFIED: Target .perm-toggle instead of .chip
+                var chip = e.target.closest(".perm-toggle");
                 if (chip) handleChipClick(chip);
             });
         }
@@ -359,6 +576,129 @@
                 closeInfoDialog();
             });
         }
+    }
+
+    function createColumnVisibilityControls() {
+        var toolbar = document.querySelector('.asig_toolbar');
+        if (!toolbar) return;
+
+        var controlsDiv = document.createElement('div');
+        controlsDiv.className = 'asig_column_visibility';
+        controlsDiv.innerHTML = `
+            <span style="margin-right: 8px; font-weight: 600;">Mostrar columnas:</span>
+            <label style="margin-right: 12px; cursor: pointer;">
+                <input type="checkbox" id="cbRolPuede" ${columnVisibility.rolPuede ? 'checked' : ''}>
+                Rol Puede
+            </label>
+            <label style="margin-right: 12px; cursor: pointer;">
+                <input type="checkbox" id="cbSinPermiso" ${columnVisibility.sinPermiso ? 'checked' : ''}>
+                Sin Permiso
+            </label>
+            <label style="cursor: pointer;">
+                <input type="checkbox" id="cbActividadTiene" ${columnVisibility.actividadTiene ? 'checked' : ''} ${isEditMode ? 'disabled' : ''}>
+                Permisos de la actividad
+            </label>
+        `;
+
+        var leftSection = toolbar.querySelector('.asig_left');
+        if (leftSection && leftSection.nextSibling) {
+            toolbar.insertBefore(controlsDiv, leftSection.nextSibling);
+        } else {
+            toolbar.appendChild(controlsDiv);
+        }
+
+        document.getElementById('cbRolPuede').addEventListener('change', function() {
+            columnVisibility.rolPuede = this.checked;
+            updateColumnVisibility();
+        });
+
+        document.getElementById('cbSinPermiso').addEventListener('change', function() {
+            columnVisibility.sinPermiso = this.checked;
+            updateColumnVisibility();
+        });
+
+        document.getElementById('cbActividadTiene').addEventListener('change', function() {
+            if (!isEditMode) {
+                columnVisibility.actividadTiene = this.checked;
+                updateColumnVisibility();
+            }
+        });
+    }
+
+    function updateColumnVisibility() {
+        if (!grid) return;
+
+        var columns = grid.getColumns();
+        columns.forEach(function(col) {
+            var field = col.getField();
+            
+            if (field === 'rolPuedeText') {
+                if (columnVisibility.rolPuede) {
+                    col.show();
+                } else {
+                    col.hide();
+                }
+            } else if (field === 'sinPermisoText') {
+                if (columnVisibility.sinPermiso) {
+                    col.show();
+                } else {
+                    col.hide();
+                }
+            } else if (field === 'actTieneText') {
+                if (isEditMode) {
+                    col.show();
+                } else if (columnVisibility.actividadTiene) {
+                    col.show();
+                } else {
+                    col.hide();
+                }
+            }
+        });
+    }
+
+    function exportVisibleColumns() {
+        if (!grid) return;
+        
+        var visibleCols = [];
+        var columns = grid.getColumns();
+        
+        columns.forEach(function(col) {
+            if (col.isVisible() && col.getField() && col.getField() !== 'actions') {
+                visibleCols.push(col);
+            }
+        });
+        
+        var lines = [];
+        
+        // Header row
+        var headers = visibleCols.map(function(col) {
+            return col.getDefinition().title;
+        });
+        lines.push(csvRow(headers));
+        
+        // Data rows
+        var data = grid.getData();
+        data.forEach(function(row) {
+            var values = visibleCols.map(function(col) {
+                var field = col.getField();
+                
+                if (field === 'rol' || field === 'actividad') {
+                    return row[field] || '';
+                } else if (field === 'rolPuedeText') {
+                    return row.rolPuede ? row.rolPuede.join(', ') : '';
+                } else if (field === 'sinPermisoText') {
+                    return row.actTieneMissing ? row.actTieneMissing.join(', ') : '';
+                } else if (field === 'actTieneText') {
+                    var all = (row.actTieneAssigned || []).concat(row.actTieneMissing || []);
+                    return all.join(', ');
+                }
+                return row[field] || '';
+            });
+            lines.push(csvRow(values));
+        });
+        
+        var csv = lines.join("\r\n");
+        downloadText("asignacion_permisos.csv", csv, "text/csv");
     }
 
     function handleChipClick(chip) {
@@ -664,6 +1004,86 @@
 
             var assignedIds = getAssignedPermsForRoleActividad(role.rol_id, act.actividad_id);
             var allPerms = getPermsByActividad(act.actividad_id);
+            var assignedLbls = assignedIds.map(labelForPermId); // For 'Rol Puede'
+
+
+
+            // These are for 'Sin Permiso' column
+            var actTieneMissing = [];
+            var actTieneMissingIds = [];
+
+            // This is the new list for 'Permisos de la acticidad' column
+            var actTieneAllSorted = [];
+
+            for (var j = 0; j < allPerms.length; j++) {
+                var p = allPerms[j];
+                var isAssigned = assignedIds.indexOf(p.actividad_permiso_id) !== -1;
+
+                // Populate the new sorted list
+                actTieneAllSorted.push({
+                    label: p.etiqueta,
+                    apid: p.actividad_permiso_id,
+                    isAssigned: isAssigned
+                });
+
+                // Populate the list for 'Sin Permiso'
+                if (!isAssigned) {
+                    actTieneMissing.push(p.etiqueta);
+                    actTieneMissingIds.push(p.actividad_permiso_id);
+                }
+            }
+
+            // Sort the new list alphabetically by label
+            actTieneAllSorted.sort(function(a, b) {
+                // Use localeCompare for correct string sorting
+                return a.label.localeCompare(b.label, 'es', { sensitivity: 'base' });
+            });
+
+            rows.push({
+                _rowKey: role.rol_id + "-" + act.actividad_id,
+                rol_id: role.rol_id,
+                rol: role.rol,
+                actividad_id: act.actividad_id,
+                actividad: act.actividad,
+
+                // For 'Rol Puede'
+                rolPermIds: assignedIds.slice(),
+                rolPuede: assignedLbls.slice(),
+                rolPuedeText: assignedLbls.join(", "),
+
+                // For 'Sin Permiso'
+                actTieneMissing: actTieneMissing.slice(),
+                actTieneMissingIds: actTieneMissingIds.slice(),
+                sinPermisoText: actTieneMissing.join(", "),
+
+                // For 'Permisos de la actividad'
+                actTieneAllSorted: actTieneAllSorted,
+
+                // For filtering/export (text from sorted list)
+                actTieneText: actTieneAllSorted.map(function(p) { return p.label; }).join(", ")
+            });
+
+        }
+        return rows;
+    }
+
+    function buildRowsOld() {
+        var rows = [];
+        var pairs = (state.rowPairs || []).slice();
+
+        pairs.sort(function (a, b) {
+            if (a.rol_id === b.rol_id) return a.actividad_id - b.actividad_id;
+            return a.rol_id - b.rol_id;
+        });
+
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i];
+            var role = findRol(pair.rol_id);
+            var act = findActividad(pair.actividad_id);
+            if (!role || !act) continue;
+
+            var assignedIds = getAssignedPermsForRoleActividad(role.rol_id, act.actividad_id);
+            var allPerms = getPermsByActividad(act.actividad_id);
             var assignedLbls = assignedIds.map(labelForPermId);
 
             var actTieneAssigned = [];
@@ -695,6 +1115,7 @@
                 actTieneAssignedIds: actTieneAssignedIds.slice(),
                 actTieneMissing: actTieneMissing.slice(),
                 actTieneMissingIds: actTieneMissingIds.slice(),
+                sinPermisoText: actTieneMissing.join(", "),
                 actTieneText: actTieneAssigned.concat(actTieneMissing).join(", ")
             });
         }

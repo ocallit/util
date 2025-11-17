@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestión de Usuarios</title>
+
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
+    <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
+    <link rel="stylesheet" href="./permisos.css" />
+    <link rel="stylesheet" href="./usuarios.css" />
+</head>
+<body>
+<header class="sch_header">
+    <h1>Usuarios, Roles y Permisos: Gestión de Usuarios</h1>
+</header>
+<nav class="sch_nav">
+    <ul>
+        <li><a href="./index.html">Inicio</a></li>
+        <li><a href="./usuarios.html">Usuarios</a></li>
+        <li><a href="./roles.html">Roles</a></li>
+        <li><a href="./asignar_permisos.html">Asignar Permisos</a></li>
+        <li><a href="./actividad.html">Actividades</a></li>
+    </ul>
+</nav>
+
+<main class="usuarios_container">
+    <div class="usuarios_toolbar">
+        <div class="usuarios_left">
+            <button id="btnNew" class="sch_button sch_button--save" style="display:none;">➕ Nuevo Usuario</button>
+            <label>Buscar:
+                <input id="txtSearch" class="usuarios_input" type="search" placeholder="filtrar por nick, nombre, email..." />
+            </label>
+        </div>
+        <div class="usuarios_right">
+            <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
+        </div>
+    </div>
+
+    <div class="sch_grid_container">
+        <div id="gridUsuarios"></div>
+    </div>
+</main>
+
+<dialog id="dlgEdit" class="ocdialog ocdialog_grow_content" style="width:700px;max-width:96vw;display:none;">
+    <div class="ocdialog_header">
+        <h2 class="ocdialog_title" id="dlgTitle">Editar Usuario</h2>
+        <button class="ocdialog_close" data-action="close" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="ocdialog_content">
+        <div class="ocdialog_flex_column">
+            <section class="usuarios_section ocdialog_flex_fixed">
+                <div class="usuarios_form_grid">
+                    <div class="usuarios_form_row">
+                        <label for="editNick" class="usuarios_label">Nick (acceso):</label>
+                        <input type="text" class="usuarios_input" id="editNick" maxlength="16" required />
+                    </div>
+                    <div class="usuarios_form_row">
+                        <label for="editNombre" class="usuarios_label">Nombre Completo:</label>
+                        <input type="text" class="usuarios_input" id="editNombre" maxlength="128" required />
+                    </div>
+                    <div class="usuarios_form_row">
+                        <label for="editEstatus" class="usuarios_label">Estatus:</label>
+                        <select id="editEstatus" class="usuarios_input">
+                            <option value="Puede Login">Puede Login</option>
+                            <option value="No Puede Login">No Puede Login</option>
+                        </select>
+                    </div>
+                    <div class="usuarios_form_row">
+                        <label for="editCaducidad" class="usuarios_label">Caducidad Pass (días):</label>
+                        <input type="number" class="usuarios_input" id="editCaducidad" min="0" max="999" />
+                    </div>
+
+                    <div class="usuarios_form_row">
+                        <label for="editPassword" class="usuarios_label">Nuevo Password:</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="usuarios_input" id="editPassword" placeholder="Dejar en blanco para no cambiar" />
+                            <button type="button" class="btn-show-pass" id="btnShowPass" title="Mostrar/Ocultar">👁️</button>
+                        </div>
+                    </div>
+
+                    <div class="usuarios_form_row">
+                        <label for="editForzarCambio" class="usuarios_label">Forzar Cambio Pass:</label>
+                        <select id="editForzarCambio" class="usuarios_input">
+                            <option value="No">No</option>
+                            <option value="Si">Si</option>
+                        </select>
+                    </div>
+
+                    <div class="usuarios_form_row">
+                        <label for="editEmail" class="usuarios_label">Email:</label>
+                        <input type="email" class="usuarios_input" id="editEmail" maxlength="320" />
+                    </div>
+                    <div class="usuarios_form_row">
+                        <label for="editCel" class="usuarios_label">Celular:</label>
+                        <input type="tel" class="usuarios_input" id="editCel" maxlength="16" />
+                    </div>
+                </div>
+
+                <div class="usuarios_form_row">
+                    <label for="editNota" class="usuarios_label">Nota (uso interno):</label>
+                    <textarea class="usuarios_textarea" id="editNota" rows="2"></textarea>
+                </div>
+            </section>
+
+            <section class="usuarios_section ocdialog_flex_fixed">
+                <h3 class="usuarios_section_title">Roles Asignados</h3>
+                <select id="selRoles" placeholder="Seleccionar roles..." multiple></select>
+            </section>
+
+            <section class="usuarios_section ocdialog_flex_grow">
+                <h3 class="usuarios_section_title">Información de Auditoría</h3>
+
+                <div class="usuarios_info_container_flex">
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Último Login</span>
+                        <span class="info-value-flex" id="editUltimoLogin">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Próximo Cambio Pass</span>
+                        <span class="info-value-flex" id="editProximoCambioPass">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Últ. Cambio Pass</span>
+                        <span class="info-value-flex" id="editUltimoCambioPass">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Últ. Cambio</span>
+                        <span class="info-value-flex" id="editUltimoCambioEl">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Últ. Cambio Por</span>
+                        <span class="info-value-flex" id="editUltimoCambioPor">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Creado el</span>
+                        <span class="info-value-flex" id="editCreadoEl">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Creado Por</span>
+                        <span class="info-value-flex" id="editCreadoPor">-</span>
+                    </div>
+                    <div class="info-block-flex">
+                        <span class="info-label-flex">Usuario ID</span>
+                        <span class="info-value-flex" id="editId">-</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="ocdialog_footer">
+        <button class="ocdialog_button ocdialog_button--secondary" data-action="close" type="button">Cancelar</button>
+        <button class="ocdialog_button ocdialog_button--success" data-action="save" type="button">Guardar</button>
+    </div>
+</dialog>
+
+<script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="../OcDialog/OcDialog.js"></script>
+<script src="../OcDialog/OcDialogDrag.js"></script>
+<script src="./usuarios.js"></script>
+
+<script>
+    // Muestra/oculta botones de edición basado en el parámetro URL "mode"
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        var isEditMode = params.get("mode") === "edit";
+        var btnNew = document.getElementById("btnNew");
+        var dlgEdit = document.getElementById("dlgEdit");
+        if (isEditMode && btnNew) {
+            btnNew.style.display = "";
+        }
+        if (isEditMode && dlgEdit) {
+            dlgEdit.style.display = "";
+        }
+    })();
+</script>
+</body>
+</html>

@@ -1,3 +1,0 @@
-1. When in read mode the Activity column must have an eye as an icon to view the dialog
-2. Remove the other links in tabulator gird columns since we will use them later to link like a web as in world wide web, to a relevant page for that column. SO THE ONLY WAY TO OPEN THE DIALOG IS FROM THE Actions Column.
-3. To make it easier there can be 3 icons, edit and delete not painted in read mode. And even easier the page when loaded can be loaded in either read or edit mode to change the mode it must be re-rendered compeltely since it will rearely happen!
