@@ -1,0 +1,257 @@
+/* =============================================================================
+   TOOLBAR COMPONENT - base.css addition
+   
+   Structure:
+   - Read mode: search | export | [edit mode toggle if allowed]
+   - Edit mode: search | export | add | [extra buttons] | read mode toggle
+   
+   Rules:
+   - display: flex with wrap - content never lost
+   - hover/focus NEVER moves elements (no size/padding changes)
+   - pointer: coarse for touch devices
+   ============================================================================= */
+
+.sch_toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    padding: 8px 12px;
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+}
+
+.sch_toolbar_left,
+.sch_toolbar_right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* =============================================================================
+   SEARCH INPUT
+   ============================================================================= */
+
+.sch_toolbar_search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.sch_toolbar_search label {
+    font-weight: 500;
+    color: var(--color-text-light, #6b7280);
+    font-size: 0.9rem;
+}
+
+.sch_toolbar_input {
+    border: 1px solid var(--color-border, #d0d5dd);
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #111827);
+    border-radius: 4px;
+    padding: 6px 10px;
+    min-width: 180px;
+    font-size: 0.9rem;
+    /* Fixed dimensions - focus changes color only, not size */
+    box-shadow: inset 0 0 0 1px transparent;
+}
+
+.sch_toolbar_input:focus {
+    outline: none;
+    border-color: var(--color-primary, #3b82f6);
+    box-shadow: inset 0 0 0 1px var(--color-primary, #3b82f6);
+}
+
+/* =============================================================================
+   BUTTONS - No movement on hover/focus
+   ============================================================================= */
+
+.sch_toolbar_btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    /* Fixed border - color changes only, no width change */
+    border: 1px solid transparent;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.sch_toolbar_btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Export button - neutral */
+.sch_toolbar_btn--export {
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #d0d5dd);
+    color: var(--color-text, #111827);
+}
+
+.sch_toolbar_btn--export:hover {
+    background: var(--color-neutral-bg, #f3f4f6);
+    border-color: var(--color-text-light, #6b7280);
+}
+
+/* Add button - primary action */
+.sch_toolbar_btn--add {
+    background: var(--color-success, #16a34a);
+    border-color: var(--color-success, #16a34a);
+    color: #fff;
+}
+
+.sch_toolbar_btn--add:hover {
+    background: var(--color-success-hover, #15803d);
+    border-color: var(--color-success-hover, #15803d);
+}
+
+/* Mode toggle button */
+.sch_toolbar_btn--mode {
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #d0d5dd);
+    color: var(--color-text-light, #6b7280);
+}
+
+.sch_toolbar_btn--mode:hover {
+    background: var(--color-neutral-bg, #f3f4f6);
+    border-color: var(--color-text-light, #6b7280);
+}
+
+/* Mode active state (edit mode ON) */
+.sch_toolbar_btn--mode.is-edit-mode {
+    background: var(--color-warning-bg, #fef3c7);
+    border-color: var(--color-warning, #f59e0b);
+    color: var(--color-warning-dark, #b45309);
+}
+
+.sch_toolbar_btn--mode.is-edit-mode:hover {
+    background: var(--color-warning-bg-hover, #fde68a);
+}
+
+/* =============================================================================
+   MODE TOGGLE SWITCH (alternative to button)
+   ============================================================================= */
+
+.sch_toolbar_toggle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.sch_toolbar_toggle_label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--color-text-light, #6b7280);
+    user-select: none;
+}
+
+.sch_toolbar_toggle_checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sch_toolbar_toggle_slider {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: var(--color-border, #d0d5dd);
+    border-radius: 11px;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.sch_toolbar_toggle_slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.sch_toolbar_toggle_checkbox:checked + .sch_toolbar_toggle_slider {
+    background: var(--color-warning, #f59e0b);
+}
+
+.sch_toolbar_toggle_checkbox:checked + .sch_toolbar_toggle_slider::after {
+    transform: translateX(18px);
+}
+
+.sch_toolbar_toggle_checkbox:focus + .sch_toolbar_toggle_slider {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* =============================================================================
+   TOUCH DEVICES (pointer: coarse)
+   Larger touch targets (min 44px), more spacing
+   ============================================================================= */
+
+@media (pointer: coarse) {
+    .sch_toolbar {
+        padding: 10px 14px;
+        gap: 12px;
+    }
+
+    .sch_toolbar_left,
+    .sch_toolbar_right {
+        gap: 12px;
+    }
+
+    .sch_toolbar_input {
+        padding: 10px 12px;
+        font-size: 1rem;
+        min-height: 44px;
+        min-width: 140px;
+    }
+
+    .sch_toolbar_btn {
+        min-height: 44px;
+        padding: 10px 16px;
+        font-size: 1rem;
+    }
+
+    .sch_toolbar_toggle_slider {
+        width: 50px;
+        height: 28px;
+        border-radius: 14px;
+    }
+
+    .sch_toolbar_toggle_slider::after {
+        width: 24px;
+        height: 24px;
+    }
+
+    .sch_toolbar_toggle_checkbox:checked + .sch_toolbar_toggle_slider::after {
+        transform: translateX(22px);
+    }
+
+    .sch_toolbar_toggle_label {
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
+    .sch_toolbar_search label {
+        font-size: 1rem;
+    }
+}

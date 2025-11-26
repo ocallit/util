@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Asignar Permisos a Roles</title>
+    <title>Permisos a Roles</title>
 
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
@@ -16,15 +16,7 @@
 <header class="sch_header">
     <h1>Usuarios, Roles y Permisos: Asignación de Permisos a Roles</h1>
 </header>
-<nav class="sch_nav">
-    <ul>
-        <li><a href="./index.html">Inicio</a></li>
-        <li><a href="./usuarios.html">Usuarios</a></li>
-        <li><a href="./roles.html">Roles</a></li>
-        <li><a class="ocAsignar_nav_active" href="quitar/asignar_permisos.html">Permisos</a></li>
-        <li><a href="./actividad.html">Actividades</a></li>
-    </ul>
-</nav>
+<?= renderNav() ?>
 
 <main class="asig_container">
     <div class="asig_toolbar">

@@ -330,3 +330,18 @@ body {
     border-bottom: 2px solid var(--color-border);
     padding-bottom: 5px;
 }
+
+.sch_nav_active {
+    background: rgba(255,255,255,.3);
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.sch_nav a i {
+    margin-right: 0.3em;
+}
+
+.sch_nav a.nav-active {
+    background-color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+}

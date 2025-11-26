@@ -4,7 +4,7 @@
 CREATE TABLE actividad (
     actividad_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     actividad VARCHAR(64) UNIQUE NOT NULL,
-    descripcion LONGTEXT,
+    descripc ion LONGTEXT,
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
 ) ENGINE=InnoDB;

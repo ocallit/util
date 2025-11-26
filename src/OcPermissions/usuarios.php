@@ -1,31 +1,23 @@
-<!DOCTYPE html>
+<?php
+    require_once("./nav.php");
+?><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gestión de Usuarios</title>
+    <title>Usuarios</title>
 
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css" />
     <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
-    <link rel="stylesheet" href="./permisos.css" />
     <link rel="stylesheet" href="./usuarios.css" />
 </head>
 <body>
 <header class="sch_header">
-    <h1>Usuarios, Roles y Permisos: Gestión de Usuarios</h1>
+    <h1>Usuarios, Roles y Permisos: Usuarios</h1>
 </header>
-<nav class="sch_nav">
-    <ul>
-        <li><a href="./index.html">Inicio</a></li>
-        <li><a href="./usuarios.html">Usuarios</a></li>
-        <li><a href="./roles.html">Roles</a></li>
-        <li><a href="./asignar_permisos.html">Asignar Permisos</a></li>
-        <li><a href="./actividad.html">Actividades</a></li>
-    </ul>
-</nav>
-
+<?= renderNav() ?>
 <main class="usuarios_container">
     <div class="usuarios_toolbar">
         <div class="toolbar-search-group">

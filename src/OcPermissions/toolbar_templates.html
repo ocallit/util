@@ -1,0 +1,179 @@
+<!-- =============================================================================
+     STANDARDIZED TOOLBAR HTML
+     
+     READ MODE:  search | export | [edit mode toggle if allowed]
+     EDIT MODE:  search | export | add | [extra buttons] | read mode toggle
+     
+     All use flex-wrap: never loses content
+     ============================================================================= -->
+
+
+<!-- =============================================================================
+     READ MODE TOOLBAR (user can only view/export)
+     Shows: search, export, edit mode button (if user has permission)
+     ============================================================================= -->
+
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export" title="Exportar CSV">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <!-- Only show if user has edit permission -->
+        <button id="btnEditMode" class="sch_toolbar_btn sch_toolbar_btn--mode" title="Activar modo edición">
+            <i class="fa-solid fa-pen-to-square"></i> Modo Edición
+        </button>
+    </div>
+</div>
+
+
+<!-- =============================================================================
+     EDIT MODE TOOLBAR (user can add/modify)
+     Shows: search, export, add, [extra buttons], read mode button
+     ============================================================================= -->
+
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export" title="Exportar CSV">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button id="btnAdd" class="sch_toolbar_btn sch_toolbar_btn--add">
+            <i class="fa-solid fa-plus"></i> Nuevo
+        </button>
+        <!-- Extra buttons go here if needed -->
+        <button id="btnReadMode" class="sch_toolbar_btn sch_toolbar_btn--mode is-edit-mode" title="Volver a modo lectura">
+            <i class="fa-solid fa-eye"></i> Modo Lectura
+        </button>
+    </div>
+</div>
+
+
+<!-- =============================================================================
+     ALTERNATIVE: TOGGLE SWITCH instead of button
+     Use this if you prefer a switch UI
+     ============================================================================= -->
+
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export" title="Exportar CSV">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <!-- Hidden in read mode, shown in edit mode -->
+        <button id="btnAdd" class="sch_toolbar_btn sch_toolbar_btn--add" style="display:none;">
+            <i class="fa-solid fa-plus"></i> Nuevo
+        </button>
+        <div class="sch_toolbar_toggle">
+            <label class="sch_toolbar_toggle_label">
+                <input type="checkbox" class="sch_toolbar_toggle_checkbox" id="chkEditMode">
+                <span class="sch_toolbar_toggle_slider"></span>
+                <span>Edición</span>
+            </label>
+        </div>
+    </div>
+</div>
+
+
+<!-- =============================================================================
+     PAGE-SPECIFIC EXAMPLES
+     ============================================================================= -->
+
+<!-- USUARIOS.PHP - Edit mode with specific label -->
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button id="btnAdd" class="sch_toolbar_btn sch_toolbar_btn--add">
+            <i class="fa-solid fa-plus"></i> Nuevo Usuario
+        </button>
+        <button id="btnReadMode" class="sch_toolbar_btn sch_toolbar_btn--mode is-edit-mode">
+            <i class="fa-solid fa-eye"></i> Lectura
+        </button>
+    </div>
+</div>
+
+
+<!-- ROLES.PHP - Edit mode -->
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button id="btnAdd" class="sch_toolbar_btn sch_toolbar_btn--add">
+            <i class="fa-solid fa-plus"></i> Nuevo Rol
+        </button>
+        <button id="btnReadMode" class="sch_toolbar_btn sch_toolbar_btn--mode is-edit-mode">
+            <i class="fa-solid fa-eye"></i> Lectura
+        </button>
+    </div>
+</div>
+
+
+<!-- ACTIVIDAD.PHP - Edit mode -->
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button id="btnAdd" class="sch_toolbar_btn sch_toolbar_btn--add">
+            <i class="fa-solid fa-plus"></i> Nueva Actividad
+        </button>
+        <button id="btnReadMode" class="sch_toolbar_btn sch_toolbar_btn--mode is-edit-mode">
+            <i class="fa-solid fa-eye"></i> Lectura
+        </button>
+    </div>
+</div>
+
+
+<!-- ASIGNAR_PERMISOS.PHP - Read mode (typically no "add" needed) -->
+<div class="sch_toolbar">
+    <div class="sch_toolbar_left">
+        <div class="sch_toolbar_search">
+            <label for="txtSearch"><i class="fa-solid fa-magnifying-glass"></i> Buscar:</label>
+            <input id="txtSearch" class="sch_toolbar_input" type="search" placeholder="filtrar..." />
+        </div>
+    </div>
+    <div class="sch_toolbar_right">
+        <button id="btnExport" class="sch_toolbar_btn sch_toolbar_btn--export">
+            <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button id="btnEditMode" class="sch_toolbar_btn sch_toolbar_btn--mode">
+            <i class="fa-solid fa-pen-to-square"></i> Edición
+        </button>
+    </div>
+</div>

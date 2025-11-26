@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gestión de Roles</title>
+    <title>Roles</title>
 
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
@@ -15,15 +15,7 @@
 <header class="sch_header">
     <h1>Usuarios, Roles y Permisos: Roles, grupos de usuarios con permisos</h1>
 </header>
-<nav class="sch_nav">
-    <ul>
-        <li><a href="./index.html">Inicio</a></li>
-        <li><a href="./usuarios.html">Usuarios</a></li>
-        <li><a class="roles_nav_active" href="./roles.html">Roles</a></li>
-        <li><a href="./asignar_permisos.html">Asignar Permisos</a></li>
-        <li><a href="./actividad.html">Actividades</a></li>
-    </ul>
-</nav>
+<?= renderNav() ?>
 
 <main class="roles_container">
     <div class="roles_toolbar">

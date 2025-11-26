@@ -21,21 +21,10 @@
     <link rel="stylesheet" href="./actividad.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="sch_header">
         <h1>Usuarios, Roles y Permisos: Actividades</h1>
     </header>
-
-    <!-- Navigation -->
-    <nav class="sch_nav">
-        <ul>
-            <li><a href="./index.html">Inicio</a></li>
-            <li><a href="./usuarios.html">Usuarios</a></li>
-            <li><a href="./roles.html">Roles</a></li>
-            <li><a href="./asignar_permisos.html"> Permisos</a></li>
-            <li><a href="./actividad.html" class="ocActividad_nav_active">Actividades</a></li>
-        </ul>
-    </nav>
+    <?= renderNav() ?>
 
     <!-- Main Content -->
     <main class="ocActividad_main_container">
