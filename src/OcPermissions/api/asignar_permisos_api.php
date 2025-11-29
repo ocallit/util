@@ -1,16 +1,17 @@
 <?php
 /**
  * asignar_permisos_api.php
- * API for managing permission assignments to roles (rol_actividad_permiso)
- * 
- * Actions: load, save
+ * API for managing permission assignments (rol_actividad_permiso)
+ * * Actions: list, toggle, save_batch
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../config.php';
+use Ocallit\Sqler\SqlExecutor;
+use Ocallit\Sqler\QueryBuilder;
 
-use Ocallit\SqlEr\SqlEr;
+require_once __DIR__ . '/config.php';
+global $SqlExecutor;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -18,170 +19,179 @@ try {
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
     $action = $input['action'] ?? '';
 
-    $db = SqlEr::getInstance();
-
     switch ($action) {
-        case 'load':
-            echo json_encode(loadState($db));
+        case 'list':
+            echo json_encode(loadState($SqlExecutor));
             break;
 
-        case 'save':
-            echo json_encode(saveState($db, $input['data'] ?? []));
+        case 'toggle':
+            echo json_encode(togglePermission($SqlExecutor, $input));
+            break;
+
+        case 'save_batch':
+            echo json_encode(saveBatch($SqlExecutor, $input));
             break;
 
         default:
             echo json_encode([
-                'success' => false,
-                'error' => 'Acción desconocida: ' . $action,
-                'data' => null
+              'success' => false,
+              'error' => 'Acción desconocida: ' . $action,
+              'data' => null
             ]);
     }
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage(),
-        'data' => null
+      'success' => false,
+      'error' => $e->getMessage(),
+      'data' => null
     ]);
 }
 
 /**
- * Load complete state: roles, actividades, actividad_permisos, asignaciones, rowPairs
- * Returns: {success, error, data: {roles, actividades, actividad_permisos, asignaciones, rowPairs}}
+ * Load complete state for the grid
  */
-function loadState(SqlEr $db): array
+function loadState(SqlExecutor $db): array
 {
-    $roles = $db->query("
-        SELECT rol_id, rol, descripcion
-        FROM rol
-        ORDER BY rol
-    ") ?: [];
+    $sqlComment = __FUNCTION__;
 
-    $actividades = $db->query("
-        SELECT actividad_id, actividad, descripcion
-        FROM actividad
-        ORDER BY actividad
-    ") ?: [];
+    // 1. Roles
+    $roles = $db->array("SELECT /*$sqlComment*/ rol_id, rol, descripcion FROM rol ORDER BY rol");
 
-    $actividad_permisos = $db->query("
-        SELECT actividad_permiso_id, actividad_id, permiso, etiqueta
+    // 2. Activities
+    $actividades = $db->array("SELECT /*$sqlComment*/ actividad_id, actividad, descripcion FROM actividad ORDER BY actividad");
+
+    // 3. Permissions Definitions
+    $actividad_permisos = $db->array("
+        SELECT /*$sqlComment*/ actividad_permiso_id, actividad_id, permiso, etiqueta
         FROM actividad_permiso
         ORDER BY actividad_id, actividad_permiso_id
-    ") ?: [];
+    ");
 
-    // Build asignaciones map: rol_id => [actividad_permiso_id, ...]
-    $asignacionesRaw = $db->query("
-        SELECT rol_id, actividad_permiso_id
-        FROM rol_actividad_permiso
-    ") ?: [];
+    // 4. Current Assignments (rol_actividad_permiso)
+    // We map this to: rol_id => [actividad_permiso_id, ...]
+    $asignacionesRaw = $db->array("SELECT /*$sqlComment*/ rol_id, actividad_permiso_id FROM rol_actividad_permiso");
 
     $asignaciones = [];
-    foreach ($asignacionesRaw as $a) {
-        $rolId = (int)$a['rol_id'];
-        if (!isset($asignaciones[$rolId])) {
-            $asignaciones[$rolId] = [];
+    foreach ($asignacionesRaw as $row) {
+        $rId = (int)$row['rol_id'];
+        $pId = (int)$row['actividad_permiso_id'];
+
+        if (!isset($asignaciones[$rId])) {
+            $asignaciones[$rId] = [];
         }
-        $asignaciones[$rolId][] = (int)$a['actividad_permiso_id'];
-    }
-
-    // Build rowPairs from existing assignments (unique rol_id + actividad_id combinations)
-    $rowPairs = [];
-    $seen = [];
-
-    // Map actividad_permiso_id => actividad_id
-    $permToActividad = [];
-    foreach ($actividad_permisos as $ap) {
-        $permToActividad[(int)$ap['actividad_permiso_id']] = (int)$ap['actividad_id'];
-    }
-
-    foreach ($asignacionesRaw as $a) {
-        $rolId = (int)$a['rol_id'];
-        $permId = (int)$a['actividad_permiso_id'];
-        $actId = $permToActividad[$permId] ?? 0;
-
-        if ($actId > 0) {
-            $key = $rolId . '-' . $actId;
-            if (!isset($seen[$key])) {
-                $rowPairs[] = ['rol_id' => $rolId, 'actividad_id' => $actId];
-                $seen[$key] = true;
-            }
-        }
+        $asignaciones[$rId][] = $pId;
     }
 
     return [
-        'success' => true,
-        'error' => null,
-        'data' => [
-            'roles' => $roles,
-            'actividades' => $actividades,
-            'actividad_permisos' => $actividad_permisos,
-            'asignaciones' => (object)$asignaciones, // Cast to object so empty becomes {} not []
-            'rowPairs' => $rowPairs
-        ]
+      'success' => true,
+      'error' => null,
+      'data' => [
+        'roles' => $roles,
+        'actividades' => $actividades,
+        'actividad_permisos' => $actividad_permisos,
+        'asignaciones' => (object)$asignaciones // Send as object to ensure JSON map
+      ]
     ];
 }
 
 /**
- * Save complete state (bulk update)
- * Receives: {action, data: {roles, actividades, actividad_permisos, asignaciones, rowPairs}}
- * Returns: {success, error, data: state}
- * 
- * Note: JS serializes Sets as arrays, so asignaciones comes as {rol_id: [perm_ids...]}
+ * Toggle a single permission for a role
+ * Input: { rol_id, actividad_permiso_id, state (1=assign, 0=remove) }
  */
-function saveState(SqlEr $db, array $data): array
+function togglePermission(SqlExecutor $db, array $input): array
 {
-    $asignaciones = $data['asignaciones'] ?? [];
+    $rolId = (int)($input['rol_id'] ?? 0);
+    $permId = (int)($input['actividad_permiso_id'] ?? 0);
+    $state = (int)($input['state'] ?? 0);
     $currentUser = $_SESSION['nick'] ?? 'system';
+    $sqlComment = __FUNCTION__;
 
-    $db->beginTransaction();
+    if ($rolId <= 0 || $permId <= 0) {
+        return ['success' => false, 'error' => 'Datos inválidos', 'data' => null];
+    }
 
     try {
-        // Build set of incoming assignments: "rol_id-permiso_id" => true
-        $incomingKeys = [];
-        foreach ($asignaciones as $rolId => $permIds) {
-            $rolId = (int)$rolId;
-            if (is_array($permIds)) {
-                foreach ($permIds as $permId) {
-                    $permId = (int)$permId;
-                    if ($permId > 0) {
-                        $incomingKeys[$rolId . '-' . $permId] = ['rol_id' => $rolId, 'actividad_permiso_id' => $permId];
-                    }
+        if ($state === 1) {
+            $db->query(
+              "INSERT /*$sqlComment*/ IGNORE INTO rol_actividad_permiso (rol_id, actividad_permiso_id, registrado_por) VALUES (?, ?, ?)",
+              [$rolId, $permId, $currentUser]
+            );
+        } else {
+            $db->query(
+              "DELETE /*$sqlComment*/ FROM rol_actividad_permiso WHERE rol_id = ? AND actividad_permiso_id = ?",
+              [$rolId, $permId]
+            );
+        }
+        return ['success' => true, 'data' => null];
+    } catch (Throwable $e) {
+        return ['success' => false, 'error' => $e->getMessage(), 'data' => null];
+    }
+}
+
+/**
+ * Save a batch of permissions for a specific Role + Activity pair (used by Dialog)
+ * Input: { rol_id, actividad_id, permisos: [id, id, ...] }
+ */
+function saveBatch(SqlExecutor $db, array $input): array
+{
+    $rolId = (int)($input['rol_id'] ?? 0);
+    $actId = (int)($input['actividad_id'] ?? 0);
+    $permIds = $input['permisos'] ?? []; // Array of actividad_permiso_id
+    $currentUser = $_SESSION['nick'] ?? 'system';
+    $sqlComment = __FUNCTION__;
+
+    if ($rolId <= 0 || $actId <= 0) {
+        return ['success' => false, 'error' => 'Rol o Actividad inválidos', 'data' => null];
+    }
+
+    $db->begin();
+    try {
+        // 1. Get all permission IDs associated with this Activity to scope the delete
+        // We only want to delete permissions FOR THIS ACTIVITY assigned to this role
+        $actPerms = $db->vector(
+          "SELECT actividad_permiso_id FROM actividad_permiso WHERE actividad_id = ?",
+          [$actId]
+        );
+
+        if (!empty($actPerms)) {
+            // Convert to comma-separated string for IN clause (safe since we just got them from DB ints)
+            $idList = implode(',', array_map('intval', $actPerms));
+
+            // Delete existing assignments for this Role AND this Activity's permissions
+            $db->query(
+              "DELETE /*$sqlComment*/ FROM rol_actividad_permiso 
+                 WHERE rol_id = ? AND actividad_permiso_id IN ($idList)",
+              [$rolId]
+            );
+        }
+
+        // 2. Insert new assignments
+        if (!empty($permIds)) {
+            $qb = new QueryBuilder();
+            // We use a loop or manual construction because standard insert is one row usually
+            // but let's just loop for simplicity in this specific context or build a bulk insert
+            $values = [];
+            $params = [];
+            foreach ($permIds as $pid) {
+                $pid = (int)$pid;
+                // Double check this permission actually belongs to the activity (security check)
+                if (in_array($pid, $actPerms)) {
+                    $values[] = "(?, ?, ?)";
+                    $params[] = $rolId;
+                    $params[] = $pid;
+                    $params[] = $currentUser;
                 }
             }
-        }
 
-        // Get existing assignments
-        $existingRaw = $db->query("SELECT rol_id, actividad_permiso_id FROM rol_actividad_permiso") ?: [];
-        $existingKeys = [];
-        foreach ($existingRaw as $row) {
-            $existingKeys[$row['rol_id'] . '-' . $row['actividad_permiso_id']] = true;
-        }
-
-        // Delete removed assignments
-        foreach ($existingKeys as $key => $v) {
-            if (!isset($incomingKeys[$key])) {
-                [$rolId, $permId] = explode('-', $key);
-                $db->execute(
-                    "DELETE FROM rol_actividad_permiso WHERE rol_id = ? AND actividad_permiso_id = ?",
-                    [(int)$rolId, (int)$permId]
-                );
-            }
-        }
-
-        // Insert new assignments
-        foreach ($incomingKeys as $key => $data) {
-            if (!isset($existingKeys[$key])) {
-                $db->insert('rol_actividad_permiso', [
-                    'rol_id' => $data['rol_id'],
-                    'actividad_permiso_id' => $data['actividad_permiso_id'],
-                    'registrado_por' => $currentUser
-                ]);
+            if (!empty($values)) {
+                $sql = "INSERT /*$sqlComment*/ INTO rol_actividad_permiso (rol_id, actividad_permiso_id, registrado_por) VALUES " . implode(', ', $values);
+                $db->query($sql, $params);
             }
         }
 
         $db->commit();
-
-        return loadState($db);
+        return ['success' => true, 'data' => null];
 
     } catch (Throwable $e) {
         $db->rollBack();

@@ -1,4 +1,10 @@
-<!DOCTYPE html>
+<?php
+    require_once("./nav.php");
+    $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+    $toggleUrl = $isEditMode ? './actividad.php' : './actividad.php?mode=edit';
+    $toggleText = !$isEditMode ? '✏️ Edita' : '👁️Consulta';
+    $bodyClass = $isEditMode ? '' : 'ocActividad_readonly';
+?><!DOCTYPE html>
 <html lang="es">
 <head>
     <!-- File: actividad.html -->
@@ -6,27 +12,16 @@
     <!-- Version: 1.0.0 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Actividades y Permisos</title>
-    
-    <!-- Base CSS -->
+    <script src="https://kit.fontawesome.com/ad59c40b12.js" crossorigin="anonymous"></script>
+    <title>Actividad</title>
     <link rel="stylesheet" href="./base.css">
-    
-    <!-- Tabulator CSS -->
     <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
-    
-    <!-- OcDialog CSS -->
     <link rel="stylesheet" href="../OcDialog/OcDialog.css">
-    
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="./actividad.css">
 </head>
-<body>
-    <header class="sch_header">
-        <h1>Usuarios, Roles y Permisos: Actividades</h1>
-    </header>
+<body class="<?= $bodyClass ?>">
+    <header class="sch_header"><h1>Usuarios, Roles y Permisos: Actividades</h1></header>
     <?= renderNav() ?>
-
-    <!-- Main Content -->
     <main class="ocActividad_main_container">
         <!-- Toolbar -->
         <div class="ocActividad_toolbar">
@@ -34,18 +29,13 @@
                 <h2 class="ocActividad_title">Actividades y Permisos</h2>
             </div>
             <div class="ocActividad_toolbar_right">
-                <button class="sch_button sch_button--save ocActividad_add_button" id="ocActividad_add_button" style="display: none;">➕ Nueva Actividad</button>
-                <!-- Mode Toggle -->
-                <div class="ocActividad_mode_toggle">
-                    <label class="ocActividad_toggle_label">
-                        <input type="checkbox" class="ocActividad_mode_checkbox" id="ocActividad_mode_toggle">
-                        <span class="ocActividad_toggle_slider"></span>
-                        <span class="ocActividad_toggle_text">Modo Edición</span>
-                    </label>
-                </div>
+                <?php if($isEditMode): ?>
+                <button class="sch_button sch_button--save ocActividad_add_button" id="ocActividad_add_button">➕ Nueva Actividad</button>
+                <?php endif; ?>
+                <!-- Mode Toggle Link -->
+                <a href="<?= $toggleUrl ?>" id="ocActividad_mode_toggle"><?=$toggleText?></a>
             </div>
         </div>
-
         <!-- Tabulator Grid Container -->
         <div class="ocActividad_grid_container">
             <div id="ocActividad_tabulator_grid"></div>
@@ -91,8 +81,8 @@
                             <h3 class="ocActividad_section_title">Permisos</h3>
                             <div class="ocActividad_permission_actions">
                                 <div class="ocActividad_macro_buttons">
-                                    <button class="ocActividad_macro_button" data-macro="wr_nada" title="Agrega: R/W Editar, R/O Consultar, Nada Nada">
-                                        W/R/Nada
+                                    <button class="ocActividad_macro_button" data-macro="WR_RO" title="Agrega: Editar, Consultar">
+                                       Editar/Consultar
                                     </button>
                                     <button class="ocActividad_macro_button" data-macro="crud" title="Agrega: crear, leer, actualizar, eliminar">
                                         A/B/C
@@ -120,10 +110,9 @@
         </div>
     </dialog>
 
-
+    <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
     <script src="../OcDialog/OcDialog.js"></script>
     <script src="../OcDialog/OcDialogDrag.js"></script>
-    <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
     <script src="./actividad.js"></script>
 </body>
 </html>

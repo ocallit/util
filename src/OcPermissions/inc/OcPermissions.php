@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace ocallit\Util\OcPermissions;
 
-use Ocallit\SqlEr\SqlEr;
+use Ocallit\SqlEr\SqlExecutor;
 
 /**
  * OcPermission.php
@@ -17,8 +17,8 @@ use Ocallit\SqlEr\SqlEr;
  *   $perm = new OcPermission($db);
  *   if ($perm->puede('ventas', 'editar')) { ... }
  */
-class OcPermission {
-    private SqlEr $db;
+class OcPermissions {
+    private SqlExecutor $db;
 
     public function __construct(SqlEr $db) {$this->db = $db;}
 
@@ -38,7 +38,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return FALSE;
 
-        return !empty($this->db->queryValue("
+        return !empty($this->db->firstValue("
         SELECT EXISTS(
             SELECT 1 
             FROM rol_usuario ru
@@ -58,7 +58,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
-        $rows = $this->db->query("
+        $rows = $this->db->array("
             SELECT DISTINCT ap.actividad_permiso_id, ap.permiso
             FROM rol_usuario ru
             JOIN rol_actividad_permiso rap ON ru.rol_id = rap.rol_id
@@ -79,7 +79,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
-        $rows = $this->db->query("
+        $rows = $this->db->keyValue("
             SELECT DISTINCT r.rol_id, r.rol
             FROM rol_usuario ru
             JOIN rol r ON ru.rol_id = r.rol_id
@@ -101,7 +101,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
-        $rows = $this->db->query("
+        $rows = $this->db->arrayKeyed("
             SELECT r.rol_id, r.rol, ap.permiso
             FROM rol_usuario ru
             JOIN rol r ON ru.rol_id = r.rol_id
@@ -110,7 +110,7 @@ class OcPermission {
             JOIN actividad a ON ap.actividad_id = a.actividad_id
             WHERE ru.usuario_id = ? AND a.actividad = ?
             ORDER BY r.rol, ap.permiso
-        ", [$user_id, $actividad]) ?: [];
+        ", "rol_id", [$user_id, $actividad]) ?: [];
 
         $result = [];
         foreach($rows as $row) {
@@ -131,7 +131,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
-        $rows = $this->db->query("
+        $rows = $this->db->keyValue("
             SELECT r.rol_id, r.rol
             FROM rol_usuario ru
             JOIN rol r ON ru.rol_id = r.rol_id
@@ -150,7 +150,7 @@ class OcPermission {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
-        $rows = $this->db->query("
+        $rows = $this->db->arrayKeyed("
             SELECT DISTINCT a.actividad, ap.permiso
             FROM rol_usuario ru
             JOIN rol_actividad_permiso rap ON ru.rol_id = rap.rol_id
@@ -158,7 +158,7 @@ class OcPermission {
             JOIN actividad a ON ap.actividad_id = a.actividad_id
             WHERE ru.usuario_id = ?
             ORDER BY a.actividad, ap.permiso
-        ", [$user_id]) ?: [];
+        ", "actividad", [$user_id]) ?: [];
 
         $result = [];
         foreach($rows as $row) {
@@ -176,14 +176,14 @@ class OcPermission {
      * @return array<string, array> [actividad => [permiso, ...]]
      */
     public function rolActividades(int $rol_id): array {
-        $rows = $this->db->query("
+        $rows = $this->db->arrayKeyed("
             SELECT a.actividad, ap.permiso
             FROM rol_actividad_permiso rap
             JOIN actividad_permiso ap ON rap.actividad_permiso_id = ap.actividad_permiso_id
             JOIN actividad a ON ap.actividad_id = a.actividad_id
             WHERE rap.rol_id = ?
             ORDER BY a.actividad, ap.permiso
-        ", [$rol_id]) ?: [];
+        ", "actividad", [$rol_id]) ?: [];
 
         $result = [];
         foreach($rows as $row) {
@@ -197,7 +197,7 @@ class OcPermission {
      * @return array<int, string> [actividad_permiso_id => permiso]
      */
     public function rolPermisos(int $rol_id, string $actividad): array {
-        $rows = $this->db->query("
+        $rows = $this->db->keyValue("
             SELECT ap.actividad_permiso_id, ap.permiso
             FROM rol_actividad_permiso rap
             JOIN actividad_permiso ap ON rap.actividad_permiso_id = ap.actividad_permiso_id
@@ -213,7 +213,7 @@ class OcPermission {
      * Can role perform permission on activity?
      */
     public function rolPuede(int $rol_id, string $actividad, string $permiso): bool {
-        return (int)$this->db->queryValue("
+        return (int)$this->db->firstValue("
             SELECT 1
             FROM rol_actividad_permiso rap
             JOIN actividad_permiso ap ON rap.actividad_permiso_id = ap.actividad_permiso_id
@@ -228,7 +228,7 @@ class OcPermission {
      * @return array<int, string> [usuario_id => nick]
      */
     public function rolUsuarios(int $rol_id): array {
-        $rows = $this->db->query("
+        $rows = $this->db->keyValue("
             SELECT u.usuario_id, u.nick
             FROM rol_usuario ru
             JOIN usuario u ON ru.usuario_id = u.usuario_id
@@ -248,7 +248,7 @@ class OcPermission {
      * @return array<int, array> [rol_id => ['rol' => name, 'permisos' => [...]]]
      */
     public function actividadRoles(string $actividad): array {
-        $rows = $this->db->query("
+        $rows = $this->db->array("
             SELECT r.rol_id, r.rol, ap.permiso
             FROM rol_actividad_permiso rap
             JOIN rol r ON rap.rol_id = r.rol_id
@@ -274,7 +274,7 @@ class OcPermission {
      * @return array<int, array> [actividad_permiso_id => ['permiso' => code, 'etiqueta' => label]]
      */
     public function actividadPermisos(string $actividad): array {
-        $rows = $this->db->query("
+        $rows = $this->db->array("
             SELECT ap.actividad_permiso_id, ap.permiso, ap.etiqueta
             FROM actividad_permiso ap
             JOIN actividad a ON ap.actividad_id = a.actividad_id
@@ -297,7 +297,7 @@ class OcPermission {
      * @return array<int, array> [usuario_id => ['nick' => ..., 'permisos' => [...]]]
      */
     public function actividadUsuarios(string $actividad): array {
-        $rows = $this->db->query("
+        $rows = $this->db->array("
             SELECT DISTINCT u.usuario_id, u.nick, ap.permiso
             FROM rol_usuario ru
             JOIN usuario u ON ru.usuario_id = u.usuario_id

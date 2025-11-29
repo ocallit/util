@@ -91,7 +91,7 @@ body {
 .sch_header {
     background: var(--color-primary);
     color: var(--color-primary-bg);
-    padding: 8px 20px;
+    padding: 0 20px;
     box-shadow: var(--elevation-2);
     margin: 0;
 }

@@ -6,7 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Usuarios</title>
-
+    <script src="https://kit.fontawesome.com/ad59c40b12.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css" />

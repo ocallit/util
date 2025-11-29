@@ -2,15 +2,21 @@
 /**
  * roles_api.php
  * API for managing roles (rol) and their user assignments (rol_usuario)
- * 
- * Actions: load, save
+ *
+ * Actions: list, save, delete
+ *
+ * roles_api.php - Actions:
+ * ActionReceivesReturnslist{action: 'list'}{success, data: {roles: [...], usuarios: [...]}}save{action: 'save', rol_id?, rol, descripcion, usuarios: [id,...]}{success, data: {roles, usuarios}}delete{action: 'delete', rol_id}{success, error, data: null}
+ *
  */
 
 declare(strict_types=1);
+use Ocallit\Sqler\SqlExecutor;
+use Ocallit\Sqler\QueryBuilder;
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
+global $SqlExecutor;
 
-use Ocallit\SqlEr\SqlEr;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -18,15 +24,18 @@ try {
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
     $action = $input['action'] ?? '';
 
-    $db = SqlEr::getInstance();
-
     switch ($action) {
-        case 'load':
-            echo json_encode(loadState($db));
+        case 'list':
+            echo json_encode(listRoles($SqlExecutor));
             break;
 
         case 'save':
-            echo json_encode(saveState($db, $input['data'] ?? []));
+            echo json_encode(saveRole($SqlExecutor, $input));
+            break;
+
+        case 'delete':
+            $id = (int)($input['rol_id'] ?? 0);
+            echo json_encode(deleteRole($SqlExecutor, $id));
             break;
 
         default:
@@ -46,125 +55,175 @@ try {
 }
 
 /**
- * Load complete state: roles, usuarios, rol_usuario
- * Returns: {success, error, data: {roles, usuarios, rol_usuario}}
+ * List all roles with their assigned users, plus all available users
+ * Returns: {success, error, data: {roles: [{rol_id, rol, descripcion, registrado_el, registrado_por, usuarios: [...]}], usuarios: [...]}}
  */
-function loadState(SqlEr $db): array
+function listRoles(SqlExecutor $db): array
 {
-    $roles = $db->query("
-        SELECT rol_id, rol, descripcion, registrado_el, registrado_por
+    $sqlComment = __FUNCTION__;
+
+    // Get all roles
+    $roles = $db->array("
+        SELECT /*$sqlComment*/
+            rol_id, rol, descripcion, registrado_el, registrado_por
         FROM rol
         ORDER BY rol
-    ") ?: [];
+    ");
 
-    $usuarios = $db->query("
-        SELECT usuario_id, nick, nombre
+    // Get all user assignments with user details
+    $assignments = $db->array("
+        SELECT /*$sqlComment*/
+            ru.rol_id, ru.usuario_id, u.nick, u.nombre
+        FROM rol_usuario ru
+        INNER JOIN usuario u ON ru.usuario_id = u.usuario_id
+        ORDER BY ru.rol_id, u.nick
+    ");
+
+    // Group assignments by rol_id
+    $usersByRole = [];
+    foreach ($assignments as $row) {
+        $rolId = $row['rol_id'];
+        if (!isset($usersByRole[$rolId])) {
+            $usersByRole[$rolId] = [];
+        }
+        $usersByRole[$rolId][] = [
+            'usuario_id' => (int)$row['usuario_id'],
+            'nick' => $row['nick'],
+            'nombre' => $row['nombre']
+        ];
+    }
+
+    // Attach usuarios array to each role
+    foreach ($roles as &$role) {
+        $rolId = $role['rol_id'];
+        $role['usuarios'] = $usersByRole[$rolId] ?? [];
+    }
+
+    // Get all available users (for the dropdown)
+    $usuarios = $db->array("
+        SELECT /*$sqlComment*/
+            usuario_id, nick, nombre
         FROM usuario
         ORDER BY nick
-    ") ?: [];
-
-    $rol_usuario = $db->query("
-        SELECT rol_id, usuario_id
-        FROM rol_usuario
-    ") ?: [];
+    ");
 
     return [
         'success' => true,
         'error' => null,
         'data' => [
             'roles' => $roles,
-            'usuarios' => $usuarios,
-            'rol_usuario' => $rol_usuario
+            'usuarios' => $usuarios
         ]
     ];
 }
 
 /**
- * Save complete state
- * Receives: {action, data: {roles, usuarios, rol_usuario}}
- * Returns: {success, error, data: state}
+ * Save (create or update) a single role with its user assignments
+ * Receives: {action, rol_id?, rol, descripcion, usuarios: [usuario_id, ...]}
+ * Returns: {success, error, data: {roles, usuarios}}
  */
-function saveState(SqlEr $db, array $data): array
+function saveRole(SqlExecutor $db, array $input): array
 {
-    $roles = $data['roles'] ?? [];
-    $rol_usuario = $data['rol_usuario'] ?? [];
+    $rol_id = isset($input['rol_id']) ? (int)$input['rol_id'] : 0;
+    $rol = trim($input['rol'] ?? '');
+    $descripcion = trim($input['descripcion'] ?? '');
+    $usuarios = $input['usuarios'] ?? [];
+
+    if ($rol === '') {
+        return ['success' => false, 'error' => 'El campo rol es obligatorio', 'data' => null];
+    }
 
     $currentUser = $_SESSION['nick'] ?? 'system';
+    $sqlComment = __FUNCTION__;
+    $sqlBuilder = new QueryBuilder();
 
-    $db->beginTransaction();
+    $db->begin();
 
     try {
-        // Get existing role IDs
-        $existingRoles = $db->query("SELECT rol_id FROM rol") ?: [];
-        $existingIds = array_map('intval', array_column($existingRoles, 'rol_id'));
-        $incomingIds = array_filter(array_map('intval', array_column($roles, 'rol_id')));
-
-        // Delete only roles that were actually removed
-        $toDelete = array_diff($existingIds, $incomingIds);
-        foreach ($toDelete as $delId) {
-            $db->execute("DELETE FROM rol WHERE rol_id = ?", [$delId]);
-        }
-
-        // Upsert roles
-        foreach ($roles as $r) {
-            $rol_id = (int)($r['rol_id'] ?? 0);
-
-            if ($rol_id > 0 && in_array($rol_id, $existingIds, true)) {
-                // Update existing
-                $db->update('rol', [
-                    'rol' => $r['rol'] ?? '',
-                    'descripcion' => $r['descripcion'] ?? ''
-                ], 'rol_id = ?', [$rol_id]);
-            } elseif ($rol_id > 0) {
-                // Insert new with specific ID
-                $db->insert('rol', [
-                    'rol_id' => $rol_id,
-                    'rol' => $r['rol'] ?? '',
-                    'descripcion' => $r['descripcion'] ?? '',
-                    'registrado_el' => $r['registrado_el'] ?? date('Y-m-d H:i:s'),
-                    'registrado_por' => $r['registrado_por'] ?? $currentUser
-                ]);
-            }
-        }
-
-        // Sync rol_usuario: compare existing vs incoming, add/remove differences only
-        $existingRU = $db->query("SELECT rol_id, usuario_id FROM rol_usuario") ?: [];
-        $existingRUKeys = [];
-        foreach ($existingRU as $ru) {
-            $existingRUKeys[$ru['rol_id'] . '-' . $ru['usuario_id']] = true;
-        }
-
-        $incomingRUKeys = [];
-        foreach ($rol_usuario as $ru) {
-            $key = (int)$ru['rol_id'] . '-' . (int)$ru['usuario_id'];
-            $incomingRUKeys[$key] = $ru;
-        }
-
-        // Delete removed assignments
-        foreach ($existingRUKeys as $key => $v) {
-            if (!isset($incomingRUKeys[$key])) {
-                [$rolId, $usuarioId] = explode('-', $key);
-                $db->execute("DELETE FROM rol_usuario WHERE rol_id = ? AND usuario_id = ?", [(int)$rolId, (int)$usuarioId]);
-            }
-        }
-
-        // Insert new assignments
-        foreach ($incomingRUKeys as $key => $ru) {
-            if (!isset($existingRUKeys[$key])) {
-                $db->insert('rol_usuario', [
-                    'rol_id' => (int)$ru['rol_id'],
-                    'usuario_id' => (int)$ru['usuario_id'],
+        // Insert or update the role
+        if ($rol_id > 0) {
+            // Update existing role
+            $update = $sqlBuilder->update(
+                'rol',
+                ['rol' => $rol, 'descripcion' => $descripcion],
+                ['rol_id' => $rol_id],
+                "/*$sqlComment*/"
+            );
+            $db->query($update['query'], $update['parameters']);
+        } else {
+            // Insert new role
+            $insert = $sqlBuilder->insert(
+                'rol',
+                [
+                    'rol' => $rol,
+                    'descripcion' => $descripcion,
                     'registrado_por' => $currentUser
-                ]);
-            }
+                ],
+                comment: "/*$sqlComment*/"
+            );
+            $db->query($insert['query'], $insert['parameters']);
+            $rol_id = (int)$db->last_insert_id();
+        }
+
+        // Sync user assignments for this role
+        // Delete users not in the incoming list
+        if (!empty($usuarios)) {
+            $placeholders = implode(',', array_fill(0, count($usuarios), '?'));
+            $params = array_merge([$rol_id], $usuarios);
+            $db->query(
+                "DELETE /*$sqlComment*/ FROM rol_usuario WHERE rol_id = ? AND usuario_id NOT IN ($placeholders)",
+                $params
+            );
+        } else {
+            // No users, delete all assignments for this role
+            $db->query("DELETE /*$sqlComment*/ FROM rol_usuario WHERE rol_id = ?", [$rol_id]);
+        }
+
+        // Insert new user assignments (ignore duplicates)
+        foreach ($usuarios as $usuario_id) {
+            $usuario_id = (int)$usuario_id;
+            if ($usuario_id <= 0) continue;
+
+            $db->query(
+                "INSERT /*$sqlComment*/ IGNORE INTO rol_usuario (rol_id, usuario_id, registrado_por) VALUES (?, ?, ?)",
+                [$rol_id, $usuario_id, $currentUser]
+            );
         }
 
         $db->commit();
 
-        return loadState($db);
+        // Return updated list
+        return listRoles($db);
 
     } catch (Throwable $e) {
         $db->rollBack();
+        
+        if ($db->is_last_error_duplicate_key()) {
+            return ['success' => false, 'error' => "Ya existe otro rol '$rol'", 'data' => null];
+        }
+        
         return ['success' => false, 'error' => $e->getMessage(), 'data' => null];
     }
+}
+
+/**
+ * Delete a single role (user assignments cascade via FK or are deleted here)
+ * Receives: {action, rol_id}
+ * Returns: {success, error, data: null}
+ */
+function deleteRole(SqlExecutor $db, int $id): array
+{
+    if ($id <= 0) {
+        return ['success' => false, 'error' => 'ID de rol inválido', 'data' => null];
+    }
+
+    $sqlComment = __FUNCTION__;
+
+    // Delete user assignments first (in case no FK cascade)
+    $db->query("DELETE /*$sqlComment*/ FROM rol_usuario WHERE rol_id = ?", [$id]);
+
+    // Delete the role
+    $db->query("DELETE /*$sqlComment*/ FROM rol WHERE rol_id = ?", [$id]);
+
+    return ['success' => true, 'error' => null, 'data' => null];
 }

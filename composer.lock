@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e24b0e628d5bbcbbed9d1a3b720e214",
+    "content-hash": "3e4857ae1667c5b6293e5119bd627870",
     "packages": [
         {
             "name": "ocallit/sqler",
-            "version": "1.0.7",
+            "version": "1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ocallit/Sqler.git",
-                "reference": "e3ee0737c66b7515c007d6c1248937df534cc7b6"
+                "reference": "802ea0a7e04fcfcc33189253838b9558d9f50a32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ocallit/Sqler/zipball/e3ee0737c66b7515c007d6c1248937df534cc7b6",
-                "reference": "e3ee0737c66b7515c007d6c1248937df534cc7b6",
+                "url": "https://api.github.com/repos/ocallit/Sqler/zipball/802ea0a7e04fcfcc33189253838b9558d9f50a32",
+                "reference": "802ea0a7e04fcfcc33189253838b9558d9f50a32",
                 "shasum": ""
             },
             "require": {
@@ -37,9 +37,9 @@
             "description": "A php sql builder, helpers and mysqli wrapper",
             "support": {
                 "issues": "https://github.com/ocallit/Sqler/issues",
-                "source": "https://github.com/ocallit/Sqler/tree/1.0.7"
+                "source": "https://github.com/ocallit/Sqler/tree/1.11.1"
             },
-            "time": "2025-04-01T11:40:17+00:00"
+            "time": "2025-06-10T02:44:27+00:00"
         }
     ],
     "packages-dev": [],
@@ -49,7 +49,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.2"
+        "php": ">=8.3",
+        "ext-mysqli": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

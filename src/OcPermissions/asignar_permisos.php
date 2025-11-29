@@ -1,9 +1,16 @@
-<!DOCTYPE html>
+<?php
+require_once("./nav.php");
+$isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+$toggleUrl = $isEditMode ? './asignar_permisos.php' : './asignar_permisos.php?mode=edit';
+$toggleText = $isEditMode ? '👁️ Consultar' : '✏️ Editar';
+$bodyClass = $isEditMode ? '' : 'asig_readonly';
+?><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Permisos a Roles</title>
+    <title>Asignar Permisos</title>
+    <script src="https://kit.fontawesome.com/ad59c40b12.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
@@ -12,30 +19,43 @@
     <link rel="stylesheet" href="asignar_permisos.css" />
     <link rel="stylesheet" href="chip.css" />
 </head>
-<body>
+<body class="<?= $bodyClass ?>">
 <header class="sch_header">
-    <h1>Usuarios, Roles y Permisos: Asignación de Permisos a Roles</h1>
+    <h1>Usuarios, Roles y Permisos: Asignación</h1>
 </header>
 <?= renderNav() ?>
 
 <main class="asig_container">
     <div class="asig_toolbar">
         <div class="asig_left">
-            <button id="btnNew" class="sch_button sch_button--save" style="display:none;">➕ Nuevo</button>
+            <?php if($isEditMode): ?>
+                <button id="btnNew" class="sch_button sch_button--save">➕ Asignar Permisos</button>
+            <?php endif; ?>
             <label>Buscar:
-                <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar…" />
+                <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar..." />
             </label>
         </div>
+
+        <div class="asig_column_visibility">
+            <span style="font-weight:600;margin-right:8px;">Ver:</span>
+            <label><input type="checkbox" id="cbRol" checked> Rol Puede</label>
+            <label style="margin-left:8px;"><input type="checkbox" id="cbSin" checked> Sin Permiso</label>
+            <label style="margin-left:8px;">
+                <input type="checkbox" id="cbAll" checked <?= $isEditMode ? 'disabled' : '' ?>>
+                Todos
+            </label>
+        </div>
+
         <div class="asig_right">
-            <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
+            <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ CSV</button>
+            <a href="<?= $toggleUrl ?>" class="sch_button sch_button--secondary" style="text-decoration:none; display:inline-block; line-height:1.2;"><?= $toggleText ?></a>
         </div>
     </div>
 
     <div id="gridAssign"></div>
 </main>
 
-<!-- Dialog para asignar permisos a un (Rol, Actividad) -->
-<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;display:none;">
+<dialog id="dlgAssign" class="ocdialog ocdialog_grow_content" style="width:720px;max-width:96vw;height:80vh;">
     <div class="ocdialog_header">
         <h2 class="ocdialog_title" id="dlgTitle">Asignar permisos</h2>
         <button class="ocdialog_close" data-action="close" type="button" aria-label="Cerrar">&times;</button>
@@ -44,23 +64,24 @@
     <div class="ocdialog_content">
         <div class="ocdialog_flex_column">
             <section class="ocAsignar_section ocdialog_flex_fixed">
-                <div class="asig_left" style="margin-bottom:8px;">
-                    <div class="fixed-select">
+                <div class="asig_left" style="margin-bottom:8px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <div class="fixed-select" style="flex:1; min-width:200px;">
                         <label for="selRol"><strong>Rol:</strong></label>
-                        <select id="selRol" placeholder="Seleccione rol…"></select>
+                        <select id="selRol"></select>
                     </div>
 
-                    <div class="fixed-select" style="margin-left:10px;">
+                    <div class="fixed-select" style="flex:1; min-width:200px;">
                         <label for="selAct"><strong>Actividad:</strong></label>
-                        <select id="selAct" placeholder="Seleccione actividad…"></select>
+                        <select id="selAct"></select>
                     </div>
-
-                    <input id="permSearch" class="asig_input" placeholder="buscar permiso…" style="margin-left:auto;" />
+                </div>
+                <div>
+                    <input id="permSearch" class="asig_input" placeholder="Buscar permiso en la lista..." style="width:100%; box-sizing:border-box;" />
                 </div>
             </section>
 
-            <section class="ocAsignar_section ocdialog_flex_grow">
-                <ul id="permList" class="ocAsignar_perm_list" role="listbox" aria-label="Permisos de la actividad"></ul>
+            <section class="ocAsignar_section ocdialog_flex_grow" style="overflow-y:auto;">
+                <ul id="permList" class="ocAsignar_perm_list" role="listbox"></ul>
             </section>
         </div>
     </div>
@@ -71,14 +92,13 @@
     </div>
 </dialog>
 
-<!-- Info dialog (descripciones) -->
 <dialog id="dlgInfo" class="ocdialog" style="max-width:520px;">
     <div class="ocdialog_header">
         <h3 class="ocdialog_title" id="dlgInfoTitle">Información</h3>
-        <button class="ocdialog_close" data-action="close-info" type="button" aria-label="Cerrar">&times;</button>
+        <button class="ocdialog_close" data-action="close-info" type="button">&times;</button>
     </div>
     <div class="ocdialog_content">
-        <p id="dlgInfoText" class="ocAsignar_hint" style="white-space:pre-wrap;margin:0;"></p>
+        <p id="dlgInfoText" class="ocAsignar_hint" style="white-space:pre-wrap;margin:0; padding:10px;"></p>
     </div>
     <div class="ocdialog_footer">
         <button class="ocdialog_button" data-action="close-info" type="button">Cerrar</button>
@@ -87,25 +107,9 @@
 
 <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="../OcDialog/OcDialog.js"></script>
 <script src="../OcDialog/OcDialogDrag.js"></script>
 <script src="./asignar_permisos.js"></script>
 
-<script>
-// Show/hide edit button based on URL mode parameter
-(function() {
-    var params = new URLSearchParams(window.location.search);
-    var isEditMode = params.get("mode") === "edit";
-    var btnNew = document.getElementById("btnNew");
-    var dlgAssign = document.getElementById("dlgAssign");
-    if (isEditMode && btnNew) {
-        btnNew.style.display = "";
-    }
-    if (isEditMode && dlgAssign) {
-        dlgAssign.style.display = "";
-    }
-})();
-</script>
 </body>
 </html>

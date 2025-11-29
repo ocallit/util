@@ -8,11 +8,13 @@
 class ocActividadManager {
     constructor() {
         this.apiUrl = './api/actividad_api.php';
-        this.isEditMode = false;
+        // Read mode from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        this.isEditMode = urlParams.get('mode') === 'edit';
         this.table = null;
         this.currentEditingActivity = null;
         
-        this.setupFetchOverride();
+       // this.setupFetchOverride();
         this.init();
     }
 
@@ -20,7 +22,6 @@ class ocActividadManager {
      * Initialize the application
      */
     init() {
-        this.setupModeToggle();
         this.setupTabulator();
         this.setupDialogs();
         this.setupAddButton();
@@ -253,32 +254,8 @@ class ocActividadManager {
         };
     }
 
-    /**
-     * Setup mode toggle (Edit / Read-only)
-     */
-    setupModeToggle() {
-        const toggle = document.getElementById('ocActividad_mode_toggle');
-        const addButton = document.getElementById('ocActividad_add_button');
-
-        toggle.addEventListener('change', (e) => {
-            this.isEditMode = e.target.checked;
-            
-            // Show/hide add button
-            addButton.style.display = this.isEditMode ? 'block' : 'none';
-            
-            // Redraw table to update action buttons
-            if (this.table) {
-                this.table.redraw(true);
-            }
-
-            // Update body class for styling
-            if (this.isEditMode) {
-                document.body.classList.remove('ocActividad_readonly');
-            } else {
-                document.body.classList.add('ocActividad_readonly');
-            }
-        });
-    }
+    // Mode is now controlled via URL parameter (?mode=edit)
+    // No toggle setup needed - page reload handles mode change
 
     /**
      * Setup Tabulator grid
@@ -364,10 +341,11 @@ class ocActividadManager {
                     field: "permisos",
                     minWidth: 200,
                     formatter: (cell) => {
-                        const permisos = cell.getValue() || [];
-                        if (permisos.length === 0) {
+                        const permisos = cell.getValue();
+                        if (!permisos || permisos.length === 0) {
                             return '<span style="color: var(--color-text-muted);">Sin permisos</span>';
                         }
+                        // API returns array of {actividad_permiso_id, permiso, etiqueta}
                         const etiquetas = permisos.map(p => p.etiqueta).join(', ');
                         return `<span class="ocActividad_permissions_text" title="${etiquetas}">${etiquetas}</span>`;
                     },
@@ -416,9 +394,7 @@ class ocActividadManager {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'list' })
             });
-
             const result = await response.json();
-
             if (result.success) {
                 this.table.setData(result.data);
             } else {
@@ -446,9 +422,11 @@ class ocActividadManager {
      */
     setupAddButton() {
         const addButton = document.getElementById('ocActividad_add_button');
-        addButton.addEventListener('click', () => {
-            this.openEditDialog(null);
-        });
+        if (addButton) {
+            addButton.addEventListener('click', () => {
+                this.openEditDialog(null);
+            });
+        }
     }
 
     /**
@@ -706,18 +684,17 @@ class ocActividadEditDialog {
         let permissionsToAdd = [];
 
         switch (macroType) {
-            case 'wr_nada':
+            case 'WR_RO':
                 permissionsToAdd = [
-                    { permiso: `R/W`, etiqueta: 'Editar' },
-                    { permiso: `R/O`, etiqueta: 'Consultar' },
-                    { permiso: `Nada`, etiqueta: 'Nada' }
+                    { permiso: `RW`, etiqueta: 'Editar' },
+                    { permiso: `RO`, etiqueta: 'Consultar' },
                 ];
                 break;
             
             case 'crud':
                 permissionsToAdd = [
                     { permiso: `Listar`, etiqueta: 'Listar' },
-                    { permiso: `R/O`, etiqueta: 'Consultar' },
+                    { permiso: `RO`, etiqueta: 'Consultar' },
                     { permiso: `Crear`, etiqueta: 'Crear' },
                     { permiso: `Editar`, etiqueta: 'Editar' },
                     { permiso: `Eliminar`, etiqueta: 'Eliminar' }

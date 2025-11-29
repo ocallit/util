@@ -56,7 +56,10 @@ function renderNav(?string $currentPage = NULL): string {
       ],
     ];
 
-    $html = '<nav class="sch_nav">' . PHP_EOL . '<ul>' . PHP_EOL;
+    $html = "<header class='sch_header'>
+            <h1 style='margin:0;padding:0;'>Usuarios y Permisos</h1>
+            </header>" .
+      '<nav class="sch_nav">' . PHP_EOL . '<ul>' . PHP_EOL;
     foreach($navItems as $key => $item) {
         $isActive =  str_contains($currentPage, $key);
         $activeClass = $isActive ? ' class="sch_nav_active"' : '';

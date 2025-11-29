@@ -224,7 +224,7 @@
 
         if (dialogMode === "new") {
             if (!el.editPassword.value.trim()) { OcDialog.error("Password requerido para nuevos usuarios."); return; }
-            var newId = Math.max(0, ...state.usuarios.map(u => u.usuario_id)) + 1;
+            var newId = 0;
             state.usuarios.push({ ...formData, usuario_id: newId, creado_el: now, creado_por: "system", ultimo_cambio_el: now, ultimo_cambio_por: "system", password_ultimo_cambio: now, ultimo_login: null });
             selectedRoleIds.forEach(rid => state.rol_usuario.push({ rol_id: rid, usuario_id: newId }));
         } else {

@@ -3,8 +3,9 @@
 
 CREATE TABLE actividad (
     actividad_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    actividad VARCHAR(64) UNIQUE NOT NULL,
-    descripc ion LONGTEXT,
+    actividad VARCHAR(64) NOT NULL,
+	UNIQUE KEY actividad_unica(actividad),
+    descripcion LONGTEXT,
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
 ) ENGINE=InnoDB;

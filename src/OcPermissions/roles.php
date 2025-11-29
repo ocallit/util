@@ -1,4 +1,10 @@
-<!DOCTYPE html>
+<?php
+require_once("./nav.php");
+$isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+$toggleUrl = $isEditMode ? './roles.php' : './roles.php?mode=edit';
+$toggleText = $isEditMode ? '👁️ Consultar' : '✏️ Editar';
+$bodyClass = $isEditMode ? '' : 'roles_readonly';
+?><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -11,22 +17,23 @@
     <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
     <link rel="stylesheet" href="roles.css" />
 </head>
-<body>
-<header class="sch_header">
-    <h1>Usuarios, Roles y Permisos: Roles, grupos de usuarios con permisos</h1>
-</header>
+<body class="<?= $bodyClass ?>">
 <?= renderNav() ?>
 
 <main class="roles_container">
     <div class="roles_toolbar">
         <div class="roles_left">
-            <button id="btnNew" class="sch_button sch_button--save" style="display:none;">➕ Nuevo Rol</button>
+            <?php if($isEditMode): ?>
+            <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo Rol</button>
+            <?php endif; ?>
             <label>Buscar:
                 <input id="txtSearch" class="roles_input" type="search" placeholder="filtrar…" />
             </label>
         </div>
         <div class="roles_right">
             <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
+            <!-- Mode Toggle Link -->
+            <a href="<?= $toggleUrl ?>" ><?=$toggleText?></a>
         </div>
     </div>
 
@@ -34,7 +41,7 @@
 </main>
 
 <!-- Dialog para editar rol -->
-<dialog id="dlgEdit" class="ocdialog ocdialog_grow_content" style="width:700px;max-width:96vw;display:none;">
+<dialog id="dlgEdit" class="ocdialog ocdialog_grow_content" style="width:700px;height:80vh;max-width:96vw;">
     <div class="ocdialog_header">
         <h2 class="ocdialog_title" id="dlgTitle">Editar Rol</h2>
         <button class="ocdialog_close" data-action="close" type="button" aria-label="Cerrar">&times;</button>
@@ -43,39 +50,31 @@
     <div class="ocdialog_content">
         <div class="ocdialog_flex_column">
             <section class="roles_section ocdialog_flex_fixed">
-                <div class="roles_form_row">
+                <div class="roles_form_row roles_form_row--inline">
                     <label for="editRol" class="roles_label">Rol:</label>
                     <input type="text" class="roles_input" id="editRol" maxlength="64" required />
                 </div>
 
-                <div class="roles_form_row">
+                <div class="roles_form_row" style="margin-bottom:2px;">
                     <label class="roles_label">Descripción:</label>
-                    <textarea class="roles_textarea" id="editDescripcion" rows="3"></textarea>
+                    <textarea class="roles_textarea" id="editDescripcion" rows="2"></textarea>
                 </div>
 
                 <div class="roles_info_row">
-                    <span class="roles_info_item">
-                        <strong>ID:</strong> <span id="editId">-</span>
-                    </span>
-                    <span class="roles_info_item">
-                        <strong>Registrado el:</strong> <span id="editRegistradoEl">-</span>
-                    </span>
-                    <span class="roles_info_item">
-                        <strong>Por:</strong> <span id="editRegistradoPor">-</span>
-                    </span>
+                    <span class="roles_info_item"><strong>ID:</strong> <span id="editId">-</span></span>
+                    <span class="roles_info_item"><strong>Registrado:</strong> <span id="editRegistradoEl">-</span></span>
+                    <span class="roles_info_item"><strong>Por:</strong> <span id="editRegistradoPor">-</span></span>
                 </div>
             </section>
 
-            <section class="roles_section ocdialog_flex_grow">
-                <div class="roles_section_header">
-                    <h3 class="roles_section_title">Usuarios en este Rol</h3>
-                    <div class="roles_user_actions">
-                        <select id="selAddUser" placeholder="Seleccionar usuario…"></select>
-                        <button class="sch_button sch_button--save" id="btnAddUser">➕ Agregar</button>
-                    </div>
-                </div>
-
-                <div class="roles_users_container" id="usersList"></div>
+            <section class="roles_section ocdialog_flex_grow" style="padding:4px 6px;">
+                <h3 class="roles_section_title">Usuarios en este Rol</h3>
+                
+                <!-- Edit mode: TomSelect multiple -->
+                <select id="selUsers" multiple placeholder="Seleccionar usuarios..."></select>
+                
+                <!-- View mode: scrollable list -->
+                <div id="usersViewList" class="roles_users_view_list" style="display:none;"></div>
             </section>
         </div>
     </div>
@@ -92,20 +91,5 @@
 <script src="../OcDialog/OcDialogDrag.js"></script>
 <script src="./roles.js"></script>
 
-<script>
-// Show/hide buttons based on URL mode parameter
-(function() {
-    var params = new URLSearchParams(window.location.search);
-    var isEditMode = params.get("mode") === "edit";
-    var btnNew = document.getElementById("btnNew");
-    var dlgEdit = document.getElementById("dlgEdit");
-    if (isEditMode && btnNew) {
-        btnNew.style.display = "";
-    }
-    if (isEditMode && dlgEdit) {
-        dlgEdit.style.display = "";
-    }
-})();
-</script>
 </body>
 </html>
