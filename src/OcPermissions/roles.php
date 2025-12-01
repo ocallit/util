@@ -1,4 +1,5 @@
 <?php
+require_once("inc/config.php");
 require_once("./nav.php");
 $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
 $toggleUrl = $isEditMode ? './roles.php' : './roles.php?mode=edit';
@@ -10,7 +11,7 @@ $bodyClass = $isEditMode ? '' : 'roles_readonly';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Roles</title>
-
+    <script src="https://kit.fontawesome.com/ad59c40b12.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />

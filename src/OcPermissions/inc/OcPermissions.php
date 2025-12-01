@@ -20,12 +20,12 @@ use Ocallit\SqlEr\SqlExecutor;
 class OcPermissions {
     private SqlExecutor $db;
 
-    public function __construct(SqlEr $db) {$this->db = $db;}
+    public function __construct(SqlExecutor $db) {$this->db = $db;}
 
     /**
      * Get user ID - from param or session
      */
-    private function uid(int $user_id): int {return $user_id > 0 ? $user_id : (int)($_SESSION['usuario_id'] ?? -1);}
+    private function uid($user_id) {return empty($user_id) ? $_SESSION['usuario_id'] ?? "" : $user_id;}
 
     // =========================================================================
     // USER PERMISSION METHODS
@@ -34,9 +34,9 @@ class OcPermissions {
     /**
      * Can user perform permission on activity?
      */
-    public function puede(string $actividad, string $permiso, int $user_id = -1): bool {
+    public function puede(string $actividad, string $permiso, $user_id = ""): bool {
         $user_id = $this->uid($user_id);
-        if($user_id <= 0) return FALSE;
+        if(empty($user_id)) return FALSE;
 
         return !empty($this->db->firstValue("
         SELECT EXISTS(
@@ -54,11 +54,18 @@ class OcPermissions {
      * User's permissions on activity
      * @return array<int, string> [actividad_permiso_id => permiso]
      */
-    public function permiso(string $actividad, int $user_id = -1): array {
+    public function permiso(string $actividad, $user_id = ""): array {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
-
-        $rows = $this->db->array("
+        if($user_id == 1) {
+            $rows = $this->db->array(
+              "SELECT ap.actividad_permiso_id, ap.permiso
+              FROM actividad_permiso ap
+                    JOIN actividad a ON ap.actividad_id = a.actividad_id
+                WHERE a.actividad = ?
+              ",[ $actividad]) ?: [];
+        } else {
+            $rows = $this->db->array("
             SELECT DISTINCT ap.actividad_permiso_id, ap.permiso
             FROM rol_usuario ru
             JOIN rol_actividad_permiso rap ON ru.rol_id = rap.rol_id
@@ -66,8 +73,8 @@ class OcPermissions {
             JOIN actividad a ON ap.actividad_id = a.actividad_id
             WHERE ru.usuario_id = ? AND a.actividad = ?
             ORDER BY ap.permiso
-        ", [$user_id, $actividad]) ?: [];
-
+            ", [$user_id, $actividad]) ?: [];
+        }
         return array_column($rows, 'permiso', 'actividad_permiso_id');
     }
 
@@ -75,7 +82,7 @@ class OcPermissions {
      * Roles granting user a specific permission
      * @return array<int, string> [rol_id => rol]
      */
-    public function puede_por_rol(string $actividad, string $permiso, int $user_id = -1): array {
+    public function puede_por_rol(string $actividad, string $permiso, $user_id = ""): array {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
@@ -97,7 +104,7 @@ class OcPermissions {
      * User's roles with their permissions on activity
      * @return array<int, array> [rol_id => ['rol' => name, 'permisos' => [...]]]
      */
-    public function permiso_por_rol(string $actividad, int $user_id = -1): array {
+    public function permiso_por_rol(string $actividad, $user_id = ""): array {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
@@ -127,7 +134,7 @@ class OcPermissions {
      * Roles user belongs to
      * @return array<int, string> [rol_id => rol]
      */
-    public function usuarioRoles(int $user_id = -1): array {
+    public function usuarioRoles($user_id = ""): array {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 
@@ -146,7 +153,7 @@ class OcPermissions {
      * Activities user has permissions on
      * @return array<string, array> [actividad => [permiso, ...]]
      */
-    public function usuarioActividades(int $user_id = -1): array {
+    public function usuarioActividades($user_id = ""): array {
         $user_id = $this->uid($user_id);
         if($user_id <= 0) return [];
 

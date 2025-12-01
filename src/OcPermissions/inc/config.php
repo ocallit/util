@@ -1,16 +1,45 @@
+<?php
+use Ocallit\Sqler\SqlExecutor;
+use ocallit\Util\OcPermissions\OcPermissions;
+
+require_once( __DIR__ . "/../../../vendor/autoload.php");
+require_once( __DIR__ . "/OcPermissions.php");
+
+session_start();
+$_SESSION['usuario_id'] ='1';
 
 
+global $SqlExecutor;
+$SqlExecutor = new SqlExecutor(["username" => "root", "password" => "teisha", "database" => "roler"]);
+$gPermisador = new OcPermissions($SqlExecutor);
+$gPuede = $gPermisador->permiso("Usuarios, Roles y Permisos");
+if(empty($gPuede)) {
+    echo "<div style='margin:3em;width:auto;text-align: center'><h1>Sin Permisos</h1><a href='../'>Inicio</a></div>";
+    die();
+}
 
-CREATE TABLE actividad (
+function sTrim($s) {
+    if($s === null)
+        return "";
+    return trim(preg_replace('/\s\s+/', ' ', (string)$s));
+}
+$queries = [
+
+  "CREATE TABLE IF NOT EXISTS actividad (
     actividad_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     actividad VARCHAR(64) NOT NULL,
 	UNIQUE KEY actividad_unica(actividad),
     descripcion LONGTEXT,
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
-) ENGINE=InnoDB;
-
-CREATE TABLE actividad_permiso (
+) ENGINE=InnoDB",
+    "INSERT INTO actividad(actividad) 
+    VALUES
+        ('Usuarios, Roles y Permisos'),
+        ('Configurar'),
+        ('Registar Evento')
+        ",
+  "CREATE TABLE IF NOT EXISTS actividad_permiso (
     actividad_permiso_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     actividad_id MEDIUMINT UNSIGNED NOT NULL,
     FOREIGN KEY (actividad_id) REFERENCES actividad(actividad_id) ON DELETE CASCADE,
@@ -20,17 +49,15 @@ CREATE TABLE actividad_permiso (
     UNIQUE KEY etiqueta_por_actividad(etiqueta, actividad_id),
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
-) ENGINE=InnoDB;
-
-CREATE TABLE rol (
+) ENGINE=InnoDB",
+  "CREATE TABLE IF NOT EXISTS rol (
     rol_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     rol VARCHAR(64) UNIQUE NOT NULL,
     descripcion LONGTEXT,
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
-) ENGINE=InnoDB;
-
-CREATE TABLE rol_actividad_permiso (
+) ENGINE=InnoDB",
+  "CREATE TABLE IF NOT EXISTS rol_actividad_permiso (
     rol_id MEDIUMINT UNSIGNED,
     FOREIGN KEY (rol_id) REFERENCES rol(rol_id) ON DELETE CASCADE,
     actividad_permiso_id MEDIUMINT UNSIGNED,
@@ -39,9 +66,8 @@ CREATE TABLE rol_actividad_permiso (
     KEY por_rol(rol_id),
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
-) ENGINE=InnoDB;
-
-CREATE TABLE usuario (
+) ENGINE=InnoDB",
+  "CREATE TABLE IF NOT EXISTS usuario (
     usuario_id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     nick VARCHAR(16) NOT NULL UNIQUE,
     estatus ENUM('Puede Login', 'No Puede Login') NOT NULL DEFAULT 'Puede Login',
@@ -64,9 +90,8 @@ CREATE TABLE usuario (
     creado_por VARCHAR(16) NOT NULL DEFAULT '?',
     ultimo_cambio_el DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ultimo_cambio_por VARCHAR(16) NOT NULL DEFAULT '?'
-) ENGINE=InnoDB;
-
-CREATE TABLE rol_usuario (
+) ENGINE=InnoDB",
+  "CREATE TABLE IF NOT EXISTS rol_usuario (
     rol_id MEDIUMINT UNSIGNED,
     FOREIGN KEY (rol_id) REFERENCES rol(rol_id) ON DELETE CASCADE,
     usuario_id MEDIUMINT UNSIGNED,
@@ -75,5 +100,6 @@ CREATE TABLE rol_usuario (
     KEY por_rol(rol_id),
     registrado_el DATETIME NOT NULL DEFAULT NOW(),
     registrado_por VARCHAR(16) NOT NULL DEFAULT 'system'
-) ENGINE=InnoDB;
+) ENGINE=InnoDB",
 
+];

@@ -104,7 +104,7 @@ body {
 .sch_nav {
     background: var(--color-secondary);
     color: var(--color-secondary-bg);
-    padding: 8px 20px;
+    padding: 0 20px;
     margin: 0;
 }
 
@@ -127,7 +127,19 @@ body {
 .sch_nav a:hover {
     background: rgba(255, 255, 255, 0.2);
 }
-
+/* --- SCH nav-menu-hint --- */
+#nav-menu-hint {
+    margin:0;
+    padding: 0 0 0 4em;
+    font-size: 0.85em; /* Smaller text */
+    font-style: italic;
+    text-align: left;
+    background: var(--color-secondary);
+    color: var(--color-tertiary-bg);
+}
+.sch_text_primary {
+    font-weight: bold;
+}
 .sch_section {
     background: var(--color-surface);
     padding: 20px;
@@ -345,3 +357,4 @@ body {
     background-color: rgba(255, 255, 255, 0.3);
     font-weight: bold;
 }
+

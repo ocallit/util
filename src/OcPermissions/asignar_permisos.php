@@ -1,4 +1,5 @@
 <?php
+require_once("inc/config.php");
 require_once("./nav.php");
 $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
 $toggleUrl = $isEditMode ? './asignar_permisos.php' : './asignar_permisos.php?mode=edit';
@@ -20,9 +21,6 @@ $bodyClass = $isEditMode ? '' : 'asig_readonly';
     <link rel="stylesheet" href="chip.css" />
 </head>
 <body class="<?= $bodyClass ?>">
-<header class="sch_header">
-    <h1>Usuarios, Roles y Permisos: Asignación</h1>
-</header>
 <?= renderNav() ?>
 
 <main class="asig_container">

@@ -13,8 +13,8 @@ class ocActividadManager {
         this.isEditMode = urlParams.get('mode') === 'edit';
         this.table = null;
         this.currentEditingActivity = null;
-        
-       // this.setupFetchOverride();
+
+        // this.setupFetchOverride();
         this.init();
     }
 
@@ -25,6 +25,8 @@ class ocActividadManager {
         this.setupTabulator();
         this.setupDialogs();
         this.setupAddButton();
+        this.setupSearch();
+        this.setupExport();
     }
 
     /**
@@ -156,7 +158,7 @@ class ocActividadManager {
      */
     mockGet(actividad_id) {
         const activity = window.mockActividades?.find(a => a.actividad_id === parseInt(actividad_id));
-        
+
         if (activity) {
             return {
                 success: true,
@@ -190,7 +192,7 @@ class ocActividadManager {
                     descripcion: data.descripcion,
                     permisos: data.permisos || window.mockActividades[index].permisos
                 };
-                
+
                 return {
                     success: true,
                     error: null,
@@ -208,9 +210,9 @@ class ocActividadManager {
                 registrado_por: 'current_user',
                 permisos: data.permisos || []
             };
-            
+
             window.mockActividades.push(newActivity);
-            
+
             return {
                 success: true,
                 error: null,
@@ -411,7 +413,7 @@ class ocActividadManager {
     setupDialogs() {
         this.editDialog = new ocActividadEditDialog(this);
 
-        
+
         // Initialize OcDialogDrag for both dialogs
         OcDialogDrag.initialize(document.getElementById('ocActividad_edit_dialog'));
         OcDialogDrag.initialize(document.getElementById('ocActividad_delete_dialog'));
@@ -427,6 +429,85 @@ class ocActividadManager {
                 this.openEditDialog(null);
             });
         }
+    }
+
+    /**
+     * Setup search functionality
+     */
+    setupSearch() {
+        const searchInput = document.getElementById('txtSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                if (!query) {
+                    this.table.clearFilter(true);
+                    return;
+                }
+                this.table.setFilter((data) => {
+                    return (data.actividad || '').toLowerCase().includes(query) ||
+                        (data.descripcion || '').toLowerCase().includes(query) ||
+                        (data.registrado_por || '').toLowerCase().includes(query) ||
+                        (data.permisos || []).some(p =>
+                            (p.permiso || '').toLowerCase().includes(query) ||
+                            (p.etiqueta || '').toLowerCase().includes(query)
+                        );
+                });
+            });
+        }
+    }
+
+    /**
+     * Setup export to CSV functionality
+     */
+    setupExport() {
+        const exportButton = document.getElementById('btnExport');
+        if (exportButton) {
+            exportButton.addEventListener('click', () => {
+                this.exportCSV();
+            });
+        }
+    }
+
+    /**
+     * Export grid data to CSV
+     */
+    exportCSV() {
+        const data = this.table.getData();
+        const rows = [
+            ['actividad_id', 'actividad', 'descripcion', 'permisos', 'registrado_el', 'registrado_por']
+        ];
+
+        data.forEach(row => {
+            const permisos = (row.permisos || [])
+                .map(p => p.etiqueta || p.permiso)
+                .join('; ');
+
+            rows.push([
+                row.actividad_id,
+                row.actividad,
+                row.descripcion || '',
+                permisos,
+                row.registrado_el || '',
+                row.registrado_por || ''
+            ]);
+        });
+
+        const csvContent = rows.map(row =>
+            row.map(cell => {
+                const value = String(cell == null ? '' : cell);
+                return /[",\r\n]/.test(value)
+                    ? '"' + value.replace(/"/g, '""') + '"'
+                    : value;
+            }).join(',')
+        ).join('\r\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'actividades_' + Date.now() + '.csv';
+        link.click();
+        URL.revokeObjectURL(url);
     }
 
     /**
@@ -561,7 +642,7 @@ class ocActividadEditDialog {
         this.currentActivity = null;
         this.isReadOnly = false;
         this.permissionsCounter = 0;
-        
+
         this.setupEventListeners();
     }
 
@@ -609,7 +690,7 @@ class ocActividadEditDialog {
         this.permissionsCounter = 0;
 
         // Update dialog title
-        const title = activityData 
+        const title = activityData
             ? (readOnly ? 'Ver Actividad' : 'Editar Actividad')
             : 'Nueva Actividad';
         document.getElementById('ocActividad_dialog_title').textContent = title;
@@ -619,7 +700,7 @@ class ocActividadEditDialog {
             document.getElementById('ocActividad_edit_id').textContent = activityData.actividad_id || '';
             document.getElementById('ocActividad_edit_actividad').value = activityData.actividad || '';
             document.getElementById('ocActividad_edit_descripcion').value = activityData.descripcion || '';
-            
+
             // Format registrado_el to show only date
             const registradoEl = activityData.registrado_el ? activityData.registrado_el.substring(0, 10) : '-';
             document.getElementById('ocActividad_edit_registrado_el').textContent = registradoEl;
@@ -634,7 +715,7 @@ class ocActividadEditDialog {
             document.getElementById('ocActividad_edit_descripcion').value = '';
             document.getElementById('ocActividad_edit_registrado_el').textContent = '-';
             document.getElementById('ocActividad_edit_registrado_por').textContent = '-';
-            
+
             this.loadPermissions([]);
         }
 
@@ -660,12 +741,12 @@ class ocActividadEditDialog {
         // Hide/show buttons
         document.getElementById('ocActividad_save_edit').style.display = readOnly ? 'none' : 'block';
         document.getElementById('ocActividad_add_permission').style.display = readOnly ? 'none' : 'inline-block';
-        
+
         // Hide/show macro buttons
         document.querySelectorAll('.ocActividad_macro_button').forEach(btn => {
             btn.style.display = readOnly ? 'none' : 'inline-block';
         });
-        
+
         const removeButtons = this.dialog.querySelectorAll('.ocActividad_remove_permission');
         removeButtons.forEach(btn => {
             btn.style.display = readOnly ? 'none' : 'flex';
@@ -690,7 +771,7 @@ class ocActividadEditDialog {
                     { permiso: `RO`, etiqueta: 'Consultar' },
                 ];
                 break;
-            
+
             case 'crud':
                 permissionsToAdd = [
                     { permiso: `Listar`, etiqueta: 'Listar' },
@@ -740,7 +821,7 @@ class ocActividadEditDialog {
 
     addPermissionToDOM(permission) {
         const container = document.getElementById('ocActividad_permissions_list');
-        
+
         // Remove empty state if exists
         const emptyState = container.querySelector('.ocActividad_empty_state');
         if (emptyState) {
@@ -748,11 +829,11 @@ class ocActividadEditDialog {
         }
 
         const permissionId = permission.actividad_permiso_id || `new_${this.permissionsCounter++}`;
-        
+
         const permissionDiv = document.createElement('div');
         permissionDiv.className = 'ocActividad_permission_item';
         permissionDiv.dataset.permissionId = permissionId;
-        
+
         const displayId = permission.actividad_permiso_id || 'N';
 
         permissionDiv.innerHTML = `
@@ -786,7 +867,7 @@ class ocActividadEditDialog {
         const removeBtn = permissionDiv.querySelector('.ocActividad_remove_permission');
         removeBtn.addEventListener('click', () => {
             permissionDiv.remove();
-            
+
             // Show empty state if no permissions left
             const remainingPermissions = container.querySelectorAll('.ocActividad_permission_item');
             if (remainingPermissions.length === 0) {
@@ -830,7 +911,7 @@ class ocActividadEditDialog {
     async save() {
         // Validate required fields
         const actividad = document.getElementById('ocActividad_edit_actividad').value.trim();
-        
+
         if (!actividad) {
             this.manager.showError('El campo Actividad es obligatorio');
             return;
@@ -850,7 +931,7 @@ class ocActividadEditDialog {
 
         // Save
         const success = await this.manager.saveActivity(activityData);
-        
+
         if (success) {
             this.close();
         }

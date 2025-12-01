@@ -14,7 +14,7 @@ declare(strict_types=1);
 use Ocallit\Sqler\SqlExecutor;
 use Ocallit\Sqler\QueryBuilder;
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../inc/config.php';
 global $SqlExecutor;
 
 
@@ -125,7 +125,7 @@ function listRoles(SqlExecutor $db): array
 function saveRole(SqlExecutor $db, array $input): array
 {
     $rol_id = isset($input['rol_id']) ? (int)$input['rol_id'] : 0;
-    $rol = trim($input['rol'] ?? '');
+    $rol = sTrim($input['rol'] ?? '');
     $descripcion = trim($input['descripcion'] ?? '');
     $usuarios = $input['usuarios'] ?? [];
 

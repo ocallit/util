@@ -10,7 +10,8 @@ declare(strict_types=1);
 use Ocallit\Sqler\SqlExecutor;
 use Ocallit\Sqler\QueryBuilder;
 
-require_once __DIR__ . '/config.php';
+
+require_once __DIR__ . '/../inc/config.php';
 global $SqlExecutor;
 
 header('Content-Type: application/json; charset=utf-8');
@@ -101,7 +102,7 @@ function listActividades(SqlExecutor $db): array {
  */
 function saveActividad(SqlExecutor $db, array $input): array {
     $actividad_id = isset($input['actividad_id']) ? (int)$input['actividad_id'] : 0;
-    $actividad = trim($input['actividad'] ?? '');
+    $actividad =  sTrim($input['actividad'] ?? '');
     $descripcion = trim($input['descripcion'] ?? '');
     $permisos = $input['permisos'] ?? [];
 
@@ -121,14 +122,14 @@ function saveActividad(SqlExecutor $db, array $input): array {
                   "actividad",
                    ['actividad' => $actividad,'descripcion' => $descripcion,],
                   ["actividad_id" => $actividad_id],
-                  "/*$sqlComment*/"
+//                  "/*$sqlComment*/"
                 );
                 $db->query($update['query'], $update['parameters']);
             } else {
                 $insert = $sqlBuilder->insert(
                   "actividad",
                   ['actividad' => $actividad,'descripcion' => $descripcion, 'registrado_por'=>$currentNick],
-                  comment: "/*$sqlComment*/"
+             //     comment: "/*$sqlComment*/"
                 );
                 $db->query($insert['query'], $insert['parameters']);
                 $actividad_id = (int)$db->last_insert_id();

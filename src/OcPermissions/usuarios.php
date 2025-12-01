@@ -1,5 +1,10 @@
 <?php
-    require_once("./nav.php");
+require_once("inc/config.php");
+require_once("./nav.php");
+$isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+$toggleUrl = $isEditMode ? './usuarios.php' : './usuarios.php?mode=edit';
+$toggleText = $isEditMode ? '👁️ Consultar' : '✏️ Editar';
+$bodyClass = $isEditMode ? '' : 'usuarios_readonly';
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,10 +18,7 @@
     <link rel="stylesheet" href="../OcDialog/OcDialog.css" />
     <link rel="stylesheet" href="./usuarios.css" />
 </head>
-<body>
-<header class="sch_header">
-    <h1>Usuarios, Roles y Permisos: Usuarios</h1>
-</header>
+<body class="<?= $bodyClass ?>">
 <?= renderNav() ?>
 <main class="usuarios_container">
     <div class="usuarios_toolbar">
@@ -24,8 +26,12 @@
             <label for="txtSearch">Buscar:</label>
             <input id="txtSearch" class="usuarios_input" type="search" placeholder="filtrar..." style="width: 30ch;" />
         </div>
-        <button id="btnNew" class="sch_button sch_button--save" style="display:none;">➕ Nuevo Usuario</button>
+        <?php if($isEditMode): ?>
+        <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo Usuario</button>
+        <?php endif; ?>
         <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
+        <!-- Mode Toggle Link -->
+        <a href="<?= $toggleUrl ?>"><?= $toggleText ?></a>
     </div>
 
     <div class="sch_grid_container">
@@ -174,15 +180,5 @@
 <script src="../OcDialog/OcDialogDrag.js"></script>
 <script src="./usuarios.js"></script>
 
-<script>
-    (function() {
-        var params = new URLSearchParams(window.location.search);
-        var isEditMode = params.get("mode") === "edit";
-        var btnNew = document.getElementById("btnNew");
-        var dlgEdit = document.getElementById("dlgEdit");
-        if (isEditMode && btnNew) btnNew.style.display = "";
-        if (isEditMode && dlgEdit) dlgEdit.style.display = "";
-    })();
-</script>
 </body>
 </html>
