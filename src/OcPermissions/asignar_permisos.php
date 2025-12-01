@@ -2,6 +2,15 @@
 require_once("inc/config.php");
 require_once("./nav.php");
 $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+global $gPuede;
+if(count($gPuede) === 1)
+    $isEditMode = $gPuede[0] === 'RW';
+if(!in_array('RW', $gPuede)) {
+    $isEditMode = false;
+    $puedeEditar = false;
+} else {
+    $puedeEditar = true;
+}
 $toggleUrl = $isEditMode ? './asignar_permisos.php' : './asignar_permisos.php?mode=edit';
 $toggleText = $isEditMode ? '👁️ Consultar' : '✏️ Editar';
 $bodyClass = $isEditMode ? '' : 'asig_readonly';
@@ -26,12 +35,12 @@ $bodyClass = $isEditMode ? '' : 'asig_readonly';
 <main class="asig_container">
     <div class="asig_toolbar">
         <div class="asig_left">
-            <?php if($isEditMode): ?>
-                <button id="btnNew" class="sch_button sch_button--save">➕ Asignar Permisos</button>
-            <?php endif; ?>
-            <label>Buscar:
+            <h2 style="margin:0;padding:0 1em 0 0;color:var(--color-primary)">Permisos</h2>
+            <div>
+            <label>Buscar:<br>
                 <input id="txtSearch" class="asig_input" type="search" placeholder="filtrar..." />
             </label>
+            </div>
         </div>
 
         <div class="asig_column_visibility">
@@ -45,8 +54,13 @@ $bodyClass = $isEditMode ? '' : 'asig_readonly';
         </div>
 
         <div class="asig_right">
+            <?php if($isEditMode): ?>
+                <button id="btnNew" class="sch_button sch_button--save" title="Dar permisos en una Actividad a un Rol">➕ Dar Permiso</button>
+            <?php endif; ?>
             <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ CSV</button>
-            <a href="<?= $toggleUrl ?>" class="sch_button sch_button--secondary" style="text-decoration:none; display:inline-block; line-height:1.2;"><?= $toggleText ?></a>
+            <?php if($puedeEditar) { ?>
+                <a href="<?= $toggleUrl ?>" ><?=$toggleText?></a>
+            <?php } ?>
         </div>
     </div>
 

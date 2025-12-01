@@ -2,6 +2,15 @@
 require_once("inc/config.php");
 require_once("./nav.php");
 $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+global $gPuede;
+if(count($gPuede) === 1)
+    $isEditMode = $gPuede[0] === 'RW';
+if(!in_array('RW', $gPuede)) {
+    $isEditMode = false;
+    $puedeEditar = false;
+} else {
+    $puedeEditar = true;
+}
 $toggleUrl = $isEditMode ? './actividad.php' : './actividad.php?mode=edit';
 $toggleText = !$isEditMode ? '✏️ Edita' : '👁️Consulta';
 $bodyClass = $isEditMode ? '' : 'ocActividad_readonly';
@@ -231,17 +240,21 @@ $bodyClass = $isEditMode ? '' : 'ocActividad_readonly';
 <main class="ocActividad_main_container">
     <!-- Toolbar -->
     <div class="ocActividad_toolbar">
-        <div class="ocActividad_toolbar_left">
-            <label for="txtSearch">Buscar:</label>
+        <div class="ocActividad_toolbar_left" style="vertical-align: top">
+            <h2 style="margin:0;padding:0 1em 0 0;color:var(--color-primary)">Actividades</h2>
+            <div>
+            <label for="txtSearch">Buscar:</label><br>
             <input id="txtSearch" class="ocActividad_input" type="search" placeholder="filtrar..." style="width: 30ch;" />
+            </div>
         </div>
         <div class="ocActividad_toolbar_right">
             <?php if($isEditMode): ?>
                 <button class="sch_button sch_button--save ocActividad_add_button" id="ocActividad_add_button">➕ Nueva Actividad</button>
             <?php endif; ?>
             <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
-            <!-- Mode Toggle Link -->
-            <a href="<?= $toggleUrl ?>" id="ocActividad_mode_toggle"><?=$toggleText?></a>
+            <?php if($puedeEditar) { ?>
+                <a href="<?= $toggleUrl ?>" ><?=$toggleText?></a>
+            <?php } ?>
         </div>
     </div>
     <!-- Tabulator Grid Container -->

@@ -2,6 +2,15 @@
 require_once("inc/config.php");
 require_once("./nav.php");
 $isEditMode = isset($_GET['mode']) && $_GET['mode'] === 'edit';
+global $gPuede;
+if(count($gPuede) === 1)
+    $isEditMode = $gPuede[0] === 'RW';
+if(!in_array('RW', $gPuede)) {
+    $isEditMode = false;
+    $puedeEditar = false;
+} else {
+    $puedeEditar = true;
+}
 $toggleUrl = $isEditMode ? './roles.php' : './roles.php?mode=edit';
 $toggleText = $isEditMode ? '👁️ Consultar' : '✏️ Editar';
 $bodyClass = $isEditMode ? '' : 'roles_readonly';
@@ -24,17 +33,21 @@ $bodyClass = $isEditMode ? '' : 'roles_readonly';
 <main class="roles_container">
     <div class="roles_toolbar">
         <div class="roles_left">
-            <?php if($isEditMode): ?>
-            <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo Rol</button>
-            <?php endif; ?>
-            <label>Buscar:
+            <h2 style="margin:0;padding:0 1em 0 0;color:var(--color-primary)">Roles</h2>
+            <div>
+                <label>Buscar:</label><br>
                 <input id="txtSearch" class="roles_input" type="search" placeholder="filtrar…" />
-            </label>
+            </div>
         </div>
+
         <div class="roles_right">
+            <?php if($puedeEditar && $isEditMode): ?>
+                <button id="btnNew" class="sch_button sch_button--save">➕ Nuevo Rol</button>
+            <?php endif; ?>
             <button id="btnExport" class="sch_button sch_button--execute" title="Exportar CSV">⬇️ Exportar CSV</button>
-            <!-- Mode Toggle Link -->
+            <?php if($puedeEditar) { ?>
             <a href="<?= $toggleUrl ?>" ><?=$toggleText?></a>
+            <?php } ?>
         </div>
     </div>
 
