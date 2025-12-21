@@ -1,0 +1,222 @@
+/* File: asignar_permisos.css */
+
+/* Nav active */
+.ocAsignar_nav_active {
+    background: rgba(255,255,255,.3);
+    border-radius: 4px;
+}
+
+/* Layout */
+.asig_container { padding: 10px; max-width: 100%; }
+
+.asig_toolbar {
+    display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    background: var(--color-surface, #fff); border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px; padding: 8px; box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+    flex-wrap: wrap;
+}
+
+.asig_left, .asig_right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.asig_input {
+    border: 1px solid var(--color-border, #d0d5dd);
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #111827);
+    border-radius: 4px; padding: 6px 8px; min-width: 200px;
+}
+
+/* Column visibility controls */
+.asig_column_visibility {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--color-neutral-bg, #f9fafb);
+    border-radius: 4px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    font-size: 0.9rem;
+}
+
+.asig_column_visibility input[type="checkbox"] {
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+.asig_column_visibility input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.asig_column_visibility label {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Grid Shell */
+#gridAssign {
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px; box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+    overflow: clip;
+}
+
+/* Tabulator tweaks */
+.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input,
+.tabulator .tabulator-header .tabulator-col .tabulator-header-filter select {
+    width: 100%; border: 1px solid var(--color-border, #d0d5dd); border-radius: 4px; padding: 4px 6px;
+    background: var(--color-surface, #fff);
+}
+
+.tabulator .tabulator-row:hover { background: var(--color-info-bg, #eef6ff) !important; }
+.tabulator .tabulator-cell.cell-chips {
+    white-space: normal;
+    line-height: 1.9;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Chips */
+.chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    margin: 2px 4px 2px 0;
+    font-size: .9rem;
+    background: var(--color-neutral-bg, #f3f4f6);
+    user-select: none;
+}
+
+.chip.ok {
+    background: var(--color-success-bg, #e6f7ed);
+    border-color: #b7ebc6;
+    color: #0f5132;
+}
+
+.chip.missing {
+    background: var(--color-neutral-bg, #f3f4f6);
+    border-color: var(--color-border, #d0d5dd);
+    color: var(--color-text-light, #6b7280);
+    opacity: .95;
+}
+
+/* Clickable chips in edit mode */
+.chip.clickable-chip {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chip.clickable-chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chip.clickable-chip:active {
+    transform: translateY(0);
+}
+
+.chip.clickable-chip.ok:hover {
+    background: #d4f0dd;
+    border-color: #9fd9b0;
+}
+
+.chip.clickable-chip.missing:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+/* Buttons in grid */
+.btn-icon {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #111827);
+    cursor: pointer;
+}
+.btn-icon:hover { filter: brightness(.97); }
+
+/* Dialog sections */
+.ocAsignar_section {
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.ocAsignar_perm_list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+.ocAsignar_perm_item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 6px;
+    background: var(--color-neutral-bg, #f9fafb);
+}
+.ocAsignar_perm_item:hover {
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(16,24,40,.06));
+    border-color: var(--color-secondary, #64748b);
+}
+
+.ocAsignar_perm_code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: var(--color-text-light, #6b7280);
+    font-size: .85rem;
+}
+
+.ocAsignar_hint {
+    color: var(--color-text-light, #6b7280);
+}
+
+/* Fixed width for Tom Select controls (so they don't move around) */
+.fixed-select { width: 240px; }
+.fixed-select .ts-wrapper, .fixed-select .ts-control { width: 100%; }
+
+/* Small blue circled "i" used in Rol/Actividad cells */
+.info-badge {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    border: 1px solid var(--color-info, #3b82f6);
+    color: var(--color-info, #3b82f6);
+    background: var(--color-info-bg, #eef6ff);
+    cursor: pointer;
+    user-select: none;
+}
+.info-badge:hover { filter: brightness(.97); }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .asig_toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .asig_left,
+    .asig_right,
+    .asig_column_visibility {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .asig_input {
+        flex: 1;
+        min-width: 0;
+    }
+}
