@@ -1,10 +1,15 @@
 <?php
-use ocallit\Util\Pwder;
+use Ocallit\Util\Pwder;
 use Ocallit\Sqler\SqlExecutor;
 
-require_once __DIR__ . '/../inc/config.php';
-require_once __DIR__ . '/../inc/Pwder.php';
-global $gSqlExecutor;
+require_once __DIR__ . '/../../inc/config.php';
+// Pwder is in src/Pwder.php, so we need to include it correctly or rely on autoload if configured.
+// Since composer.json has autoload for "ocallit\\Util\\" -> "src/", it should be available.
+// However, the existing code had require_once 'inc/Pwder.php'.
+// In the repo root, Pwder is in src/Pwder.php.
+// The config.php includes vendor/autoload.php.
+// So we should use the namespace.
+global $SqlExecutor;
 
 $error = '';
 $success = '';
@@ -16,7 +21,7 @@ if (empty($token)) {
 
 // Verify token
 $query = "SELECT usuario_id, reset_token_expira FROM usuario WHERE reset_token = ? AND estatus = 'Puede Login'";
-$user = $gSqlExecutor->row($query, [$token]);
+$user = $SqlExecutor->row($query, [$token]);
 
 if (!$user) {
     $error = 'El enlace de recuperación es inválido o ya ha sido utilizado.';
@@ -36,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
         $error = 'La contraseña debe tener al menos 6 caracteres.';
     } else {
         // Update password
-        $pwder = new Pwder($gSqlExecutor, 'usuario', 'usuario_id', 'password');
+        $pwder = new Pwder($SqlExecutor, 'usuario', 'usuario_id', 'password');
         if ($pwder->update($user['usuario_id'], $password)) {
             // Clear token
-            $gSqlExecutor->query("UPDATE usuario SET reset_token = NULL, reset_token_expira = NULL WHERE usuario_id = ?", [$user['usuario_id']]);
+            $SqlExecutor->query("UPDATE usuario SET reset_token = NULL, reset_token_expira = NULL WHERE usuario_id = ?", [$user['usuario_id']]);
             $success = 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.';
         } else {
             $error = 'Error al actualizar la contraseña.';
@@ -71,11 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
             text-align: center;
-        }
-
-        .logo {
-            max-width: 200px;
-            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -136,7 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
 </head>
 <body>
     <div class="login-container">
-        <!-- <img src="../logos/logo.png" alt="Logo" class="logo"> -->
         <h1>Restablecer Contraseña</h1>
 
         <?php if (!empty($error)): ?>

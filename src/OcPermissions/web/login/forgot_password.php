@@ -3,8 +3,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use Ocallit\Sqler\SqlExecutor;
 
-require_once __DIR__ . '/../inc/config.php';
-global $gSqlExecutor;
+require_once __DIR__ . '/../../inc/config.php';
+global $SqlExecutor;
 
 $error = '';
 $success = '';
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Check if email exists
         $query = "SELECT usuario_id, email, nombre FROM usuario WHERE email = ? AND estatus = 'Puede Login' LIMIT 1";
-        $user = $gSqlExecutor->row($query, [$email]);
+        $user = $SqlExecutor->row($query, [$email]);
 
         if ($user) {
             // Generate token
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Store token in DB
             $updateQuery = "UPDATE usuario SET reset_token = ?, reset_token_expira = ? WHERE usuario_id = ?";
-            $gSqlExecutor->query($updateQuery, [$token, $expiry, $user['usuario_id']]);
+            $SqlExecutor->query($updateQuery, [$token, $expiry, $user['usuario_id']]);
 
             // Send email
             $mail = new PHPMailer(true);
@@ -39,21 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $path = dirname($_SERVER['PHP_SELF']); // e.g., /OcPermissions/web/login
                 $resetLink = $protocol . $host . $path . "/reset_password.php?token=" . $token;
 
-                // Server settings
-                // Note: You should configure these settings in config.php or environment variables
-                // For now, we assume mail() works or SMTP is configured globally/in config.
-                // If using SMTP, uncomment and configure below:
-                /*
-                $mail->isSMTP();
-                $mail->Host       = 'smtp.example.com';
-                $mail->SMTPAuth   = true;
-                $mail->Username   = 'user@example.com';
-                $mail->Password   = 'secret';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                $mail->Port       = 465;
-                */
-
-                $mail->setFrom('noreply@' . $host, 'Soporte Diso Wedding');
+                $mail->setFrom('noreply@' . $host, 'Soporte');
                 $mail->addAddress($email, $user['nombre']);
 
                 $mail->isHTML(true);
@@ -69,11 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "No se pudo enviar el correo. Error: {$mail->ErrorInfo}";
             }
         } else {
-            // For security, don't reveal if user exists or not, but for now we might give a generic message
-            // or we can say "If an account with that email exists, we sent a link."
-            // But let's follow the standard pattern of showing success even if not found to prevent enumeration,
-            // OR just show "Email no encontrado" if internal app. Assuming internal app based on context.
-            // Let's go with "Si el correo existe..." for security.
              header("Location: password_reset_sent.php");
              exit;
         }
@@ -104,11 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
             text-align: center;
-        }
-
-        .logo {
-            max-width: 200px;
-            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -167,7 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="login-container">
-        <!-- <img src="../logos/logo.png" alt="Logo" class="logo"> -->
         <h1>Recuperar Contraseña</h1>
 
         <?php if (!empty($error)): ?>
